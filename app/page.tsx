@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Utensils, ScanLine, ChefHat, Leaf, Clock, Users } from "lucide-react";
@@ -27,25 +28,72 @@ export default function Home() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="py-20 bg-gradient-to-br from-green-50 to-blue-50">
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-800 mb-6">
-              Generator Resep dari Sisa Bahan
-            </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              Kurangi limbah makanan dengan menghasilkan resep kreatif berdasarkan bahan yang tersisa di kulkas. Hemat uang, jaga lingkungan!
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/register">
-                <Button size="lg" className="text-lg px-8 py-6">
-                  <ChefHat className="mr-2 h-5 w-5" />
-                  Mulai Generate Resep
-                </Button>
-              </Link>
-              <Link href="#features">
-                <Button variant="outline" size="lg" className="text-lg px-8 py-6">
-                  Pelajari Lebih Lanjut
-                </Button>
-              </Link>
+          <div className="container mx-auto px-4">
+            <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+              <div className="text-center lg:text-left">
+                <div className="inline-flex items-center gap-2 rounded-full border bg-white/70 px-4 py-2 text-sm text-gray-700 shadow-sm">
+                  <span className="inline-block h-2 w-2 rounded-full bg-primary" />
+                  Baru: scan barcode + reminder kadaluarsa
+                </div>
+                <h1 className="text-4xl md:text-6xl font-bold text-gray-800 mt-6 mb-6">
+                  Generator Resep dari Sisa Bahan
+                </h1>
+                <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto lg:mx-0">
+                  Kurangi limbah makanan dengan menghasilkan resep kreatif berdasarkan bahan yang tersisa di kulkas. Hemat uang, jaga lingkungan!
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                  <Link href="/register">
+                    <Button size="lg" className="text-lg px-8 py-6">
+                      <ChefHat className="mr-2 h-5 w-5" />
+                      Mulai Generate Resep
+                    </Button>
+                  </Link>
+                  <Link href="#features">
+                    <Button variant="outline" size="lg" className="text-lg px-8 py-6">
+                      Pelajari Lebih Lanjut
+                    </Button>
+                  </Link>
+                </div>
+                <div className="mt-10 grid grid-cols-3 gap-6 text-left max-w-xl mx-auto lg:mx-0">
+                  <div>
+                    <div className="text-2xl font-bold text-gray-900">3–5</div>
+                    <div className="text-sm text-gray-600">resep per sekali generate</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-gray-900">&lt; 30s</div>
+                    <div className="text-sm text-gray-600">waktu dapat ide masak</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-gray-900">Gratis</div>
+                    <div className="text-sm text-gray-600">mulai tanpa kartu</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative">
+                <div className="relative overflow-hidden rounded-2xl border bg-white/70 shadow-sm">
+                  <div className="relative h-[320px] sm:h-[380px] lg:h-[420px]">
+                    <Image
+                      src="/landing/hero-illustration.svg"
+                      alt="Ilustrasi kulkas dan bahan"
+                      fill
+                      priority
+                      className="object-cover"
+                    />
+                  </div>
+                </div>
+                <div className="absolute -bottom-6 left-6 right-6 rounded-xl border bg-white p-4 shadow-sm">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <div className="text-sm text-gray-600">Ide cepat untuk bahan tersisa</div>
+                      <div className="font-semibold text-gray-900">Telur • Sayur • Ayam</div>
+                    </div>
+                    <Link href="/register">
+                      <Button size="sm">Coba Sekarang</Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -70,6 +118,89 @@ export default function Home() {
                 <div className="text-3xl font-bold text-primary mb-2">4.8/5</div>
                 <div className="text-gray-600">Rating Pengguna</div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-16 bg-white border-b">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+              <div>
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-800">Promo & Inspirasi</h2>
+                <p className="text-gray-600">Tambahkan slot banner iklan, promo, atau campaign supaya landing page lebih menarik.</p>
+              </div>
+              <Link href="/register">
+                <Button variant="outline">Pasang CTA</Button>
+              </Link>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              <Card className="overflow-hidden">
+                <div className="relative h-44 w-full bg-gradient-to-br from-green-100 to-blue-100">
+                  <Image
+                    src="/landing/promo-banner.svg"
+                    alt="Banner promo"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <CardHeader>
+                  <CardTitle className="text-xl">Campaign: Zero Waste 7 Hari</CardTitle>
+                  <CardDescription>
+                    Tantang diri Anda untuk menghabiskan bahan sebelum kadaluarsa dengan reminder otomatis.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Link href="/register">
+                    <Button className="w-full">Ikuti Campaign</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              <Card className="overflow-hidden">
+                <div className="relative h-44 w-full bg-gradient-to-br from-orange-100 to-rose-100">
+                  <Image
+                    src="/landing/recipe-preview.svg"
+                    alt="Preview resep"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <CardHeader>
+                  <CardTitle className="text-xl">Rekomendasi Resep Harian</CardTitle>
+                  <CardDescription>
+                    Munculkan ide masak yang relevan dengan stok Anda: cepat, hemat, dan minim limbah.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Link href="#features">
+                    <Button variant="outline" className="w-full">Lihat Fitur</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              <Card className="overflow-hidden">
+                <div className="relative h-44 w-full bg-gradient-to-br from-slate-100 to-indigo-100">
+                  <div className="h-full w-full flex items-center justify-center px-6 text-center">
+                    <div>
+                      <div className="text-sm text-gray-600">Slot Iklan</div>
+                      <div className="text-xl font-semibold text-gray-900">Banner Sponsor / Partner</div>
+                      <div className="text-sm text-gray-600 mt-1">Ganti dengan gambar produk/brand Anda</div>
+                    </div>
+                  </div>
+                </div>
+                <CardHeader>
+                  <CardTitle className="text-xl">Ruang untuk Promosi</CardTitle>
+                  <CardDescription>
+                    Tempatkan promo produk dapur, voucher belanja, atau kolaborasi komunitas.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Link href="/contact">
+                    <Button variant="secondary" className="w-full">Hubungi Kami</Button>
+                  </Link>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </section>

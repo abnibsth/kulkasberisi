@@ -4,8 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "predev": "powershell -NoProfile -Command \"New-Item -ItemType Directory -Force .next\\server | Out-Null; if (-not (Test-Path .next\\server\\middleware-manifest.json)) { Set-Content -Encoding utf8 .next\\server\\middleware-manifest.json '{}' }\"",
+    "clean": "powershell -NoProfile -Command \"if (Test-Path .next) { Remove-Item -Recurse -Force .next }\"",
     "build": "next build",
+    "postbuild": "powershell -NoProfile -Command \"New-Item -ItemType Directory -Force .next\\server | Out-Null; if (-not (Test-Path .next\\server\\middleware-manifest.json)) { Set-Content -Encoding utf8 .next\\server\\middleware-manifest.json '{}' }\"",
     "start": "next start",
+    "prestart": "powershell -NoProfile -Command \"New-Item -ItemType Directory -Force .next\\server | Out-Null; if (-not (Test-Path .next\\server\\middleware-manifest.json)) { Set-Content -Encoding utf8 .next\\server\\middleware-manifest.json '{}' }\"",
     "lint": "eslint"
   },
   "dependencies": {
@@ -14,6 +18,7 @@
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-select": "^2.1.2",
     "@radix-ui/react-slot": "^1.1.0",
+    "@supabase/supabase-js": "^2.105.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.454.0",
