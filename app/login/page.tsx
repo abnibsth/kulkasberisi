@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Utensils } from "lucide-react";
+import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -19,22 +19,40 @@ export default function LoginPage() {
     password: "",
   });
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const supabase = getSupabaseBrowserClient();
+      const { data } = await supabase.auth.getSession();
+      if (!cancelled && data.session) {
+        router.replace("/dashboard");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
-    const result = await signIn("credentials", {
-      email: formData.email,
-      password: formData.password,
-      redirect: false,
-    });
-
-    if (result?.error) {
-      setError("Login gagal. Periksa email dan password Anda.");
-      setIsLoading(false);
-    } else {
+    try {
+      const supabase = getSupabaseBrowserClient();
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      });
+      if (signInError) {
+        setError(signInError.message);
+        setIsLoading(false);
+        return;
+      }
       router.push("/dashboard");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login gagal");
+      setIsLoading(false);
     }
   };
 

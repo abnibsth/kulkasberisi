@@ -1,19 +1,26 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Utensils } from "lucide-react";
+import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 export default function RegisterPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -21,10 +28,25 @@ export default function RegisterPage() {
     confirmPassword: "",
   });
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const supabase = getSupabaseBrowserClient();
+      const { data } = await supabase.auth.getSession();
+      if (!cancelled && data.session) {
+        router.replace("/dashboard");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
+    setSuccess("");
 
     if (formData.password !== formData.confirmPassword) {
       setError("Password tidak cocok");
@@ -38,18 +60,36 @@ export default function RegisterPage() {
       return;
     }
 
-    // For MVP: register = auto login
-    const result = await signIn("credentials", {
-      email: formData.email,
-      password: formData.password,
-      redirect: false,
-    });
+    try {
+      const supabase = getSupabaseBrowserClient();
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            name: formData.name || undefined,
+          },
+        },
+      });
 
-    if (result?.error) {
-      setError("Registrasi gagal");
+      if (signUpError) {
+        setError(signUpError.message);
+        setIsLoading(false);
+        return;
+      }
+
+      if (data.session) {
+        router.push("/dashboard");
+        return;
+      }
+
+      setSuccess(
+        "Registrasi berhasil. Silakan cek email untuk verifikasi, lalu login.",
+      );
       setIsLoading(false);
-    } else {
-      router.push("/dashboard");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Registrasi gagal");
+      setIsLoading(false);
     }
   };
 
@@ -80,6 +120,11 @@ export default function RegisterPage() {
             {error && (
               <div className="p-3 bg-destructive/10 text-destructive text-sm rounded-md">
                 {error}
+              </div>
+            )}
+            {success && (
+              <div className="p-3 bg-primary/10 text-primary text-sm rounded-md">
+                {success}
               </div>
             )}
 
@@ -128,7 +173,10 @@ export default function RegisterPage() {
                   type="password"
                   value={formData.confirmPassword}
                   onChange={(e) =>
-                    setFormData({ ...formData, confirmPassword: e.target.value })
+                    setFormData({
+                      ...formData,
+                      confirmPassword: e.target.value,
+                    })
                   }
                   required
                 />

@@ -74,10 +74,11 @@ export default function Home() {
                 <div className="relative overflow-hidden rounded-2xl border bg-white/70 shadow-sm">
                   <div className="relative h-[320px] sm:h-[380px] lg:h-[420px]">
                     <Image
-                      src="/landing/hero-illustration.svg"
-                      alt="Ilustrasi kulkas dan bahan"
+                      src="https://images.unsplash.com/photo-1543353071-873f17a7a088?auto=format&fit=crop&w=1600&q=80"
+                      alt="Bahan makanan segar"
                       fill
                       priority
+                      sizes="(max-width: 1024px) 100vw, 50vw"
                       className="object-cover"
                     />
                   </div>
@@ -138,9 +139,10 @@ export default function Home() {
               <Card className="overflow-hidden">
                 <div className="relative h-44 w-full bg-gradient-to-br from-green-100 to-blue-100">
                   <Image
-                    src="/landing/promo-banner.svg"
-                    alt="Banner promo"
+                    src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1600&q=80"
+                    alt="Sayur dan buah segar"
                     fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover"
                   />
                 </div>
@@ -160,9 +162,10 @@ export default function Home() {
               <Card className="overflow-hidden">
                 <div className="relative h-44 w-full bg-gradient-to-br from-orange-100 to-rose-100">
                   <Image
-                    src="/landing/recipe-preview.svg"
-                    alt="Preview resep"
+                    src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=1600&q=80"
+                    alt="Hidangan makanan fresh"
                     fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover"
                   />
                 </div>
@@ -181,11 +184,19 @@ export default function Home() {
 
               <Card className="overflow-hidden">
                 <div className="relative h-44 w-full bg-gradient-to-br from-slate-100 to-indigo-100">
+                  <Image
+                    src="https://images.unsplash.com/photo-1583394293214-28ded15ee548?auto=format&fit=crop&w=1600&q=80"
+                    alt="Produk dapur untuk promosi"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/35" />
                   <div className="h-full w-full flex items-center justify-center px-6 text-center">
                     <div>
-                      <div className="text-sm text-gray-600">Slot Iklan</div>
-                      <div className="text-xl font-semibold text-gray-900">Banner Sponsor / Partner</div>
-                      <div className="text-sm text-gray-600 mt-1">Ganti dengan gambar produk/brand Anda</div>
+                      <div className="text-sm text-white/90">Slot Iklan</div>
+                      <div className="text-xl font-semibold text-white">Banner Sponsor / Partner</div>
+                      <div className="text-sm text-white/85 mt-1">Ganti dengan gambar produk/brand Anda</div>
                     </div>
                   </div>
                 </div>

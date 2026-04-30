@@ -16,3 +16,14 @@ export function getSupabaseServerAdminClient() {
     },
   });
 }
+
+export async function getSupabaseUserIdFromRequest(request: Request) {
+  const header = request.headers.get("authorization") || request.headers.get("Authorization");
+  const token = header?.startsWith("Bearer ") ? header.slice("Bearer ".length).trim() : null;
+  if (!token) return null;
+
+  const supabase = getSupabaseServerAdminClient();
+  const { data, error } = await supabase.auth.getUser(token);
+  if (error || !data.user) return null;
+  return data.user.id;
+}
