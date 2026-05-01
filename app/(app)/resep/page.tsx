@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { useAppStore, Recipe } from "@/lib/store";
 import { Button } from "@/components/ui/button";
@@ -26,10 +26,14 @@ function isRecipeUrgent(recipe: Recipe, urgentIngredients: string[]) {
 
 export default function ResepPage() {
   const router = useRouter();
-  const { ingredients, loadIngredients, generatedRecipes, savedRecipes, saveRecipe, removeSavedRecipe } = useAppStore();
+  const searchParams = useSearchParams();
+  const { ingredients, loadIngredients, loadSavedRecipes, generatedRecipes, savedRecipes, saveRecipe, removeSavedRecipe } = useAppStore();
   const [query, setQuery] = useState("");
   const [difficulty, setDifficulty] = useState<"" | "easy" | "medium" | "hard">("");
-  const [tab, setTab] = useState<"all" | "favorites">("all");
+  const [tab, setTab] = useState<"all" | "favorites">(
+    searchParams.get("tab") === "favorites" ? "favorites" : "all",
+  );
+  const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -42,6 +46,7 @@ export default function ResepPage() {
       }
       try {
         await loadIngredients();
+        await loadSavedRecipes();
       } catch {
         if (!cancelled) {
           // ignore
@@ -51,7 +56,12 @@ export default function ResepPage() {
     return () => {
       cancelled = true;
     };
-  }, [loadIngredients, router]);
+  }, [loadIngredients, loadSavedRecipes, router]);
+
+  useEffect(() => {
+    const nextTab = searchParams.get("tab") === "favorites" ? "favorites" : "all";
+    setTab(nextTab);
+  }, [searchParams]);
 
   const urgentIngredientNames = useMemo(() => {
     return ingredients
@@ -63,7 +73,13 @@ export default function ResepPage() {
   }, [ingredients]);
 
   const recipeList = useMemo(() => {
-    const base = tab === "favorites" ? savedRecipes : generatedRecipes;
+    const base =
+      tab === "favorites"
+        ? savedRecipes
+        : [
+            ...savedRecipes,
+            ...generatedRecipes.filter((r) => !savedRecipes.some((s) => s.id === r.id)),
+          ];
     const normalized = query.trim().toLowerCase();
     return base
       .filter((r) => {
@@ -92,6 +108,12 @@ export default function ResepPage() {
           <Button variant="secondary">Generate</Button>
         </Link>
       </div>
+
+      {actionError && (
+        <Card className="border-destructive/50">
+          <CardContent className="py-4 text-sm text-destructive">{actionError}</CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardContent className="py-4 space-y-3">
@@ -160,10 +182,15 @@ export default function ResepPage() {
                       variant="ghost"
                       size="icon"
                       className={fav ? "text-red-500" : "text-muted-foreground"}
-                      onClick={() => {
+                      onClick={async () => {
+                        setActionError(null);
                         if (!recipe.id) return;
-                        if (fav) removeSavedRecipe(recipe.id);
-                        else saveRecipe(recipe);
+                        try {
+                          if (fav) await removeSavedRecipe(recipe.id);
+                          else await saveRecipe(recipe);
+                        } catch (e) {
+                          setActionError(e instanceof Error ? e.message : "Gagal memperbarui favorit");
+                        }
                       }}
                     >
                       <Heart className="h-5 w-5" />

@@ -3,8 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "predev": "powershell -NoProfile -Command \"New-Item -ItemType Directory -Force .next\\server | Out-Null; if (-not (Test-Path .next\\server\\middleware-manifest.json)) { Set-Content -Encoding utf8 .next\\server\\middleware-manifest.json '{}' }\"",
+    "dev": "npm run clean && powershell -NoProfile -Command \"New-Item -ItemType Directory -Force .next\\server | Out-Null; if (-not (Test-Path .next\\server\\middleware-manifest.json)) { Set-Content -Encoding utf8 .next\\server\\middleware-manifest.json '{}' }\" && next dev",
     "clean": "powershell -NoProfile -Command \"if (Test-Path .next) { Remove-Item -Recurse -Force .next }\"",
     "build": "next build",
     "postbuild": "powershell -NoProfile -Command \"New-Item -ItemType Directory -Force .next\\server | Out-Null; if (-not (Test-Path .next\\server\\middleware-manifest.json)) { Set-Content -Encoding utf8 .next\\server\\middleware-manifest.json '{}' }\"",

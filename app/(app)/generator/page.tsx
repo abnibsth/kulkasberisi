@@ -40,6 +40,8 @@ export default function GeneratorPage() {
     vegetarian: false,
     halal: true,
   });
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [savingRecipeId, setSavingRecipeId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -91,7 +93,19 @@ export default function GeneratorPage() {
   };
 
   const handleSaveRecipe = (recipe: Recipe) => {
-    saveRecipe(recipe);
+    (async () => {
+      setSaveError(null);
+      const recipeId = recipe.id || crypto.randomUUID();
+      setSavingRecipeId(recipeId);
+      try {
+        await saveRecipe({ ...recipe, id: recipeId });
+        router.push("/resep?tab=favorites");
+      } catch (e) {
+        setSaveError(e instanceof Error ? e.message : "Gagal menyimpan resep");
+      } finally {
+        setSavingRecipeId(null);
+      }
+    })();
   };
 
   const handleShare = async (recipe: Recipe) => {
@@ -213,6 +227,11 @@ export default function GeneratorPage() {
         </Card>
       ) : (
         <div className="grid md:grid-cols-2 gap-6">
+          {saveError && (
+            <Card className="md:col-span-2 border-destructive/50">
+              <CardContent className="py-4 text-sm text-destructive">{saveError}</CardContent>
+            </Card>
+          )}
           {generatedRecipes.map((recipe, index) => (
             <Card key={index} className="flex flex-col">
               <CardHeader>
@@ -281,9 +300,14 @@ export default function GeneratorPage() {
                 </div>
 
                 <div className="flex gap-2 mt-6">
-                  <Button variant="outline" size="sm" onClick={() => handleSaveRecipe(recipe)}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleSaveRecipe(recipe)}
+                    disabled={savingRecipeId === recipe.id}
+                  >
                     <Bookmark className="mr-2 h-4 w-4" />
-                    Simpan
+                    {savingRecipeId === recipe.id ? "Menyimpan..." : "Simpan"}
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => handleShare(recipe)}>
                     <Share2 className="mr-2 h-4 w-4" />

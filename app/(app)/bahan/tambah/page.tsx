@@ -3,12 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { getSupabaseBrowserClientOrNull, getSupabaseBrowserConfigError } from "@/lib/supabase/browser";
 import { useAppStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { INGREDIENT_CATEGORIES, IngredientCategoryLabel } from "@/components/ingredients/category";
 import {
   Select,
   SelectContent,
@@ -17,17 +18,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const CATEGORIES = [
-  "sayur",
-  "buah",
-  "protein",
-  "dairy",
-  "bumbu",
-  "karbohidrat",
-  "minuman",
-  "lainnya",
-] as const;
-
 const UNITS = ["gram", "kg", "ml", "liter", "buah", "pcs", "bungkus", "kaleng", "botol"] as const;
 
 export default function TambahBahanPage() {
@@ -35,6 +25,8 @@ export default function TambahBahanPage() {
   const { addIngredient } = useAppStore();
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSuggestingExpiry, setIsSuggestingExpiry] = useState(false);
+  const [expiryHint, setExpiryHint] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: "",
     category: "lainnya",
@@ -48,11 +40,13 @@ export default function TambahBahanPage() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const supabase = getSupabaseBrowserClient();
-      const { data } = await supabase.auth.getSession();
-      if (!cancelled && !data.session) {
-        router.replace("/login");
+      const supabase = getSupabaseBrowserClientOrNull();
+      if (!supabase) {
+        if (!cancelled) setError(getSupabaseBrowserConfigError());
+        return;
       }
+      const { data } = await supabase.auth.getSession();
+      if (!cancelled && !data.session) router.replace("/login");
     })();
     return () => {
       cancelled = true;
@@ -71,6 +65,7 @@ export default function TambahBahanPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setExpiryHint(null);
 
     if (!expiryIsValid) {
       setError("Tanggal kadaluarsa harus lebih besar dari hari ini.");
@@ -93,6 +88,41 @@ export default function TambahBahanPage() {
       setError(err instanceof Error ? err.message : "Gagal menyimpan bahan");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleSuggestExpiry = async () => {
+    setError(null);
+    setExpiryHint(null);
+    if (!form.name.trim()) {
+      setError("Isi nama bahan terlebih dahulu untuk prediksi kadaluarsa.");
+      return;
+    }
+    setIsSuggestingExpiry(true);
+    try {
+      const res = await fetch("/api/expiry/suggest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          category: form.category,
+          purchaseDate: form.purchaseDate || undefined,
+          notes: form.notes || undefined,
+        }),
+      });
+      const payload = (await res.json().catch(() => null)) as
+        | { expiryDate?: string; method?: string; rationale?: string; minDays?: number; maxDays?: number; error?: string }
+        | null;
+      if (!res.ok) throw new Error(payload?.error || "Gagal memprediksi kadaluarsa");
+      if (!payload?.expiryDate) throw new Error("Response tidak valid");
+      setForm((prev) => ({ ...prev, expiryDate: payload.expiryDate || prev.expiryDate }));
+      const methodLabel = payload.method === "ai" ? "AI" : "Otomatis";
+      const range = typeof payload.minDays === "number" && typeof payload.maxDays === "number" ? `(${payload.minDays}–${payload.maxDays} hari)` : "";
+      setExpiryHint(`${methodLabel} ${range} • ${payload.rationale || ""}`.trim());
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Gagal memprediksi kadaluarsa");
+    } finally {
+      setIsSuggestingExpiry(false);
     }
   };
 
@@ -129,9 +159,9 @@ export default function TambahBahanPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {CATEGORIES.map((cat) => (
-                      <SelectItem key={cat} value={cat} className="capitalize">
-                        {cat}
+                    {INGREDIENT_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        <IngredientCategoryLabel category={cat} />
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -185,6 +215,22 @@ export default function TambahBahanPage() {
                   onChange={(e) => setForm({ ...form, expiryDate: e.target.value })}
                   required
                 />
+                <div className="flex items-center justify-between gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleSuggestExpiry}
+                    disabled={isSuggestingExpiry}
+                  >
+                    {isSuggestingExpiry ? "Memprediksi..." : "Prediksi Kadaluarsa"}
+                  </Button>
+                  {expiryHint && (
+                    <div className="text-xs text-muted-foreground line-clamp-2 text-right">
+                      {expiryHint}
+                    </div>
+                  )}
+                </div>
                 {!expiryIsValid && form.expiryDate && (
                   <div className="text-xs text-destructive">Harus lebih besar dari hari ini.</div>
                 )}

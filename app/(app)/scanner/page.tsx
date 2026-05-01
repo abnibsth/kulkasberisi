@@ -16,33 +16,19 @@ import {
 import { ScanLine, Camera, X } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
-
-const CATEGORIES = [
-  "Sayur",
-  "Daging",
-  "Ayam",
-  "Ikan",
-  "Telur",
-  "Susu",
-  "Keju",
-  "Bumbu",
-  "Saus",
-  "Buah",
-  "Minuman",
-  "Lainnya",
-];
+import { INGREDIENT_CATEGORIES, IngredientCategoryLabel } from "@/components/ingredients/category";
 
 const UNITS = ["gram", "kg", "ml", "liter", "buah", "pcs", "bungkus", "kaleng", "botol"];
 
 const BARCODE_DATABASE: Record<string, { name: string; category: string }> = {
-  "8991234567890": { name: "Indomie Goreng", category: "Makanan Instan" },
-  "8992345678901": { name: "Susu Ultra Milk", category: "Susu" },
-  "8993456789012": { name: "Kecap Bango", category: "Bumbu" },
-  "8994567890123": { name: "Minyak Goreng Bimoli", category: "Minyak" },
-  "8995678901234": { name: "Gula Pasir Gulaku", category: "Bumbu" },
-  "8996789012345": { name: "Teh Botol Sosro", category: "Minuman" },
-  "8997890123456": { name: "Sarden ABC", category: "Ikan" },
-  "8998901234567": { name: "Saus Sambal Indofood", category: "Saus" },
+  "8991234567890": { name: "Indomie Goreng", category: "karbohidrat" },
+  "8992345678901": { name: "Susu Ultra Milk", category: "dairy" },
+  "8993456789012": { name: "Kecap Bango", category: "bumbu" },
+  "8994567890123": { name: "Minyak Goreng Bimoli", category: "bumbu" },
+  "8995678901234": { name: "Gula Pasir Gulaku", category: "bumbu" },
+  "8996789012345": { name: "Teh Botol Sosro", category: "minuman" },
+  "8997890123456": { name: "Sarden ABC", category: "protein" },
+  "8998901234567": { name: "Saus Sambal Indofood", category: "bumbu" },
 };
 
 export default function ScannerPage() {
@@ -51,6 +37,7 @@ export default function ScannerPage() {
   const [isScanning, setIsScanning] = useState(false);
   const [manualBarcode, setManualBarcode] = useState("");
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [scanError, setScanError] = useState<string | null>(null);
   const [scannedProduct, setScannedProduct] = useState<{
     name: string;
     category: string;
@@ -58,7 +45,7 @@ export default function ScannerPage() {
   } | null>(null);
   const [formData, setFormData] = useState({
     name: "",
-    category: "Lainnya",
+    category: "lainnya",
     quantity: "1",
     unit: "pcs",
     expiryDate: "",
@@ -67,6 +54,7 @@ export default function ScannerPage() {
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const scanIntervalRef = useRef<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -92,22 +80,33 @@ export default function ScannerPage() {
     return () => stopCamera();
   }, [isScanning]);
 
+  const stopScanLoop = () => {
+    if (scanIntervalRef.current) {
+      window.clearInterval(scanIntervalRef.current);
+      scanIntervalRef.current = null;
+    }
+  };
+
   const startCamera = async () => {
     try {
+      setScanError(null);
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment" },
       });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         setHasCameraPermission(true);
+        startScanLoop();
       }
     } catch (err) {
       console.error("Camera error:", err);
       setHasCameraPermission(false);
+      setScanError("Akses kamera ditolak atau perangkat tidak mendukung.");
     }
   };
 
   const stopCamera = () => {
+    stopScanLoop();
     if (videoRef.current && videoRef.current.srcObject) {
       const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
       tracks.forEach((track) => track.stop());
@@ -115,44 +114,85 @@ export default function ScannerPage() {
     }
   };
 
-  const handleScanBarcode = () => {
-    const product = BARCODE_DATABASE[manualBarcode];
+  const lookupBarcode = async (barcode: string) => {
+    const local = BARCODE_DATABASE[barcode];
+    try {
+      const res = await fetch(`/api/barcode/lookup?barcode=${encodeURIComponent(barcode)}`, { method: "GET" });
+      const payload = (await res.json().catch(() => null)) as
+        | { item?: { name: string; category: string } }
+        | { error?: string }
+        | null;
+      if (res.ok && payload && "item" in payload && payload.item?.name) {
+        return { name: payload.item.name, category: payload.item.category || "lainnya" };
+      }
+    } catch {
+    }
+    if (local) return { name: local.name, category: local.category };
+    return null;
+  };
+
+  const applyBarcode = async (barcode: string) => {
+    const product = await lookupBarcode(barcode);
     if (product) {
       setScannedProduct({
-        ...product,
-        barcode: manualBarcode,
-      });
-      setFormData({
-        ...formData,
         name: product.name,
         category: product.category,
-        barcode: manualBarcode,
+        barcode,
       });
-    } else {
-      setFormData({
-        ...formData,
-        barcode: manualBarcode,
-      });
-      setScannedProduct(null);
+      setFormData((prev) => ({
+        ...prev,
+        name: product.name,
+        category: product.category,
+        barcode,
+      }));
+      return;
     }
+    setScannedProduct(null);
+    setFormData((prev) => ({ ...prev, barcode }));
+  };
+
+  const handleScanBarcode = () => {
+    const barcode = manualBarcode.trim();
+    if (!barcode) return;
+    setScanError(null);
+    applyBarcode(barcode);
   };
 
   const handleSimulateScan = () => {
     const barcodes = Object.keys(BARCODE_DATABASE);
     const randomBarcode = barcodes[Math.floor(Math.random() * barcodes.length)];
-    const product = BARCODE_DATABASE[randomBarcode];
-
     setManualBarcode(randomBarcode);
-    setScannedProduct({
-      ...product,
-      barcode: randomBarcode,
+    applyBarcode(randomBarcode);
+  };
+
+  const startScanLoop = () => {
+    stopScanLoop();
+    if (!videoRef.current) return;
+
+    if (typeof window !== "undefined" && !("BarcodeDetector" in window)) {
+      setScanError("Browser belum mendukung scan barcode otomatis. Gunakan input manual di bawah.");
+      return;
+    }
+
+    // @ts-expect-error BarcodeDetector may not exist in TS lib
+    const detector = new window.BarcodeDetector({
+      formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128"],
     });
-    setFormData({
-      ...formData,
-      name: product.name,
-      category: product.category,
-      barcode: randomBarcode,
-    });
+
+    scanIntervalRef.current = window.setInterval(async () => {
+      if (!videoRef.current) return;
+      try {
+        // BarcodeDetector accepts HTMLVideoElement in supported browsers
+        const codes = await detector.detect(videoRef.current);
+        const raw = codes?.[0]?.rawValue?.trim();
+        if (raw) {
+          setManualBarcode(raw);
+          await applyBarcode(raw);
+          setIsScanning(false);
+        }
+      } catch {
+      }
+    }, 600);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -176,7 +216,7 @@ export default function ScannerPage() {
 
     setFormData({
       name: "",
-      category: "Lainnya",
+      category: "lainnya",
       quantity: "1",
       unit: "pcs",
       expiryDate: "",
@@ -245,8 +285,15 @@ export default function ScannerPage() {
           </div>
 
           <div className="text-sm text-muted-foreground text-center">
-            <p>Barcode scanner menggunakan kamera perangkat. Pastikan pencahayaan cukup.</p>
+            <p>Scan barcode untuk auto-isi nama & kategori bahan.</p>
+            <p>Kalau scan otomatis tidak didukung, pakai input manual di bawah.</p>
           </div>
+
+          {scanError && (
+            <div className="rounded-md bg-amber-500/10 px-3 py-2 text-sm text-amber-700 border border-amber-500/20">
+              {scanError}
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -299,15 +346,18 @@ export default function ScannerPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="category">Kategori</Label>
-                <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
+                <Label>Kategori</Label>
+                <Select
+                  value={formData.category}
+                  onValueChange={(value) => setFormData({ ...formData, category: value })}
+                >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Pilih kategori" />
                   </SelectTrigger>
                   <SelectContent>
-                    {CATEGORIES.map((cat) => (
+                    {INGREDIENT_CATEGORIES.map((cat) => (
                       <SelectItem key={cat} value={cat}>
-                        {cat}
+                        <IngredientCategoryLabel category={cat} />
                       </SelectItem>
                     ))}
                   </SelectContent>

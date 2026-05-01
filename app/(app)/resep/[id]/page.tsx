@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { getSupabaseBrowserClientOrNull } from "@/lib/supabase/browser";
 import { useAppStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,22 +19,33 @@ function normalizeName(value: string) {
 export default function DetailResepPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
-  const { ingredients, generatedRecipes, savedRecipes, saveRecipe, removeSavedRecipe } = useAppStore();
+  const { ingredients, loadIngredients, loadSavedRecipes, generatedRecipes, savedRecipes, saveRecipe, removeSavedRecipe } = useAppStore();
   const [tab, setTab] = useState<TabKey>("bahan");
+  const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const supabase = getSupabaseBrowserClient();
+      const supabase = getSupabaseBrowserClientOrNull();
+      if (!supabase) {
+        if (!cancelled) router.replace("/login");
+        return;
+      }
       const { data } = await supabase.auth.getSession();
       if (!cancelled && !data.session) {
         router.replace("/login");
+        return;
+      }
+      try {
+        await loadIngredients();
+        await loadSavedRecipes();
+      } catch {
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [router]);
+  }, [loadIngredients, loadSavedRecipes, router]);
 
   const recipe = useMemo(() => {
     const fromGen = generatedRecipes.find((r) => r.id === params.id);
@@ -76,6 +87,11 @@ export default function DetailResepPage() {
 
   return (
     <div className="space-y-6">
+      {actionError && (
+        <Card className="border-destructive/50">
+          <CardContent className="py-4 text-sm text-destructive">{actionError}</CardContent>
+        </Card>
+      )}
       <div className="flex items-center justify-between gap-3">
         <Link href="/resep">
           <Button variant="outline">Kembali</Button>
@@ -83,10 +99,15 @@ export default function DetailResepPage() {
         <Button
           variant="ghost"
           className={isFavorite ? "text-red-500" : "text-muted-foreground"}
-          onClick={() => {
+          onClick={async () => {
+            setActionError(null);
             if (!recipe.id) return;
-            if (isFavorite) removeSavedRecipe(recipe.id);
-            else saveRecipe(recipe);
+            try {
+              if (isFavorite) await removeSavedRecipe(recipe.id);
+              else await saveRecipe(recipe);
+            } catch (e) {
+              setActionError(e instanceof Error ? e.message : "Gagal memperbarui favorit");
+            }
           }}
         >
           <Heart className="mr-2 h-5 w-5" />
@@ -94,11 +115,11 @@ export default function DetailResepPage() {
         </Button>
       </div>
 
-      <div className="relative h-56 md:h-80 w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
+      <div className="relative h-56 md:h-80 w-full -mx-6 overflow-hidden">
         <Image src={imageUrl} alt={recipe.name} fill priority className="object-cover" sizes="100vw" />
         <div className="absolute inset-0 bg-black/35" />
         <div className="absolute inset-x-0 bottom-0">
-          <div className="container mx-auto px-6 pb-6">
+          <div className="px-6 pb-6">
             <div className="text-white">
               <div className="text-2xl md:text-3xl font-bold">{recipe.name}</div>
               <div className="text-white/85 mt-1">{recipe.description}</div>

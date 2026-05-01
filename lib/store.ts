@@ -1,5 +1,6 @@
 import { create } from "zustand";
-import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { createJSONStorage, persist } from "zustand/middleware";
+import { getSupabaseBrowserClientOrNull, getSupabaseBrowserConfigError } from "@/lib/supabase/browser";
 
 export interface Ingredient {
   id?: string;
@@ -29,6 +30,7 @@ export interface Recipe {
   source?: string;
   matchPercentage?: number;
   ingredients?: { name: string; quantity: number; unit: string }[];
+  createdAt?: string;
 }
 
 interface AppState {
@@ -47,19 +49,23 @@ interface AppState {
   generatedRecipes: Recipe[];
   savedRecipes: Recipe[];
   setGeneratedRecipes: (recipes: Recipe[]) => void;
-  saveRecipe: (recipe: Recipe) => void;
-  removeSavedRecipe: (id: string) => void;
+  loadSavedRecipes: () => Promise<void>;
+  saveRecipe: (recipe: Recipe) => Promise<void>;
+  removeSavedRecipe: (id: string) => Promise<void>;
 
   // UI State
   isGenerating: boolean;
   setIsGenerating: (isGenerating: boolean) => void;
 }
 
-export const useAppStore = create<AppState>((set) => ({
+export const useAppStore = create<AppState>()(
+  persist(
+    (set) => ({
   // Ingredients state
   ingredients: [],
   loadIngredients: async () => {
-    const supabase = getSupabaseBrowserClient();
+    const supabase = getSupabaseBrowserClientOrNull();
+    if (!supabase) throw new Error(getSupabaseBrowserConfigError());
     const { data } = await supabase.auth.getSession();
     const token = data.session?.access_token;
     const res = await fetch("/api/ingredients", {
@@ -77,7 +83,8 @@ export const useAppStore = create<AppState>((set) => ({
   },
   addIngredient: async (ingredient) => {
     const id = ingredient.id || crypto.randomUUID();
-    const supabase = getSupabaseBrowserClient();
+    const supabase = getSupabaseBrowserClientOrNull();
+    if (!supabase) throw new Error(getSupabaseBrowserConfigError());
     const { data } = await supabase.auth.getSession();
     const token = data.session?.access_token;
     const res = await fetch("/api/ingredients", {
@@ -103,7 +110,8 @@ export const useAppStore = create<AppState>((set) => ({
     }));
   },
   updateIngredient: async (id, ingredient) => {
-    const supabase = getSupabaseBrowserClient();
+    const supabase = getSupabaseBrowserClientOrNull();
+    if (!supabase) throw new Error(getSupabaseBrowserConfigError());
     const { data } = await supabase.auth.getSession();
     const token = data.session?.access_token;
     const res = await fetch(`/api/ingredients/${encodeURIComponent(id)}`, {
@@ -130,7 +138,8 @@ export const useAppStore = create<AppState>((set) => ({
     }));
   },
   removeIngredient: async (id) => {
-    const supabase = getSupabaseBrowserClient();
+    const supabase = getSupabaseBrowserClientOrNull();
+    if (!supabase) throw new Error(getSupabaseBrowserConfigError());
     const { data } = await supabase.auth.getSession();
     const token = data.session?.access_token;
     const res = await fetch(`/api/ingredients/${encodeURIComponent(id)}`, {
@@ -160,23 +169,99 @@ export const useAppStore = create<AppState>((set) => ({
         source: r.source || "ai",
       })),
     }),
-  saveRecipe: (recipe) =>
+  loadSavedRecipes: async () => {
+    const supabase = getSupabaseBrowserClientOrNull();
+    if (!supabase) throw new Error(getSupabaseBrowserConfigError());
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    const res = await fetch("/api/recipes", {
+      method: "GET",
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    });
+    if (!res.ok) {
+      const payload = (await res.json().catch(() => null)) as { error?: string } | null;
+      throw new Error(payload?.error || "Gagal mengambil data resep");
+    }
+    const payload = (await res.json()) as { items: Recipe[] };
+    set({ savedRecipes: payload.items });
+  },
+  saveRecipe: async (recipe) => {
+    const supabase = getSupabaseBrowserClientOrNull();
+    if (!supabase) throw new Error(getSupabaseBrowserConfigError());
+    const id = recipe.id || crypto.randomUUID();
+    const optimistic: Recipe = {
+      ...recipe,
+      id,
+      source: recipe.source || "ai",
+    };
     set((state) => ({
-      savedRecipes: [
-        {
-          ...recipe,
-          id: recipe.id || crypto.randomUUID(),
-          source: recipe.source || "ai",
-        },
-        ...state.savedRecipes.filter((r) => r.id !== recipe.id),
-      ],
-    })),
-  removeSavedRecipe: (id) =>
+      savedRecipes: [optimistic, ...state.savedRecipes.filter((r) => r.id !== id)],
+    }));
+
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    const res = await fetch("/api/recipes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({
+        ...optimistic,
+        prepTime: optimistic.prepTime,
+        cookTime: optimistic.cookTime,
+        matchPercentage: optimistic.matchPercentage,
+        imageUrl: optimistic.imageUrl,
+      }),
+    });
+    if (!res.ok) {
+      const payload = (await res.json().catch(() => null)) as { error?: string } | null;
+      set((state) => ({
+        savedRecipes: state.savedRecipes.filter((r) => r.id !== id),
+      }));
+      throw new Error(payload?.error || "Gagal menyimpan resep");
+    }
+    const payload = (await res.json()) as { item: Recipe };
     set((state) => ({
-      savedRecipes: state.savedRecipes.filter((r) => r.id !== id),
-    })),
+      savedRecipes: [payload.item, ...state.savedRecipes.filter((r) => r.id !== payload.item.id)],
+    }));
+  },
+  removeSavedRecipe: async (id) => {
+    const supabase = getSupabaseBrowserClientOrNull();
+    if (!supabase) throw new Error(getSupabaseBrowserConfigError());
+    let removed: Recipe | null = null;
+    set((state) => {
+      removed = state.savedRecipes.find((r) => r.id === id) || null;
+      return { savedRecipes: state.savedRecipes.filter((r) => r.id !== id) };
+    });
+
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    const res = await fetch(`/api/recipes/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    });
+    if (!res.ok) {
+      const payload = (await res.json().catch(() => null)) as { error?: string } | null;
+      if (removed) {
+        set((state) => ({
+          savedRecipes: [removed as Recipe, ...state.savedRecipes.filter((r) => r.id !== id)],
+        }));
+      }
+      throw new Error(payload?.error || "Gagal menghapus resep");
+    }
+  },
 
   // UI State
   isGenerating: false,
   setIsGenerating: (isGenerating) => set({ isGenerating }),
-}));
+    }),
+    {
+      name: "kulkasberisi-app-store",
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        generatedRecipes: state.generatedRecipes,
+      }),
+    },
+  ),
+);

@@ -9,19 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2, Edit2, CheckCircle2 } from "lucide-react";
+import { INGREDIENT_CATEGORIES, IngredientCategoryLabel } from "@/components/ingredients/category";
 
-const CATEGORIES = [
-  "sayur",
-  "buah",
-  "protein",
-  "dairy",
-  "bumbu",
-  "karbohidrat",
-  "minuman",
-  "lainnya",
-] as const;
-
-type FilterKey = "semua" | "hampir" | "expired" | (typeof CATEGORIES)[number];
+type FilterKey = "semua" | "hampir" | "expired" | (typeof INGREDIENT_CATEGORIES)[number];
 
 function getDaysUntilExpiry(expiryDate?: string) {
   if (!expiryDate) return null;
@@ -136,15 +126,19 @@ export default function BahanPage() {
               <Button variant={filter === "expired" ? "default" : "outline"} size="sm" onClick={() => setFilter("expired")}>
                 Expired
               </Button>
-              {CATEGORIES.map((cat) => (
+              {INGREDIENT_CATEGORIES.map((cat) => (
                 <Button
                   key={cat}
                   variant={filter === cat ? "default" : "outline"}
                   size="sm"
                   onClick={() => setFilter(cat)}
-                  className="capitalize"
+                  className="capitalize gap-2"
                 >
-                  {cat}
+                  <IngredientCategoryLabel
+                    category={cat}
+                    className="gap-2"
+                    iconClassName={filter === cat ? "text-primary-foreground" : "text-muted-foreground"}
+                  />
                 </Button>
               ))}
             </div>
@@ -167,7 +161,9 @@ export default function BahanPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <CardTitle className="text-lg truncate">{ingredient.name}</CardTitle>
-                      <div className="text-sm text-muted-foreground capitalize">{ingredient.category}</div>
+                      <div className="text-sm text-muted-foreground">
+                        <IngredientCategoryLabel category={ingredient.category} />
+                      </div>
                     </div>
                     <div className={`shrink-0 rounded-full border px-2 py-1 text-xs font-medium ${badge.className}`}>
                       {badge.label}

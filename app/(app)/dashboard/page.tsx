@@ -6,14 +6,15 @@ import { useRouter } from "next/navigation";
 import { useAppStore, Recipe } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, Bell, ChefHat, Plus, ScanLine } from "lucide-react";
+import { AlertTriangle, Bell, ChefHat, Plus, ScanLine, ArrowRight, Sparkles, BarChart3 } from "lucide-react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { getIngredientCategoryMeta } from "@/components/ingredients/category";
 
 type UserSummary = { name?: string; email?: string } | null;
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { ingredients, loadIngredients, savedRecipes } = useAppStore();
+  const { ingredients, loadIngredients, loadSavedRecipes, savedRecipes } = useAppStore();
   const [loadError, setLoadError] = useState<string | null>(null);
   const [user, setUser] = useState<UserSummary>(null);
   const [recommendedRecipes, setRecommendedRecipes] = useState<Recipe[]>([]);
@@ -40,6 +41,7 @@ export default function DashboardPage() {
         }
 
         await loadIngredients();
+        await loadSavedRecipes().catch(() => undefined);
         if (!cancelled) setLoadError(null);
       } catch (err) {
         if (!cancelled) {
@@ -113,8 +115,9 @@ export default function DashboardPage() {
   }).length;
 
   const almostExpiredCount = warningCount + urgentCount;
+  const attentionCount = almostExpiredCount + expiredCount;
 
-  const savedThisMonthKg = (() => {
+  const savedThisMonthKg = useMemo(() => {
     const now = new Date();
     const month = now.getMonth();
     const year = now.getFullYear();
@@ -125,7 +128,17 @@ export default function DashboardPage() {
     }).length;
     const kg = countThisMonth * 0.2;
     return Math.round(kg * 10) / 10;
-  })();
+  }, [ingredients]);
+
+  const estimatedSavings = useMemo(() => {
+    const pricePerKg = 25000;
+    const money = Math.round(savedThisMonthKg * pricePerKg);
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      maximumFractionDigits: 0,
+    }).format(money);
+  }, [savedThisMonthKg]);
 
   const todayText = new Intl.DateTimeFormat("id-ID", {
     weekday: "long",
@@ -143,7 +156,7 @@ export default function DashboardPage() {
     }))
     .filter((x) => x.days !== null && x.days <= 2)
     .sort((a, b) => (a.days ?? 999) - (b.days ?? 999))
-    .slice(0, 6)
+    .slice(0, 8)
     .map((x) => x.ing);
 
   const nearExpiryIngredients = ingredients
@@ -154,6 +167,19 @@ export default function DashboardPage() {
     .filter((x) => x.days !== null && x.days <= 7)
     .sort((a, b) => (a.days ?? 999) - (b.days ?? 999))
     .map((x) => x.ing);
+
+  const fridgeContents = useMemo(() => {
+    return [...ingredients]
+      .sort((a, b) => {
+        const da = getDaysUntilExpiry(a.expiryDate);
+        const db = getDaysUntilExpiry(b.expiryDate);
+        if (da === null && db === null) return 0;
+        if (da === null) return 1;
+        if (db === null) return -1;
+        return da - db;
+      })
+      .slice(0, 6);
+  }, [ingredients]);
 
   const generateRecommendations = async () => {
     if (urgentIngredients.length === 0) return;
@@ -209,7 +235,17 @@ export default function DashboardPage() {
         <div>
           <h1 className="text-2xl md:text-3xl font-bold">Halo, {greetingName}</h1>
           <div className="text-sm text-muted-foreground">{todayText}</div>
-          <div className="text-sm text-muted-foreground mt-1">{pageIntro}</div>
+          <div className="text-sm text-muted-foreground mt-1">
+            {attentionCount > 0 ? (
+              <>
+                Hari ini ada{" "}
+                <span className="font-semibold text-foreground">{attentionCount} bahan</span>{" "}
+                yang perlu segera dimasak.
+              </>
+            ) : (
+              pageIntro
+            )}
+          </div>
         </div>
         <div className="flex gap-2">
           <Link href="/bahan/tambah">
@@ -281,116 +317,233 @@ export default function DashboardPage() {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Hampir Expired</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Butuh Perhatian</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-amber-600">{almostExpiredCount}</div>
+            <div className="text-2xl font-bold text-amber-600">{attentionCount}</div>
+            <div className="text-xs text-muted-foreground">
+              hampir/sudah expired
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Resep Tersedia</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{savedRecipes.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Diselamatkan Bulan Ini</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Makanan Selamat</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">{savedThisMonthKg} kg</div>
+            <div className="text-xs text-muted-foreground">bulan ini</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Uang Dihemat</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{estimatedSavings}</div>
+            <div className="text-xs text-muted-foreground">perkiraan</div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Bahan Hampir Expired</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {nearExpiryIngredients.length === 0 ? (
-              <div className="text-sm text-muted-foreground">Tidak ada bahan yang mendekati kadaluarsa.</div>
-            ) : (
-              nearExpiryIngredients.slice(0, 8).map((ingredient) => (
-                <div
-                  key={ingredient.id}
-                  className={`flex items-center justify-between gap-3 rounded-lg border px-3 py-2 ${
-                    (getDaysUntilExpiry(ingredient.expiryDate) ?? 999) < 0
-                      ? "border-muted bg-muted/30"
-                      : (getDaysUntilExpiry(ingredient.expiryDate) ?? 999) <= 2
-                        ? "border-destructive/40 bg-destructive/5"
-                        : "border-amber-500/40 bg-amber-50 dark:bg-amber-950/15"
-                  }`}
-                >
-                  <div className="min-w-0">
-                    <div className="font-medium truncate">{ingredient.name}</div>
-                    <div className="text-xs text-muted-foreground truncate">
-                      {ingredient.category} • {ingredient.quantity} {ingredient.unit}
+      <Card className={attentionCount > 0 ? "border-destructive/30 bg-destructive/5" : undefined}>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between gap-4">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-destructive" />
+              Harus Dimasak Sekarang!
+            </CardTitle>
+            <Link href="/bahan">
+              <Button variant="ghost" size="sm" className="gap-1">
+                Semua <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+          <div className="text-sm text-muted-foreground">
+            {attentionCount > 0 ? `${attentionCount} bahan perlu perhatian` : "Tidak ada bahan urgent hari ini."}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {nearExpiryIngredients.length === 0 ? (
+            <div className="text-sm text-muted-foreground">Belum ada bahan yang mendekati kadaluarsa.</div>
+          ) : (
+            <div className="flex gap-3 overflow-x-auto pb-2">
+              {nearExpiryIngredients.slice(0, 10).map((ingredient) => {
+                const meta = getIngredientCategoryMeta(ingredient.category);
+                const Icon = meta.Icon;
+                const days = getDaysUntilExpiry(ingredient.expiryDate);
+                const badgeText =
+                  days === null
+                    ? "-"
+                    : days < 0
+                      ? `Kadaluarsa ${Math.abs(days)} hari lalu`
+                      : days === 0
+                        ? "Kadaluarsa hari ini!"
+                        : `${days} hari lagi`;
+                const borderClass =
+                  days !== null && days < 0
+                    ? "border-destructive/40 bg-destructive/10"
+                    : days !== null && days <= 2
+                      ? "border-amber-500/50 bg-amber-500/10"
+                      : "border-muted bg-background";
+                return (
+                  <div
+                    key={ingredient.id}
+                    className={`min-w-[160px] rounded-xl border p-3 ${borderClass}`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="h-8 w-8 rounded-lg bg-background/70 border flex items-center justify-center">
+                        <Icon className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <div className="h-2 w-2 rounded-full bg-destructive/70" />
                     </div>
+                    <div className="mt-2 font-semibold truncate">{ingredient.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {ingredient.quantity} {ingredient.unit}
+                    </div>
+                    <div className="mt-2 text-xs font-medium text-destructive">{badgeText}</div>
                   </div>
-                  <div className="shrink-0">{expiryIndicator(ingredient.expiryDate)}</div>
-                </div>
-              ))
-            )}
-            <div className="flex gap-2">
-              <Link href="/bahan" className="flex-1">
-                <Button variant="outline" className="w-full">
-                  Kelola Bahan
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="grid lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between gap-4">
+              <CardTitle className="text-base">Isi Kulkas Kamu</CardTitle>
+              <Link href="/bahan">
+                <Button variant="ghost" size="sm" className="gap-1">
+                  Lihat Semua <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
-              <Button variant="secondary" className="flex-1" onClick={() => router.push("/scanner")}>
-                <ScanLine className="mr-2 h-4 w-4" />
-                Scan
-              </Button>
             </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {fridgeContents.length === 0 ? (
+              <div className="text-sm text-muted-foreground">Belum ada bahan. Tambahkan dari tombol di kanan.</div>
+            ) : (
+              fridgeContents.map((ingredient) => {
+                const days = getDaysUntilExpiry(ingredient.expiryDate);
+                const pillClass =
+                  days !== null && days < 0
+                    ? "bg-destructive/10 text-destructive border-destructive/20"
+                    : days !== null && days <= 2
+                      ? "bg-amber-500/10 text-amber-700 border-amber-500/20"
+                      : "bg-muted text-muted-foreground border-border";
+                const pillText =
+                  days === null
+                    ? "Tanpa exp"
+                    : days < 0
+                      ? `Kadaluarsa ${Math.abs(days)} hari lalu`
+                      : days === 0
+                        ? "Kadaluarsa hari ini!"
+                        : `${days} hari lagi`;
+                return (
+                  <div
+                    key={ingredient.id}
+                    className={`flex items-center justify-between gap-3 rounded-xl border px-4 py-3 ${
+                      days !== null && days < 0
+                        ? "border-destructive/30 bg-destructive/5"
+                        : days !== null && days <= 2
+                          ? "border-amber-500/30 bg-amber-500/5"
+                          : "border-border"
+                    }`}
+                  >
+                    <div className="min-w-0">
+                      <div className="font-semibold truncate">{ingredient.name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {ingredient.quantity} {ingredient.unit} • {getIngredientCategoryMeta(ingredient.category).label}
+                      </div>
+                    </div>
+                    <div className={`shrink-0 rounded-full border px-3 py-1 text-xs font-medium ${pillClass}`}>
+                      {pillText}
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Resep Rekomendasi (Urgent)</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {urgentIngredients.length === 0 ? (
-              <div className="text-sm text-muted-foreground">
-                Belum ada bahan urgent. Rekomendasi akan muncul saat ada bahan 0–2 hari menuju kadaluarsa.
-              </div>
-            ) : (
-              <div className="text-sm text-muted-foreground">
-                Berdasarkan: {urgentIngredients.map((i) => i.name).join(" • ")}
-              </div>
-            )}
+        <div className="space-y-6">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Aksi Cepat</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Link href="/bahan/tambah" className="block">
+                <Button className="w-full justify-start gap-2">
+                  <Plus className="h-4 w-4" />
+                  Tambah Bahan Baru
+                </Button>
+              </Link>
+              <Link href="/resep" className="block">
+                <Button variant="secondary" className="w-full justify-start gap-2">
+                  <ChefHat className="h-4 w-4" />
+                  Cari Resep
+                </Button>
+              </Link>
+              <Link href="/analitik" className="block">
+                <Button variant="outline" className="w-full justify-start gap-2">
+                  <BarChart3 className="h-4 w-4" />
+                  Lihat Statistik
+                </Button>
+              </Link>
+              <Button variant="outline" className="w-full justify-start gap-2" onClick={() => router.push("/scanner")}>
+                <ScanLine className="h-4 w-4" />
+                Scan Barcode
+              </Button>
+            </CardContent>
+          </Card>
 
-            {recommendationError && <div className="text-sm text-destructive">{recommendationError}</div>}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Resep Rekomendasi (Urgent)</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {urgentIngredients.length === 0 ? (
+                <div className="text-sm text-muted-foreground">
+                  Belum ada bahan urgent. Rekomendasi muncul saat ada bahan 0–2 hari menuju kadaluarsa.
+                </div>
+              ) : (
+                <div className="text-sm text-muted-foreground">
+                  Berdasarkan: {urgentIngredients.map((i) => i.name).join(" • ")}
+                </div>
+              )}
 
-            <Button
-              onClick={generateRecommendations}
-              disabled={urgentIngredients.length === 0 || isLoadingRecommendations}
-              className="w-full"
-            >
-              {isLoadingRecommendations ? "Membuat rekomendasi..." : "Generate Rekomendasi"}
-            </Button>
+              {recommendationError && <div className="text-sm text-destructive">{recommendationError}</div>}
 
-            {recommendedRecipes.length > 0 && (
-              <div className="grid sm:grid-cols-2 gap-3">
-                {recommendedRecipes.slice(0, 4).map((recipe) => (
-                  <Card key={recipe.id} className="overflow-hidden">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base">{recipe.name}</CardTitle>
+              <Button
+                onClick={generateRecommendations}
+                disabled={urgentIngredients.length === 0 || isLoadingRecommendations}
+                className="w-full"
+              >
+                {isLoadingRecommendations ? "Membuat rekomendasi..." : "Generate Rekomendasi"}
+              </Button>
+
+              {recommendedRecipes.length > 0 && (
+                <div className="space-y-3">
+                  {recommendedRecipes.slice(0, 3).map((recipe) => (
+                    <div key={recipe.id} className="rounded-lg border p-3">
+                      <div className="font-semibold">{recipe.name}</div>
                       <div className="text-xs text-muted-foreground">
                         {recipe.prepTime + recipe.cookTime} menit • {recipe.servings} porsi • {recipe.difficulty}
                       </div>
-                    </CardHeader>
-                    <CardContent className="text-sm text-muted-foreground">{recipe.description}</CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                      <div className="text-sm text-muted-foreground mt-1">{recipe.description}</div>
+                    </div>
+                  ))}
+                  <Button variant="outline" className="w-full" onClick={() => router.push("/generator")}>
+                    Lihat Semua Resep
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

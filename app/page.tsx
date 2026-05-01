@@ -2,18 +2,63 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Utensils, ScanLine, ChefHat, Leaf, Clock, Users } from "lucide-react";
+import { Utensils, ScanLine, ChefHat, Leaf, Clock, Users, Star } from "lucide-react";
+import { getSupabaseServerAdminClient } from "@/lib/supabase/server";
 
-export default function Home() {
+type LandingReview = {
+  id: string;
+  displayName: string;
+  role?: string;
+  rating: number;
+  message: string;
+  createdAt?: string;
+};
+
+export default async function Home() {
+  let reviews: LandingReview[] = [];
+  try {
+    const supabase = getSupabaseServerAdminClient();
+    const { data, error } = await supabase
+      .from("reviews")
+      .select("id,display_name,role,rating,message,is_public,created_at")
+      .eq("is_public", true)
+      .order("created_at", { ascending: false })
+      .limit(3);
+    if (!error && data) {
+      reviews = (data as Array<{
+        id: string;
+        display_name: string | null;
+        role: string | null;
+        rating: number;
+        message: string;
+        created_at: string;
+      }>).map((r) => ({
+        id: r.id,
+        displayName: r.display_name ?? "User",
+        role: r.role ?? undefined,
+        rating: typeof r.rating === "number" ? r.rating : 5,
+        message: r.message,
+        createdAt: r.created_at,
+      }));
+    }
+  } catch {
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+      <header className="border-b sticky top-0 z-50 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/70">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-6">
           <div className="flex items-center gap-2">
             <Utensils className="h-6 w-6 text-primary" />
             <span className="text-xl font-bold">Kulkas Berisi</span>
           </div>
+          <nav className="hidden md:flex items-center gap-6 text-sm text-gray-600">
+            <Link href="#promo" className="hover:text-gray-900">Promo</Link>
+            <Link href="#features" className="hover:text-gray-900">Fitur</Link>
+            <Link href="#how-it-works" className="hover:text-gray-900">Cara Kerja</Link>
+            <Link href="#testimonials" className="hover:text-gray-900">Testimoni</Link>
+          </nav>
           <nav className="flex items-center gap-4">
             <Link href="/login">
               <Button variant="ghost">Masuk</Button>
@@ -123,7 +168,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="py-16 bg-white border-b">
+        <section id="promo" className="py-16 bg-white border-b scroll-mt-24">
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
               <div>
@@ -217,7 +262,7 @@ export default function Home() {
         </section>
 
         {/* Features Section */}
-        <section id="features" className="py-20 bg-gray-50">
+        <section id="features" className="py-20 bg-gray-50 scroll-mt-24">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-4">
               Fitur Utama
@@ -297,7 +342,7 @@ export default function Home() {
         </section>
 
         {/* How It Works */}
-        <section className="py-20 bg-white">
+        <section id="how-it-works" className="py-20 bg-white scroll-mt-24">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-4">
               Cara Kerja
@@ -336,6 +381,107 @@ export default function Home() {
                   Ikuti langkah resep dan nikmati hidangan tanpa limbah
                 </p>
               </div>
+            </div>
+
+            <div className="mt-12 grid gap-6 md:grid-cols-3">
+              <Card>
+                <CardHeader>
+                  <ScanLine className="h-10 w-10 text-primary mb-2" />
+                  <CardTitle className="text-lg">Cepat Input</CardTitle>
+                  <CardDescription>Scan barcode atau input manual sesuai kebutuhan.</CardDescription>
+                </CardHeader>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <Clock className="h-10 w-10 text-primary mb-2" />
+                  <CardTitle className="text-lg">Anti Kadaluarsa</CardTitle>
+                  <CardDescription>Reminder membantu Anda habiskan bahan tepat waktu.</CardDescription>
+                </CardHeader>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <ChefHat className="h-10 w-10 text-primary mb-2" />
+                  <CardTitle className="text-lg">Resep Relevan</CardTitle>
+                  <CardDescription>Hasil resep menyesuaikan bahan, waktu, dan selera.</CardDescription>
+                </CardHeader>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+        <section id="testimonials" className="py-20 bg-gray-50 scroll-mt-24">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-4">
+              Testimoni Pengguna
+            </h2>
+            <p className="text-lg text-gray-600 text-center mb-12 max-w-2xl mx-auto">
+              Mereka sudah terbantu mengurangi food waste dan lebih gampang cari ide masak.
+            </p>
+
+            <div className="grid gap-6 md:grid-cols-3">
+              {(reviews.length ? reviews : [
+                {
+                  id: "fallback-1",
+                  displayName: "Ayu",
+                  role: "Ibu Rumah Tangga",
+                  rating: 5,
+                  message: "Biasanya bingung bahan sisa mau diapain. Sekarang tinggal input, langsung dapat ide masak.",
+                },
+                {
+                  id: "fallback-2",
+                  displayName: "Rizky",
+                  role: "Karyawan",
+                  rating: 5,
+                  message: "Notifikasi bahan mau kadaluarsa bikin saya lebih disiplin. Food waste turun drastis.",
+                },
+                {
+                  id: "fallback-3",
+                  displayName: "Dimas",
+                  role: "Mahasiswa",
+                  rating: 5,
+                  message: "Resepnya kreatif dan bisa disesuaikan waktu masak. Cocok buat yang sibuk.",
+                },
+              ]).map((r) => {
+                const initials = (r.displayName || "U")
+                  .trim()
+                  .split(/\s+/)
+                  .filter(Boolean)
+                  .slice(0, 2)
+                  .map((p) => p[0]?.toUpperCase())
+                  .join("");
+                const rating = Math.max(1, Math.min(5, Math.round(r.rating || 5)));
+                return (
+                  <Card key={r.id}>
+                    <CardHeader>
+                      <div className="flex items-center gap-1 text-yellow-500">
+                        {Array.from({ length: 5 }).map((_, idx) => (
+                          <Star
+                            key={idx}
+                            className={`h-4 w-4 ${idx + 1 <= rating ? "fill-current" : ""}`}
+                          />
+                        ))}
+                      </div>
+                      <CardDescription>“{r.message}”</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold">
+                          {initials || "U"}
+                        </div>
+                        <div>
+                          <div className="font-semibold text-gray-900">{r.displayName}</div>
+                          {r.role && <div className="text-sm text-gray-600">{r.role}</div>}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+            <div className="mt-10 text-center">
+              <Link href="/profil">
+                <Button variant="outline">Tulis Ulasan</Button>
+              </Link>
             </div>
           </div>
         </section>

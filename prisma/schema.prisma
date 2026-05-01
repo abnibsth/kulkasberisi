@@ -10,14 +10,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
   id          String       @id @default(cuid())
   email       String       @unique
   name        String?
   image       String?
   emailVerified DateTime?
+  role        Role         @default(USER)
   ingredients Ingredient[]
   recipes     Recipe[]
+  auditLogs   AuditLog[]
   accounts    Account[]
   sessions    Session[]
   createdAt   DateTime     @default(now())
@@ -87,11 +94,26 @@ model Recipe {
   instructions Json     // array of steps
   imageUrl     String?
   source       String   // ai, user, community
+  isApproved   Boolean  @default(false)
+  status       String   @default("pending")
+  rejectedReason String?
   userId       String?
   user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   createdAt    DateTime @default(now())
 
   recipeIngredients RecipeIngredient[]
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  adminId    String
+  action     String
+  targetType String
+  targetId   String?
+  details    Json?
+  createdAt  DateTime @default(now())
+
+  admin      User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
 }
 
 model RecipeIngredient {
