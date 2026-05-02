@@ -19,7 +19,14 @@ function normalizeName(value: string) {
 export default function DetailResepPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
-  const { ingredients, loadIngredients, loadSavedRecipes, generatedRecipes, savedRecipes, saveRecipe, removeSavedRecipe } = useAppStore();
+  const {
+    ingredients,
+    loadIngredients,
+    loadSavedRecipes,
+    savedRecipes,
+    saveRecipe,
+    removeSavedRecipe,
+  } = useAppStore();
   const [tab, setTab] = useState<TabKey>("bahan");
   const [actionError, setActionError] = useState<string | null>(null);
 
@@ -39,8 +46,7 @@ export default function DetailResepPage() {
       try {
         await loadIngredients();
         await loadSavedRecipes();
-      } catch {
-      }
+      } catch {}
     })();
     return () => {
       cancelled = true;
@@ -48,15 +54,12 @@ export default function DetailResepPage() {
   }, [loadIngredients, loadSavedRecipes, router]);
 
   const recipe = useMemo(() => {
-    const fromGen = generatedRecipes.find((r) => r.id === params.id);
-    if (fromGen) return fromGen;
     return savedRecipes.find((r) => r.id === params.id) || null;
-  }, [generatedRecipes, savedRecipes, params.id]);
+  }, [savedRecipes, params.id]);
 
   const isFavorite = useMemo(() => {
-    if (!recipe?.id) return false;
-    return savedRecipes.some((r) => r.id === recipe.id);
-  }, [recipe?.id, savedRecipes]);
+    return recipe?.isFavorite === true;
+  }, [recipe?.isFavorite]);
 
   const availableSet = useMemo(() => {
     return new Set(ingredients.map((i) => normalizeName(i.name)));
@@ -89,7 +92,9 @@ export default function DetailResepPage() {
     <div className="space-y-6">
       {actionError && (
         <Card className="border-destructive/50">
-          <CardContent className="py-4 text-sm text-destructive">{actionError}</CardContent>
+          <CardContent className="py-4 text-sm text-destructive">
+            {actionError}
+          </CardContent>
         </Card>
       )}
       <div className="flex items-center justify-between gap-3">
@@ -106,7 +111,9 @@ export default function DetailResepPage() {
               if (isFavorite) await removeSavedRecipe(recipe.id);
               else await saveRecipe(recipe);
             } catch (e) {
-              setActionError(e instanceof Error ? e.message : "Gagal memperbarui favorit");
+              setActionError(
+                e instanceof Error ? e.message : "Gagal memperbarui favorit",
+              );
             }
           }}
         >
@@ -116,12 +123,21 @@ export default function DetailResepPage() {
       </div>
 
       <div className="relative h-56 md:h-80 w-full -mx-6 overflow-hidden">
-        <Image src={imageUrl} alt={recipe.name} fill priority className="object-cover" sizes="100vw" />
+        <Image
+          src={imageUrl}
+          alt={recipe.name}
+          fill
+          priority
+          className="object-cover"
+          sizes="100vw"
+        />
         <div className="absolute inset-0 bg-black/35" />
         <div className="absolute inset-x-0 bottom-0">
           <div className="px-6 pb-6">
             <div className="text-white">
-              <div className="text-2xl md:text-3xl font-bold">{recipe.name}</div>
+              <div className="text-2xl md:text-3xl font-bold">
+                {recipe.name}
+              </div>
               <div className="text-white/85 mt-1">{recipe.description}</div>
             </div>
           </div>
@@ -135,7 +151,9 @@ export default function DetailResepPage() {
               <Clock className="h-4 w-4 text-muted-foreground" />
               <div>
                 <div className="text-muted-foreground">Waktu</div>
-                <div className="font-medium">{recipe.prepTime + recipe.cookTime} menit</div>
+                <div className="font-medium">
+                  {recipe.prepTime + recipe.cookTime} menit
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -161,13 +179,22 @@ export default function DetailResepPage() {
       </Card>
 
       <div className="flex flex-wrap gap-2">
-        <Button variant={tab === "bahan" ? "default" : "outline"} onClick={() => setTab("bahan")}>
+        <Button
+          variant={tab === "bahan" ? "default" : "outline"}
+          onClick={() => setTab("bahan")}
+        >
           Bahan-bahan
         </Button>
-        <Button variant={tab === "langkah" ? "default" : "outline"} onClick={() => setTab("langkah")}>
+        <Button
+          variant={tab === "langkah" ? "default" : "outline"}
+          onClick={() => setTab("langkah")}
+        >
           Langkah Memasak
         </Button>
-        <Button variant={tab === "nutrisi" ? "default" : "outline"} onClick={() => setTab("nutrisi")}>
+        <Button
+          variant={tab === "nutrisi" ? "default" : "outline"}
+          onClick={() => setTab("nutrisi")}
+        >
           Info Nutrisi
         </Button>
       </div>
@@ -179,7 +206,9 @@ export default function DetailResepPage() {
           </CardHeader>
           <CardContent className="space-y-2">
             {(recipe.ingredients ?? []).length === 0 ? (
-              <div className="text-sm text-muted-foreground">Tidak ada detail bahan.</div>
+              <div className="text-sm text-muted-foreground">
+                Tidak ada detail bahan.
+              </div>
             ) : (
               (recipe.ingredients ?? []).map((ing, idx) => {
                 const available = availableSet.has(normalizeName(ing.name));
@@ -196,7 +225,9 @@ export default function DetailResepPage() {
                         {ing.quantity} {ing.unit}
                       </div>
                     </div>
-                    <div className={`text-xs font-medium ${available ? "text-green-700" : "text-muted-foreground"}`}>
+                    <div
+                      className={`text-xs font-medium ${available ? "text-green-700" : "text-muted-foreground"}`}
+                    >
                       {available ? "Tersedia" : "Tidak ada"}
                     </div>
                   </div>
@@ -214,15 +245,23 @@ export default function DetailResepPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             {recipe.instructions.length === 0 ? (
-              <div className="text-sm text-muted-foreground">Tidak ada langkah memasak.</div>
+              <div className="text-sm text-muted-foreground">
+                Tidak ada langkah memasak.
+              </div>
             ) : (
               recipe.instructions.map((step, idx) => (
                 <div key={idx} className="rounded-lg border px-3 py-2">
                   <div className="flex items-center justify-between gap-3">
                     <div className="font-medium">Langkah {idx + 1}</div>
-                    {perStepMinutes && <div className="text-xs text-muted-foreground">± {perStepMinutes} menit</div>}
+                    {perStepMinutes && (
+                      <div className="text-xs text-muted-foreground">
+                        ± {perStepMinutes} menit
+                      </div>
+                    )}
                   </div>
-                  <div className="text-sm text-muted-foreground mt-1">{step}</div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    {step}
+                  </div>
                 </div>
               ))
             )}
@@ -239,7 +278,9 @@ export default function DetailResepPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="rounded-lg border px-3 py-2">
                 <div className="text-xs text-muted-foreground">Kalori</div>
-                <div className="font-semibold">{recipe.calories ?? "-"} kcal</div>
+                <div className="font-semibold">
+                  {recipe.calories ?? "-"} kcal
+                </div>
               </div>
               <div className="rounded-lg border px-3 py-2">
                 <div className="text-xs text-muted-foreground">Protein</div>

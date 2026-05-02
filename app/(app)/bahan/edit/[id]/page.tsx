@@ -34,6 +34,7 @@ export default function EditBahanPage() {
     category: "lainnya",
     quantity: "1",
     unit: "pcs",
+    storageLocation: "fridge",
     purchaseDate: "",
     expiryDate: "",
     notes: "",
@@ -67,6 +68,7 @@ export default function EditBahanPage() {
             category: item.category,
             quantity: String(item.quantity),
             unit: item.unit,
+            storageLocation: item.storageLocation || "fridge",
             purchaseDate: item.purchaseDate || "",
             expiryDate: item.expiryDate || "",
             notes: item.notes || "",
@@ -88,7 +90,7 @@ export default function EditBahanPage() {
   }, [params.id, router]);
 
   const expiryIsValid = useMemo(() => {
-    if (!form.expiryDate) return false;
+    if (!form.expiryDate) return true;
     const exp = new Date(form.expiryDate);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -101,7 +103,7 @@ export default function EditBahanPage() {
     setError(null);
 
     if (!expiryIsValid) {
-      setError("Tanggal kadaluarsa harus lebih besar dari hari ini.");
+      setError("Jika diisi, tanggal kadaluarsa harus lebih besar dari hari ini.");
       return;
     }
 
@@ -112,8 +114,9 @@ export default function EditBahanPage() {
         category: form.category,
         quantity: parseFloat(form.quantity),
         unit: form.unit,
+        storageLocation: form.storageLocation as "fridge" | "pantry",
         purchaseDate: form.purchaseDate || undefined,
-        expiryDate: form.expiryDate,
+        expiryDate: form.expiryDate || undefined,
         notes: form.notes || undefined,
       });
       router.push("/bahan");
@@ -242,14 +245,34 @@ export default function EditBahanPage() {
                 </div>
 
                 <div className="space-y-2">
+                  <Label>Lokasi Penyimpanan</Label>
+                  <Select
+                    value={form.storageLocation}
+                    onValueChange={(value) => setForm({ ...form, storageLocation: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="fridge">Kulkas</SelectItem>
+                      <SelectItem value="pantry">Luar Kulkas</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="expiryDate">Tanggal Kadaluarsa</Label>
                   <Input
                     id="expiryDate"
                     type="date"
                     value={form.expiryDate}
                     onChange={(e) => setForm({ ...form, expiryDate: e.target.value })}
-                    required
                   />
+                  {!form.expiryDate && (
+                    <div className="text-xs text-muted-foreground">
+                      Kosongkan jika tidak ada label; sistem akan buat perkiraan berdasarkan lokasi penyimpanan.
+                    </div>
+                  )}
                   <div className="flex items-center justify-between gap-3">
                     <Button
                       type="button"

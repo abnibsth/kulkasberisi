@@ -27,9 +27,18 @@ function isRecipeUrgent(recipe: Recipe, urgentIngredients: string[]) {
 export default function ResepPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { ingredients, loadIngredients, loadSavedRecipes, generatedRecipes, savedRecipes, saveRecipe, removeSavedRecipe } = useAppStore();
+  const {
+    ingredients,
+    loadIngredients,
+    loadSavedRecipes,
+    savedRecipes,
+    saveRecipe,
+    removeSavedRecipe,
+  } = useAppStore();
   const [query, setQuery] = useState("");
-  const [difficulty, setDifficulty] = useState<"" | "easy" | "medium" | "hard">("");
+  const [difficulty, setDifficulty] = useState<"" | "easy" | "medium" | "hard">(
+    "",
+  );
   const [tab, setTab] = useState<"all" | "favorites">(
     searchParams.get("tab") === "favorites" ? "favorites" : "all",
   );
@@ -59,7 +68,8 @@ export default function ResepPage() {
   }, [loadIngredients, loadSavedRecipes, router]);
 
   useEffect(() => {
-    const nextTab = searchParams.get("tab") === "favorites" ? "favorites" : "all";
+    const nextTab =
+      searchParams.get("tab") === "favorites" ? "favorites" : "all";
     setTab(nextTab);
   }, [searchParams]);
 
@@ -75,34 +85,31 @@ export default function ResepPage() {
   const recipeList = useMemo(() => {
     const base =
       tab === "favorites"
-        ? savedRecipes
-        : [
-            ...savedRecipes,
-            ...generatedRecipes.filter((r) => !savedRecipes.some((s) => s.id === r.id)),
-          ];
+        ? savedRecipes.filter((r) => r.isFavorite === true)
+        : savedRecipes;
     const normalized = query.trim().toLowerCase();
     return base
       .filter((r) => {
         if (!normalized) return true;
-        return r.name.toLowerCase().includes(normalized) || r.description.toLowerCase().includes(normalized);
+        return (
+          r.name.toLowerCase().includes(normalized) ||
+          r.description.toLowerCase().includes(normalized)
+        );
       })
       .filter((r) => {
         if (!difficulty) return true;
         return r.difficulty === difficulty;
       });
-  }, [tab, savedRecipes, generatedRecipes, query, difficulty]);
-
-  const isFavorite = (recipeId?: string) => {
-    if (!recipeId) return false;
-    return savedRecipes.some((r) => r.id === recipeId);
-  };
+  }, [tab, savedRecipes, query, difficulty]);
 
   return (
     <div className="space-y-6">
       <div className="flex items-end justify-between gap-4">
         <div>
           <div className="text-2xl font-bold">Resep</div>
-          <div className="text-sm text-muted-foreground">Cari resep, simpan favorit, dan prioritaskan bahan urgent.</div>
+          <div className="text-sm text-muted-foreground">
+            Cari resep, simpan favorit, dan prioritaskan bahan urgent.
+          </div>
         </div>
         <Link href="/generator">
           <Button variant="secondary">Generate</Button>
@@ -111,7 +118,9 @@ export default function ResepPage() {
 
       {actionError && (
         <Card className="border-destructive/50">
-          <CardContent className="py-4 text-sm text-destructive">{actionError}</CardContent>
+          <CardContent className="py-4 text-sm text-destructive">
+            {actionError}
+          </CardContent>
         </Card>
       )}
 
@@ -125,7 +134,11 @@ export default function ResepPage() {
               className="md:max-w-sm"
             />
             <div className="flex flex-wrap gap-2">
-              <Button variant={tab === "all" ? "default" : "outline"} size="sm" onClick={() => setTab("all")}>
+              <Button
+                variant={tab === "all" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setTab("all")}
+              >
                 Semua
               </Button>
               <Button
@@ -135,16 +148,32 @@ export default function ResepPage() {
               >
                 Favorit Saya
               </Button>
-              <Button variant={difficulty === "" ? "default" : "outline"} size="sm" onClick={() => setDifficulty("")}>
+              <Button
+                variant={difficulty === "" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setDifficulty("")}
+              >
                 Semua Level
               </Button>
-              <Button variant={difficulty === "easy" ? "default" : "outline"} size="sm" onClick={() => setDifficulty("easy")}>
+              <Button
+                variant={difficulty === "easy" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setDifficulty("easy")}
+              >
                 Mudah
               </Button>
-              <Button variant={difficulty === "medium" ? "default" : "outline"} size="sm" onClick={() => setDifficulty("medium")}>
+              <Button
+                variant={difficulty === "medium" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setDifficulty("medium")}
+              >
                 Sedang
               </Button>
-              <Button variant={difficulty === "hard" ? "default" : "outline"} size="sm" onClick={() => setDifficulty("hard")}>
+              <Button
+                variant={difficulty === "hard" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setDifficulty("hard")}
+              >
                 Sulit
               </Button>
             </div>
@@ -165,18 +194,23 @@ export default function ResepPage() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {recipeList.map((recipe) => {
             const urgent = isRecipeUrgent(recipe, urgentIngredientNames);
-            const fav = isFavorite(recipe.id);
+            const fav = recipe.isFavorite === true;
             return (
               <Card key={recipe.id} className="overflow-hidden">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <CardTitle className="text-lg truncate">
-                        <Link href={`/resep/${encodeURIComponent(recipe.id || "")}`} className="hover:underline">
+                        <Link
+                          href={`/resep/${encodeURIComponent(recipe.id || "")}`}
+                          className="hover:underline"
+                        >
                           {recipe.name}
                         </Link>
                       </CardTitle>
-                      <div className="text-sm text-muted-foreground line-clamp-2">{recipe.description}</div>
+                      <div className="text-sm text-muted-foreground line-clamp-2">
+                        {recipe.description}
+                      </div>
                     </div>
                     <Button
                       variant="ghost"
@@ -186,10 +220,21 @@ export default function ResepPage() {
                         setActionError(null);
                         if (!recipe.id) return;
                         try {
-                          if (fav) await removeSavedRecipe(recipe.id);
-                          else await saveRecipe(recipe);
+                          if (fav) {
+                            await removeSavedRecipe(recipe.id);
+                            if (tab === "favorites") {
+                              setTab("all");
+                              router.replace("/resep");
+                            }
+                          } else {
+                            await saveRecipe(recipe);
+                          }
                         } catch (e) {
-                          setActionError(e instanceof Error ? e.message : "Gagal memperbarui favorit");
+                          setActionError(
+                            e instanceof Error
+                              ? e.message
+                              : "Gagal memperbarui favorit",
+                          );
                         }
                       }}
                     >

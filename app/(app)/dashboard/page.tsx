@@ -6,7 +6,16 @@ import { useRouter } from "next/navigation";
 import { useAppStore, Recipe } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, Bell, ChefHat, Plus, ScanLine, ArrowRight, Sparkles, BarChart3 } from "lucide-react";
+import {
+  AlertTriangle,
+  Bell,
+  ChefHat,
+  Plus,
+  ScanLine,
+  ArrowRight,
+  Sparkles,
+  BarChart3,
+} from "lucide-react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { getIngredientCategoryMeta } from "@/components/ingredients/category";
 
@@ -14,12 +23,16 @@ type UserSummary = { name?: string; email?: string } | null;
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { ingredients, loadIngredients, loadSavedRecipes, savedRecipes } = useAppStore();
+  const { ingredients, loadIngredients, loadSavedRecipes, savedRecipes } =
+    useAppStore();
   const [loadError, setLoadError] = useState<string | null>(null);
   const [user, setUser] = useState<UserSummary>(null);
   const [recommendedRecipes, setRecommendedRecipes] = useState<Recipe[]>([]);
-  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
-  const [recommendationError, setRecommendationError] = useState<string | null>(null);
+  const [isLoadingRecommendations, setIsLoadingRecommendations] =
+    useState(false);
+  const [recommendationError, setRecommendationError] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -36,7 +49,8 @@ export default function DashboardPage() {
         if (!cancelled) {
           setUser({
             email: userRes.data.user?.email ?? undefined,
-            name: (userRes.data.user?.user_metadata as { name?: string } | null)?.name,
+            name: (userRes.data.user?.user_metadata as { name?: string } | null)
+              ?.name,
           });
         }
 
@@ -46,7 +60,9 @@ export default function DashboardPage() {
       } catch (err) {
         if (!cancelled) {
           setLoadError(
-            err instanceof Error ? err.message : "Gagal mengambil data dari Supabase",
+            err instanceof Error
+              ? err.message
+              : "Gagal mengambil data dari Supabase",
           );
         }
       }
@@ -63,6 +79,11 @@ export default function DashboardPage() {
     const diffTime = expiry.getTime() - now.getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
+
+  const getEffectiveExpiryDate = (ingredient: {
+    expiryDate?: string;
+    estimatedExpiryDate?: string;
+  }) => ingredient.expiryDate || ingredient.estimatedExpiryDate;
 
   const expiryIndicator = (expiryDate?: string) => {
     const days = getDaysUntilExpiry(expiryDate);
@@ -89,7 +110,11 @@ export default function DashboardPage() {
         </span>
       );
     } else if (days <= 7) {
-      return <span className="text-xs text-amber-600 font-medium">Warning (H-{days})</span>;
+      return (
+        <span className="text-xs text-amber-600 font-medium">
+          Warning (H-{days})
+        </span>
+      );
     } else {
       return (
         <span className="text-xs text-muted-foreground">
@@ -100,17 +125,17 @@ export default function DashboardPage() {
   };
 
   const warningCount = ingredients.filter((ing) => {
-    const days = getDaysUntilExpiry(ing.expiryDate);
+    const days = getDaysUntilExpiry(getEffectiveExpiryDate(ing));
     return days !== null && days >= 3 && days <= 7;
   }).length;
 
   const urgentCount = ingredients.filter((ing) => {
-    const days = getDaysUntilExpiry(ing.expiryDate);
+    const days = getDaysUntilExpiry(getEffectiveExpiryDate(ing));
     return days !== null && days >= 0 && days <= 2;
   }).length;
 
   const expiredCount = ingredients.filter((ing) => {
-    const days = getDaysUntilExpiry(ing.expiryDate);
+    const days = getDaysUntilExpiry(getEffectiveExpiryDate(ing));
     return days !== null && days < 0;
   }).length;
 
@@ -152,7 +177,7 @@ export default function DashboardPage() {
   const urgentIngredients = ingredients
     .map((ing) => ({
       ing,
-      days: getDaysUntilExpiry(ing.expiryDate),
+      days: getDaysUntilExpiry(getEffectiveExpiryDate(ing)),
     }))
     .filter((x) => x.days !== null && x.days <= 2)
     .sort((a, b) => (a.days ?? 999) - (b.days ?? 999))
@@ -162,7 +187,7 @@ export default function DashboardPage() {
   const nearExpiryIngredients = ingredients
     .map((ing) => ({
       ing,
-      days: getDaysUntilExpiry(ing.expiryDate),
+      days: getDaysUntilExpiry(getEffectiveExpiryDate(ing)),
     }))
     .filter((x) => x.days !== null && x.days <= 7)
     .sort((a, b) => (a.days ?? 999) - (b.days ?? 999))
@@ -171,8 +196,8 @@ export default function DashboardPage() {
   const fridgeContents = useMemo(() => {
     return [...ingredients]
       .sort((a, b) => {
-        const da = getDaysUntilExpiry(a.expiryDate);
-        const db = getDaysUntilExpiry(b.expiryDate);
+        const da = getDaysUntilExpiry(getEffectiveExpiryDate(a));
+        const db = getDaysUntilExpiry(getEffectiveExpiryDate(b));
         if (da === null && db === null) return 0;
         if (da === null) return 1;
         if (db === null) return -1;
@@ -204,7 +229,10 @@ export default function DashboardPage() {
         }),
       });
 
-      const data = (await response.json()) as { recipes?: Recipe[]; error?: string };
+      const data = (await response.json()) as {
+        recipes?: Recipe[];
+        error?: string;
+      };
       if (!response.ok) {
         throw new Error(data.error || "Gagal generate rekomendasi resep");
       }
@@ -216,7 +244,9 @@ export default function DashboardPage() {
         })),
       );
     } catch (err) {
-      setRecommendationError(err instanceof Error ? err.message : "Gagal generate rekomendasi");
+      setRecommendationError(
+        err instanceof Error ? err.message : "Gagal generate rekomendasi",
+      );
     } finally {
       setIsLoadingRecommendations(false);
     }
@@ -233,13 +263,17 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Halo, {greetingName}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold">
+            Halo, {greetingName}
+          </h1>
           <div className="text-sm text-muted-foreground">{todayText}</div>
           <div className="text-sm text-muted-foreground mt-1">
             {attentionCount > 0 ? (
               <>
                 Hari ini ada{" "}
-                <span className="font-semibold text-foreground">{attentionCount} bahan</span>{" "}
+                <span className="font-semibold text-foreground">
+                  {attentionCount} bahan
+                </span>{" "}
                 yang perlu segera dimasak.
               </>
             ) : (
@@ -265,7 +299,9 @@ export default function DashboardPage() {
 
       {loadError && (
         <Card className="border-destructive/50">
-          <CardContent className="py-4 text-sm text-destructive">{loadError}</CardContent>
+          <CardContent className="py-4 text-sm text-destructive">
+            {loadError}
+          </CardContent>
         </Card>
       )}
 
@@ -281,11 +317,15 @@ export default function DashboardPage() {
         >
           <CardContent className="py-4">
             <div className="flex items-start gap-3">
-              <div className={`mt-0.5 ${expiredCount > 0 ? "text-destructive" : "text-amber-600"}`}>
+              <div
+                className={`mt-0.5 ${expiredCount > 0 ? "text-destructive" : "text-amber-600"}`}
+              >
                 <Bell className="h-5 w-5" />
               </div>
               <div className="flex-1">
-                <div className={`font-semibold ${expiredCount > 0 ? "text-destructive" : "text-foreground"}`}>
+                <div
+                  className={`font-semibold ${expiredCount > 0 ? "text-destructive" : "text-foreground"}`}
+                >
                   {expiredCount > 0
                     ? `${expiredCount} bahan sudah expired`
                     : urgentCount > 0
@@ -293,7 +333,8 @@ export default function DashboardPage() {
                       : `${warningCount} bahan warning (3–7 hari)`}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  Prioritaskan bahan yang mendekati kadaluarsa untuk mengurangi food waste.
+                  Prioritaskan bahan yang mendekati kadaluarsa untuk mengurangi
+                  food waste.
                 </div>
               </div>
               <Link href="/bahan">
@@ -309,7 +350,9 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Bahan</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total Bahan
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{ingredients.length}</div>
@@ -317,10 +360,14 @@ export default function DashboardPage() {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Butuh Perhatian</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Butuh Perhatian
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-amber-600">{attentionCount}</div>
+            <div className="text-2xl font-bold text-amber-600">
+              {attentionCount}
+            </div>
             <div className="text-xs text-muted-foreground">
               hampir/sudah expired
             </div>
@@ -328,16 +375,22 @@ export default function DashboardPage() {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Makanan Selamat</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Makanan Selamat
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary">{savedThisMonthKg} kg</div>
+            <div className="text-2xl font-bold text-primary">
+              {savedThisMonthKg} kg
+            </div>
             <div className="text-xs text-muted-foreground">bulan ini</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Uang Dihemat</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Uang Dihemat
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{estimatedSavings}</div>
@@ -346,7 +399,13 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <Card className={attentionCount > 0 ? "border-destructive/30 bg-destructive/5" : undefined}>
+      <Card
+        className={
+          attentionCount > 0
+            ? "border-destructive/30 bg-destructive/5"
+            : undefined
+        }
+      >
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between gap-4">
             <CardTitle className="text-base flex items-center gap-2">
@@ -360,18 +419,24 @@ export default function DashboardPage() {
             </Link>
           </div>
           <div className="text-sm text-muted-foreground">
-            {attentionCount > 0 ? `${attentionCount} bahan perlu perhatian` : "Tidak ada bahan urgent hari ini."}
+            {attentionCount > 0
+              ? `${attentionCount} bahan perlu perhatian`
+              : "Tidak ada bahan urgent hari ini."}
           </div>
         </CardHeader>
         <CardContent>
           {nearExpiryIngredients.length === 0 ? (
-            <div className="text-sm text-muted-foreground">Belum ada bahan yang mendekati kadaluarsa.</div>
+            <div className="text-sm text-muted-foreground">
+              Belum ada bahan yang mendekati kadaluarsa.
+            </div>
           ) : (
             <div className="flex gap-3 overflow-x-auto pb-2">
               {nearExpiryIngredients.slice(0, 10).map((ingredient) => {
                 const meta = getIngredientCategoryMeta(ingredient.category);
                 const Icon = meta.Icon;
-                const days = getDaysUntilExpiry(ingredient.expiryDate);
+                const days = getDaysUntilExpiry(
+                  getEffectiveExpiryDate(ingredient),
+                );
                 const badgeText =
                   days === null
                     ? "-"
@@ -397,11 +462,15 @@ export default function DashboardPage() {
                       </div>
                       <div className="h-2 w-2 rounded-full bg-destructive/70" />
                     </div>
-                    <div className="mt-2 font-semibold truncate">{ingredient.name}</div>
+                    <div className="mt-2 font-semibold truncate">
+                      {ingredient.name}
+                    </div>
                     <div className="text-xs text-muted-foreground">
                       {ingredient.quantity} {ingredient.unit}
                     </div>
-                    <div className="mt-2 text-xs font-medium text-destructive">{badgeText}</div>
+                    <div className="mt-2 text-xs font-medium text-destructive">
+                      {badgeText}
+                    </div>
                   </div>
                 );
               })}
@@ -424,10 +493,14 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             {fridgeContents.length === 0 ? (
-              <div className="text-sm text-muted-foreground">Belum ada bahan. Tambahkan dari tombol di kanan.</div>
+              <div className="text-sm text-muted-foreground">
+                Belum ada bahan. Tambahkan dari tombol di kanan.
+              </div>
             ) : (
               fridgeContents.map((ingredient) => {
-                const days = getDaysUntilExpiry(ingredient.expiryDate);
+                const days = getDaysUntilExpiry(
+                  getEffectiveExpiryDate(ingredient),
+                );
                 const pillClass =
                   days !== null && days < 0
                     ? "bg-destructive/10 text-destructive border-destructive/20"
@@ -454,12 +527,17 @@ export default function DashboardPage() {
                     }`}
                   >
                     <div className="min-w-0">
-                      <div className="font-semibold truncate">{ingredient.name}</div>
+                      <div className="font-semibold truncate">
+                        {ingredient.name}
+                      </div>
                       <div className="text-sm text-muted-foreground">
-                        {ingredient.quantity} {ingredient.unit} • {getIngredientCategoryMeta(ingredient.category).label}
+                        {ingredient.quantity} {ingredient.unit} •{" "}
+                        {getIngredientCategoryMeta(ingredient.category).label}
                       </div>
                     </div>
-                    <div className={`shrink-0 rounded-full border px-3 py-1 text-xs font-medium ${pillClass}`}>
+                    <div
+                      className={`shrink-0 rounded-full border px-3 py-1 text-xs font-medium ${pillClass}`}
+                    >
                       {pillText}
                     </div>
                   </div>
@@ -482,18 +560,28 @@ export default function DashboardPage() {
                 </Button>
               </Link>
               <Link href="/resep" className="block">
-                <Button variant="secondary" className="w-full justify-start gap-2">
+                <Button
+                  variant="secondary"
+                  className="w-full justify-start gap-2"
+                >
                   <ChefHat className="h-4 w-4" />
                   Cari Resep
                 </Button>
               </Link>
               <Link href="/analitik" className="block">
-                <Button variant="outline" className="w-full justify-start gap-2">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-2"
+                >
                   <BarChart3 className="h-4 w-4" />
                   Lihat Statistik
                 </Button>
               </Link>
-              <Button variant="outline" className="w-full justify-start gap-2" onClick={() => router.push("/scanner")}>
+              <Button
+                variant="outline"
+                className="w-full justify-start gap-2"
+                onClick={() => router.push("/scanner")}
+              >
                 <ScanLine className="h-4 w-4" />
                 Scan Barcode
               </Button>
@@ -502,27 +590,39 @@ export default function DashboardPage() {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Resep Rekomendasi (Urgent)</CardTitle>
+              <CardTitle className="text-base">
+                Resep Rekomendasi (Urgent)
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {urgentIngredients.length === 0 ? (
                 <div className="text-sm text-muted-foreground">
-                  Belum ada bahan urgent. Rekomendasi muncul saat ada bahan 0–2 hari menuju kadaluarsa.
+                  Belum ada bahan urgent. Rekomendasi muncul saat ada bahan 0–2
+                  hari menuju kadaluarsa.
                 </div>
               ) : (
                 <div className="text-sm text-muted-foreground">
-                  Berdasarkan: {urgentIngredients.map((i) => i.name).join(" • ")}
+                  Berdasarkan:{" "}
+                  {urgentIngredients.map((i) => i.name).join(" • ")}
                 </div>
               )}
 
-              {recommendationError && <div className="text-sm text-destructive">{recommendationError}</div>}
+              {recommendationError && (
+                <div className="text-sm text-destructive">
+                  {recommendationError}
+                </div>
+              )}
 
               <Button
                 onClick={generateRecommendations}
-                disabled={urgentIngredients.length === 0 || isLoadingRecommendations}
+                disabled={
+                  urgentIngredients.length === 0 || isLoadingRecommendations
+                }
                 className="w-full"
               >
-                {isLoadingRecommendations ? "Membuat rekomendasi..." : "Generate Rekomendasi"}
+                {isLoadingRecommendations
+                  ? "Membuat rekomendasi..."
+                  : "Generate Rekomendasi"}
               </Button>
 
               {recommendedRecipes.length > 0 && (
@@ -531,12 +631,19 @@ export default function DashboardPage() {
                     <div key={recipe.id} className="rounded-lg border p-3">
                       <div className="font-semibold">{recipe.name}</div>
                       <div className="text-xs text-muted-foreground">
-                        {recipe.prepTime + recipe.cookTime} menit • {recipe.servings} porsi • {recipe.difficulty}
+                        {recipe.prepTime + recipe.cookTime} menit •{" "}
+                        {recipe.servings} porsi • {recipe.difficulty}
                       </div>
-                      <div className="text-sm text-muted-foreground mt-1">{recipe.description}</div>
+                      <div className="text-sm text-muted-foreground mt-1">
+                        {recipe.description}
+                      </div>
                     </div>
                   ))}
-                  <Button variant="outline" className="w-full" onClick={() => router.push("/generator")}>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => router.push("/generator")}
+                  >
                     Lihat Semua Resep
                   </Button>
                 </div>

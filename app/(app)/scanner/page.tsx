@@ -16,9 +16,22 @@ import {
 import { ScanLine, Camera, X } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
-import { INGREDIENT_CATEGORIES, IngredientCategoryLabel } from "@/components/ingredients/category";
+import {
+  INGREDIENT_CATEGORIES,
+  IngredientCategoryLabel,
+} from "@/components/ingredients/category";
 
-const UNITS = ["gram", "kg", "ml", "liter", "buah", "pcs", "bungkus", "kaleng", "botol"];
+const UNITS = [
+  "gram",
+  "kg",
+  "ml",
+  "liter",
+  "buah",
+  "pcs",
+  "bungkus",
+  "kaleng",
+  "botol",
+];
 
 const BARCODE_DATABASE: Record<string, { name: string; category: string }> = {
   "8991234567890": { name: "Indomie Goreng", category: "karbohidrat" },
@@ -48,12 +61,15 @@ export default function ScannerPage() {
     category: "lainnya",
     quantity: "1",
     unit: "pcs",
+    storageLocation: "fridge",
     expiryDate: "",
     barcode: "",
   });
 
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const [hasCameraPermission, setHasCameraPermission] = useState<
+    boolean | null
+  >(null);
   const scanIntervalRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -117,16 +133,21 @@ export default function ScannerPage() {
   const lookupBarcode = async (barcode: string) => {
     const local = BARCODE_DATABASE[barcode];
     try {
-      const res = await fetch(`/api/barcode/lookup?barcode=${encodeURIComponent(barcode)}`, { method: "GET" });
+      const res = await fetch(
+        `/api/barcode/lookup?barcode=${encodeURIComponent(barcode)}`,
+        { method: "GET" },
+      );
       const payload = (await res.json().catch(() => null)) as
         | { item?: { name: string; category: string } }
         | { error?: string }
         | null;
       if (res.ok && payload && "item" in payload && payload.item?.name) {
-        return { name: payload.item.name, category: payload.item.category || "lainnya" };
+        return {
+          name: payload.item.name,
+          category: payload.item.category || "lainnya",
+        };
       }
-    } catch {
-    }
+    } catch {}
     if (local) return { name: local.name, category: local.category };
     return null;
   };
@@ -170,7 +191,9 @@ export default function ScannerPage() {
     if (!videoRef.current) return;
 
     if (typeof window !== "undefined" && !("BarcodeDetector" in window)) {
-      setScanError("Browser belum mendukung scan barcode otomatis. Gunakan input manual di bawah.");
+      setScanError(
+        "Browser belum mendukung scan barcode otomatis. Gunakan input manual di bawah.",
+      );
       return;
     }
 
@@ -190,8 +213,7 @@ export default function ScannerPage() {
           await applyBarcode(raw);
           setIsScanning(false);
         }
-      } catch {
-      }
+      } catch {}
     }, 600);
   };
 
@@ -206,11 +228,14 @@ export default function ScannerPage() {
         category: formData.category,
         quantity: parseFloat(formData.quantity),
         unit: formData.unit,
+        storageLocation: formData.storageLocation as "fridge" | "pantry",
         expiryDate: formData.expiryDate || undefined,
         barcode: formData.barcode || undefined,
       });
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : "Gagal menyimpan ke Supabase");
+      setSaveError(
+        err instanceof Error ? err.message : "Gagal menyimpan ke Supabase",
+      );
       return;
     }
 
@@ -219,6 +244,7 @@ export default function ScannerPage() {
       category: "lainnya",
       quantity: "1",
       unit: "pcs",
+      storageLocation: "fridge",
       expiryDate: "",
       barcode: "",
     });
@@ -251,7 +277,12 @@ export default function ScannerPage() {
                 </div>
               ) : (
                 <>
-                  <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
                   <div className="absolute inset-0 border-2 border-primary/50 rounded-lg">
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border-2 border-primary rounded-lg" />
                   </div>
@@ -266,7 +297,11 @@ export default function ScannerPage() {
           </div>
 
           <div className="flex gap-2">
-            <Button onClick={() => setIsScanning(!isScanning)} variant={isScanning ? "destructive" : "default"} className="flex-1">
+            <Button
+              onClick={() => setIsScanning(!isScanning)}
+              variant={isScanning ? "destructive" : "default"}
+              className="flex-1"
+            >
               {isScanning ? (
                 <>
                   <X className="mr-2 h-4 w-4" />
@@ -279,14 +314,20 @@ export default function ScannerPage() {
                 </>
               )}
             </Button>
-            <Button onClick={handleSimulateScan} variant="outline" className="flex-1">
+            <Button
+              onClick={handleSimulateScan}
+              variant="outline"
+              className="flex-1"
+            >
               Simulasi Scan
             </Button>
           </div>
 
           <div className="text-sm text-muted-foreground text-center">
             <p>Scan barcode untuk auto-isi nama & kategori bahan.</p>
-            <p>Kalau scan otomatis tidak didukung, pakai input manual di bawah.</p>
+            <p>
+              Kalau scan otomatis tidak didukung, pakai input manual di bawah.
+            </p>
           </div>
 
           {scanError && (
@@ -314,15 +355,23 @@ export default function ScannerPage() {
 
           {scannedProduct && (
             <div className="p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200">
-              <p className="font-medium text-green-800">✓ Produk ditemukan: {scannedProduct.name}</p>
-              <p className="text-sm text-green-600">Kategori: {scannedProduct.category}</p>
+              <p className="font-medium text-green-800">
+                ✓ Produk ditemukan: {scannedProduct.name}
+              </p>
+              <p className="text-sm text-green-600">
+                Kategori: {scannedProduct.category}
+              </p>
             </div>
           )}
 
           {manualBarcode && !scannedProduct && (
             <div className="p-3 bg-amber-50 dark:bg-amber-950/20 rounded-lg border border-amber-200">
-              <p className="text-amber-800">⚠ Barcode tidak ditemukan di database</p>
-              <p className="text-sm text-amber-600">Silakan input manual nama dan kategori produk</p>
+              <p className="text-amber-800">
+                ⚠ Barcode tidak ditemukan di database
+              </p>
+              <p className="text-sm text-amber-600">
+                Silakan input manual nama dan kategori produk
+              </p>
             </div>
           )}
         </CardContent>
@@ -340,7 +389,9 @@ export default function ScannerPage() {
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   placeholder="Contoh: Indomie Goreng"
                   required
                 />
@@ -349,7 +400,9 @@ export default function ScannerPage() {
                 <Label>Kategori</Label>
                 <Select
                   value={formData.category}
-                  onValueChange={(value) => setFormData({ ...formData, category: value })}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, category: value })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Pilih kategori" />
@@ -370,13 +423,20 @@ export default function ScannerPage() {
                   type="number"
                   step="0.1"
                   value={formData.quantity}
-                  onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, quantity: e.target.value })
+                  }
                   required
                 />
               </div>
               <div>
                 <Label htmlFor="unit">Satuan</Label>
-                <Select value={formData.unit} onValueChange={(value) => setFormData({ ...formData, unit: value })}>
+                <Select
+                  value={formData.unit}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, unit: value })
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -390,25 +450,48 @@ export default function ScannerPage() {
                 </Select>
               </div>
               <div>
+                <Label>Lokasi Penyimpanan</Label>
+                <Select
+                  value={formData.storageLocation}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, storageLocation: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="fridge">Kulkas</SelectItem>
+                    <SelectItem value="pantry">Luar Kulkas</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
                 <Label htmlFor="expiryDate">Tanggal Kadaluarsa</Label>
                 <Input
                   id="expiryDate"
                   type="date"
                   value={formData.expiryDate}
-                  onChange={(e) => setFormData({ ...formData, expiryDate: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, expiryDate: e.target.value })
+                  }
                 />
               </div>
             </div>
 
             {formData.barcode && (
-              <div className="text-sm text-muted-foreground">Barcode: {formData.barcode}</div>
+              <div className="text-sm text-muted-foreground">
+                Barcode: {formData.barcode}
+              </div>
             )}
 
-            {saveError && <div className="text-sm text-destructive">{saveError}</div>}
+            {saveError && (
+              <div className="text-sm text-destructive">{saveError}</div>
+            )}
 
             <Button type="submit" className="w-full">
               <ScanLine className="mr-2 h-4 w-4" />
-              Simpan ke Kulkas
+              Simpan Bahan
             </Button>
           </form>
         </CardContent>

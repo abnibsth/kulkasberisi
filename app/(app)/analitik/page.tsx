@@ -26,10 +26,14 @@ function getDaysUntilExpiry(expiryDate?: string) {
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
 
+function getEffectiveExpiryDate(ing: Ingredient) {
+  return ing.expiryDate || ing.estimatedExpiryDate;
+}
+
 type StatusKey = "fresh" | "warning" | "urgent" | "expired" | "no_date";
 
 function statusOf(ing: Ingredient): StatusKey {
-  const days = getDaysUntilExpiry(ing.expiryDate);
+  const days = getDaysUntilExpiry(getEffectiveExpiryDate(ing));
   if (days === null) return "no_date";
   if (days < 0) return "expired";
   if (days <= 2) return "urgent";

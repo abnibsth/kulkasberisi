@@ -21,6 +21,10 @@ function getDaysUntilExpiry(expiryDate?: string) {
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
 
+function getEffectiveExpiryDate(ingredient: { expiryDate?: string; estimatedExpiryDate?: string }) {
+  return ingredient.expiryDate || ingredient.estimatedExpiryDate;
+}
+
 function badgeForExpiry(days: number | null) {
   if (days === null) {
     return { label: "Tanpa tanggal", className: "bg-muted text-muted-foreground border-muted" };
@@ -73,15 +77,15 @@ export default function BahanPage() {
         return ing.name.toLowerCase().includes(normalizedQuery) || ing.category.toLowerCase().includes(normalizedQuery);
       })
       .filter((ing) => {
-        const days = getDaysUntilExpiry(ing.expiryDate);
+        const days = getDaysUntilExpiry(getEffectiveExpiryDate(ing));
         if (filter === "semua") return true;
         if (filter === "hampir") return days !== null && days >= 0 && days <= 7;
         if (filter === "expired") return days !== null && days < 0;
         return ing.category.toLowerCase() === filter;
       })
       .sort((a, b) => {
-        const da = getDaysUntilExpiry(a.expiryDate);
-        const db = getDaysUntilExpiry(b.expiryDate);
+        const da = getDaysUntilExpiry(getEffectiveExpiryDate(a));
+        const db = getDaysUntilExpiry(getEffectiveExpiryDate(b));
         if (da === null && db === null) return 0;
         if (da === null) return 1;
         if (db === null) return -1;
@@ -153,7 +157,8 @@ export default function BahanPage() {
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((ingredient) => {
-            const days = getDaysUntilExpiry(ingredient.expiryDate);
+            const effectiveExpiry = getEffectiveExpiryDate(ingredient);
+            const days = getDaysUntilExpiry(effectiveExpiry);
             const badge = badgeForExpiry(days);
             return (
               <Card key={ingredient.id}>
@@ -175,7 +180,16 @@ export default function BahanPage() {
                     {ingredient.quantity} {ingredient.unit}
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {ingredient.expiryDate ? `Exp: ${ingredient.expiryDate}` : "Exp: -"}
+                    {ingredient.expiryDate
+                      ? `Exp: ${ingredient.expiryDate}`
+                      : ingredient.estimatedExpiryDate
+                        ? `Perkiraan exp: ${ingredient.estimatedExpiryDate}`
+                        : "Exp: -"}
+                    {ingredient.storageLocation ? (
+                      <span className="ml-2">
+                        • {ingredient.storageLocation === "fridge" ? "Kulkas" : "Luar kulkas"}
+                      </span>
+                    ) : null}
                   </div>
 
                   <div className="flex gap-2">
