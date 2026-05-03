@@ -94,9 +94,6 @@ model Recipe {
   instructions Json     // array of steps
   imageUrl     String?
   source       String   // ai, user, community
-  isApproved   Boolean  @default(false)
-  status       String   @default("pending")
-  rejectedReason String?
   userId       String?
   user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   createdAt    DateTime @default(now())

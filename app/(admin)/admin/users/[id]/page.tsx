@@ -19,7 +19,7 @@ type UserDetailPayload = {
     stats: { ingredients: number; recipes: number; reviews: number };
     loginCount?: number | null;
   };
-  recentRecipes?: Array<{ id: string; name: string; created_at: string; status?: string | null; source?: string | null }>;
+  recentRecipes?: Array<{ id: string; name: string; created_at: string; source?: string | null }>;
   auditLogs?: AuditLogItem[];
   warning?: string;
 };
@@ -139,7 +139,6 @@ export default function AdminUserDetailPage() {
             <thead className="text-xs text-muted-foreground">
               <tr className="border-b">
                 <th className="py-2 text-left font-medium">Nama</th>
-                <th className="py-2 text-left font-medium">Status</th>
                 <th className="py-2 text-left font-medium">Source</th>
                 <th className="py-2 text-left font-medium">Waktu</th>
               </tr>
@@ -147,7 +146,7 @@ export default function AdminUserDetailPage() {
             <tbody>
               {(data.recentRecipes ?? []).length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="py-3 text-muted-foreground">
+                  <td colSpan={3} className="py-3 text-muted-foreground">
                     Belum ada resep.
                   </td>
                 </tr>
@@ -155,8 +154,7 @@ export default function AdminUserDetailPage() {
                 (data.recentRecipes ?? []).map((r) => (
                   <tr key={r.id} className="border-b last:border-b-0">
                     <td className="py-2">{r.name}</td>
-                    <td className="py-2 text-muted-foreground">{(r.status ?? "unknown") as string}</td>
-                    <td className="py-2 text-muted-foreground">{(r.source ?? "unknown") as string}</td>
+                    <td className="py-2 text-muted-foreground">{(r.source ?? "user") as string}</td>
                     <td className="py-2 text-muted-foreground">{new Date(r.created_at).toLocaleString("id-ID")}</td>
                   </tr>
                 ))

@@ -30,8 +30,9 @@ async function getUserAuditLogs(userId: string) {
 
   if (error) {
     const msg = (error.message || "").toLowerCase();
-    if (msg.includes("relation") && msg.includes("audit_logs")) return { items: [], warning: "Table audit_logs belum ada." };
-    if (msg.includes("does not exist") && msg.includes("audit_logs")) return { items: [], warning: "Table audit_logs belum ada." };
+    if (msg.includes("relation") || msg.includes("does not exist") || msg.includes("audit_logs")) {
+      return { items: [], warning: "" }; // Silent, jangan tampilkan warning untuk audit_logs
+    }
     return { items: [], warning: error.message };
   }
 
@@ -53,7 +54,7 @@ async function getRecentRecipes(userId: string) {
   const supabase = getSupabaseServerAdminClient();
   const { data, error } = await supabase
     .from("recipes")
-    .select("id,name,created_at,status,source")
+    .select("id,name,created_at,source")
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(10);
@@ -88,7 +89,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       },
       recentRecipes: recipes.items,
       auditLogs: audit.items,
-      warning: [audit.warning, recipes.warning].filter(Boolean).join(" · ") || undefined,
+      warning: recipes.warning || undefined,
     });
   } catch (e) {
     const status = typeof (e as { status?: number }).status === "number" ? (e as { status: number }).status : 500;

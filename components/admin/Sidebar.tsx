@@ -3,12 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { BarChart3, LayoutGrid, MessageSquareQuote, Shield, Users, Utensils } from "lucide-react";
+import { BarChart3, LayoutGrid, MessageSquareQuote, Shield, Users } from "lucide-react";
 
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutGrid, exact: true },
   { href: "/admin/users", label: "Users", icon: Users, exact: false },
-  { href: "/admin/recipes", label: "Recipes", icon: Utensils, exact: false },
   { href: "/admin/reviews", label: "Reviews", icon: MessageSquareQuote, exact: false },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3, exact: false },
 ] as const;

@@ -8,6 +8,12 @@ function dayKey(iso: string) {
   return d.toISOString().slice(0, 10);
 }
 
+function monthKey(iso: string) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso.slice(0, 7);
+  return d.toISOString().slice(0, 7);
+}
+
 function csvCell(v: unknown) {
   const s = v === null || v === undefined ? "" : String(v);
   const escaped = s.replace(/"/g, '""');
@@ -22,6 +28,16 @@ function makeLastNDays(n: number) {
     days.push(d.toISOString().slice(0, 10));
   }
   return days;
+}
+
+function makeLastNMonths(n: number) {
+  const now = new Date();
+  const months: string[] = [];
+  for (let i = n - 1; i >= 0; i -= 1) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push(d.toISOString().slice(0, 7));
+  }
+  return months;
 }
 
 export async function GET(request: Request) {
@@ -44,7 +60,7 @@ export async function GET(request: Request) {
         const meta = (u.user_metadata as { role?: string; banned?: boolean } | null) ?? null;
         users.push({
           id: u.id,
-          email: u.email,
+          email: u.email ?? null,
           createdAt: u.created_at,
           role: meta?.role ?? "USER",
           banned: Boolean(meta?.banned),
@@ -78,7 +94,7 @@ export async function GET(request: Request) {
       const from = days[0] + "T00:00:00.000Z";
       const { data, error } = await supabase
         .from("recipes")
-        .select("id,name,user_id,created_at,source,status")
+        .select("id,name,user_id,created_at,source")
         .gte("created_at", from)
         .order("created_at", { ascending: false })
         .limit(5000);
@@ -91,9 +107,9 @@ export async function GET(request: Request) {
         details: { from, limit: 5000 },
       }).catch(() => undefined);
 
-      const header = ["id", "name", "user_id", "created_at", "source", "status"].map(csvCell).join(",");
+      const header = ["id", "name", "user_id", "created_at", "source"].map(csvCell).join(",");
       const rows = (data ?? []).map((r) =>
-        [r.id, r.name, r.user_id ?? "", r.created_at, r.source ?? "", r.status ?? ""].map(csvCell).join(","),
+        [r.id, r.name, r.user_id ?? "", r.created_at, r.source ?? ""].map(csvCell).join(","),
       );
       const csv = [header, ...rows].join("\n");
       return new Response(csv, {
@@ -104,11 +120,12 @@ export async function GET(request: Request) {
       });
     }
 
-    const [recipesCountRes, recipesAiRes, ingredientsCountRes, usedIngredientsRes] = await Promise.all([
+    const [recipesCountRes, recipesAiRes, ingredientsCountRes, usedIngredientsRes, ingredientCategoryRes] = await Promise.all([
       supabase.from("recipes").select("id", { count: "exact", head: true }),
       supabase.from("recipes").select("id", { count: "exact", head: true }).eq("source", "ai"),
       supabase.from("ingredients").select("id", { count: "exact", head: true }),
       supabase.from("ingredients").select("id", { count: "exact", head: true }).not("used_at", "is", null),
+      supabase.from("ingredients").select("category, count"),
     ]);
 
     const recipesTotal = recipesCountRes.count ?? 0;
@@ -117,12 +134,22 @@ export async function GET(request: Request) {
 
     const usedCount = usedIngredientsRes.count ?? 0;
     const foodWasteReducedKg = Math.round(usedCount * 0.2 * 10) / 10;
+    const foodWasteReducedRp = foodWasteReducedKg * 25000;
 
-    const pendingRes = await supabase
-      .from("recipes")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "pending");
-    const pendingApprovals = pendingRes.error ? null : (pendingRes.count ?? 0);
+    // Ingredient category distribution
+    const categoryCount = new Map<string, number>();
+    for (const row of ingredientCategoryRes.data ?? []) {
+      const cat = String(row.category ?? "Lainnya");
+      const cnt = typeof row.count === "number" ? row.count : 1;
+      categoryCount.set(cat, (categoryCount.get(cat) ?? 0) + cnt);
+    }
+    const categoryDistribution = Array.from(categoryCount.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+
+    // New users this month
+    const firstDayThisMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+    const newUsersThisMonth = users.filter((u) => u.createdAt >= firstDayThisMonth).length;
 
     const recentUsers = [...users]
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -130,7 +157,7 @@ export async function GET(request: Request) {
 
     const recentRecipes = await supabase
       .from("recipes")
-      .select("id,name,created_at,status,source")
+      .select("id,name,created_at,source")
       .order("created_at", { ascending: false })
       .limit(5);
 
@@ -142,8 +169,11 @@ export async function GET(request: Request) {
 
     const series: {
       usersNewPerDay30d?: Array<{ day: string; count: number }>;
+      usersNewPerMonth12m?: Array<{ month: string; count: number }>;
       recipesCreatedPerDay30d?: Array<{ day: string; count: number }>;
       recipesAiShare30d?: Array<{ day: string; ai: number; total: number }>;
+      foodWastePerMonth?: Array<{ month: string; kg: number }>;
+      recipesBySource?: Array<{ source: string; count: number }>;
     } = {};
     let topAiRecipes: Array<{ name: string; count: number }> = [];
 
@@ -155,6 +185,15 @@ export async function GET(request: Request) {
         if (k in baseUsers) baseUsers[k] += 1;
       }
       series.usersNewPerDay30d = days.map((d) => ({ day: d, count: baseUsers[d] ?? 0 }));
+
+      // 12 month user growth
+      const months = makeLastNMonths(12);
+      const baseUsersMonth = Object.fromEntries(months.map((m) => [m, 0])) as Record<string, number>;
+      for (const u of users) {
+        const k = monthKey(u.createdAt);
+        if (k in baseUsersMonth) baseUsersMonth[k] += 1;
+      }
+      series.usersNewPerMonth12m = months.map((m) => ({ month: m, count: baseUsersMonth[m] ?? 0 }));
 
       const from = days[0] + "T00:00:00.000Z";
       const { data: recipeRows, error: recipeErr } = await supabase
@@ -188,6 +227,43 @@ export async function GET(request: Request) {
           .sort((a, b) => b.count - a.count)
           .slice(0, 10);
       }
+
+      // Food waste per month (12 months)
+      const months12 = makeLastNMonths(12);
+      const { data: ingredientRows } = await supabase
+        .from("ingredients")
+        .select("created_at,quantity,unit")
+        .not("used_at", "is", null)
+        .order("created_at", { ascending: true });
+      
+      if (ingredientRows) {
+        const wasteByMonth = Object.fromEntries(months12.map((m) => [m, 0])) as Record<string, number>;
+        for (const ing of ingredientRows) {
+          const k = monthKey(ing.created_at);
+          if (k in wasteByMonth) {
+            // Assume avg 0.2kg per ingredient
+            wasteByMonth[k] += 0.2;
+          }
+        }
+        series.foodWastePerMonth = months12.map((m) => ({ month: m, kg: Math.round(wasteByMonth[m] * 10) / 10 }));
+      }
+
+      // Recipes by source
+      const { data: allRecipes } = await supabase
+        .from("recipes")
+        .select("source")
+        .limit(10000);
+      
+      if (allRecipes) {
+        const sourceCount = new Map<string, number>();
+        for (const r of allRecipes) {
+          const src = String(r.source ?? "user");
+          sourceCount.set(src, (sourceCount.get(src) ?? 0) + 1);
+        }
+        series.recipesBySource = Array.from(sourceCount.entries())
+          .map(([source, count]) => ({ source, count }))
+          .sort((a, b) => b.count - a.count);
+      }
     }
 
     await writeAdminAuditLog({
@@ -205,22 +281,16 @@ export async function GET(request: Request) {
         recipesUser,
         ingredientsTotal: ingredientsCountRes.count ?? 0,
         foodWasteReducedKg,
-        pendingApprovals,
+        foodWasteReducedRp,
+        newUsersThisMonth,
       },
+      categoryDistribution,
       recent: {
         users: recentUsers,
         recipes: recentRecipes.data ?? [],
-        recipesError: recentRecipes.error?.message ?? null,
         reviews: recentReviews.data ?? [],
-        reviewsError: recentReviews.error?.message ?? null,
       },
       ...(withSeries ? { series, topAiRecipes } : {}),
-      warnings: {
-        recipesModeration:
-          typeof pendingApprovals === "number"
-            ? null
-            : "Kolom moderasi resep belum ada. Jalankan SQL admin setup terlebih dahulu.",
-      },
     });
   } catch (e) {
     const status = typeof (e as { status?: number }).status === "number" ? (e as { status: number }).status : 500;

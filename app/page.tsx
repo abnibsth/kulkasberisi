@@ -4,8 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Utensils, ScanLine, ChefHat, Leaf, Clock, Users, Star } from "lucide-react";
 import { getSupabaseServerAdminClient } from "@/lib/supabase/server";
+import TestimonialCarousel from "@/components/TestimonialCarousel";
 
-type LandingReview = {
+// Selalu fetch data terbaru dari Supabase, jangan cache halaman ini
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+
+export type LandingReview = {
   id: string;
   displayName: string;
   role?: string;
@@ -14,16 +20,72 @@ type LandingReview = {
   createdAt?: string;
 };
 
+function TestimonialCard({ review }: { review: LandingReview }) {
+  const initials = (review.displayName || "U")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase())
+    .join("");
+  const rating = Math.max(1, Math.min(5, Math.round(review.rating || 5)));
+  
+  return (
+    <Card className="flex-shrink-0 w-full md:w-[350px]">
+      <CardHeader>
+        <div className="flex items-center gap-1 text-yellow-500 mb-2">
+          {Array.from({ length: 5 }).map((_, idx) => (
+            <Star
+              key={idx}
+              className={`h-4 w-4 ${idx + 1 <= rating ? "fill-current" : ""}`}
+            />
+          ))}
+        </div>
+        <CardDescription className="text-sm line-clamp-4">"{review.message}"</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold text-sm">
+            {initials || "U"}
+          </div>
+          <div>
+            <div className="font-semibold text-gray-900 text-sm">{review.displayName}</div>
+            {review.role && <div className="text-xs text-gray-600">{review.role}</div>}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default async function Home() {
   let reviews: LandingReview[] = [];
   try {
     const supabase = getSupabaseServerAdminClient();
-    const { data, error } = await supabase
+
+    // Coba dengan filter is_hidden dulu, fallback ke is_public saja
+    let { data, error } = await supabase
       .from("reviews")
-      .select("id,display_name,role,rating,message,is_public,created_at")
+      .select("id,display_name,role,rating,message,is_public,is_hidden,created_at")
       .eq("is_public", true)
+      .eq("is_hidden", false)
       .order("created_at", { ascending: false })
-      .limit(3);
+      .limit(10);
+
+    // Fallback: kalau kolom is_hidden belum ada di DB
+    if (error) {
+      console.error("[Landing] Query dengan is_hidden gagal, coba fallback:", error.message);
+      ({ data, error } = await supabase
+        .from("reviews")
+        .select("id,display_name,role,rating,message,is_public,created_at")
+        .eq("is_public", true)
+        .order("created_at", { ascending: false })
+        .limit(10));
+      if (error) {
+        console.error("[Landing] Fallback query juga gagal:", error.message);
+      }
+    }
+
     if (!error && data) {
       reviews = (data as Array<{
         id: string;
@@ -41,7 +103,9 @@ export default async function Home() {
         createdAt: r.created_at,
       }));
     }
-  } catch {
+  } catch (err) {
+    console.error("[Landing] Exception saat ambil reviews:", err);
+
   }
 
   return (
@@ -418,66 +482,38 @@ export default async function Home() {
               Mereka sudah terbantu mengurangi food waste dan lebih gampang cari ide masak.
             </p>
 
-            <div className="grid gap-6 md:grid-cols-3">
-              {(reviews.length ? reviews : [
-                {
-                  id: "fallback-1",
-                  displayName: "Ayu",
-                  role: "Ibu Rumah Tangga",
-                  rating: 5,
-                  message: "Biasanya bingung bahan sisa mau diapain. Sekarang tinggal input, langsung dapat ide masak.",
-                },
-                {
-                  id: "fallback-2",
-                  displayName: "Rizky",
-                  role: "Karyawan",
-                  rating: 5,
-                  message: "Notifikasi bahan mau kadaluarsa bikin saya lebih disiplin. Food waste turun drastis.",
-                },
-                {
-                  id: "fallback-3",
-                  displayName: "Dimas",
-                  role: "Mahasiswa",
-                  rating: 5,
-                  message: "Resepnya kreatif dan bisa disesuaikan waktu masak. Cocok buat yang sibuk.",
-                },
-              ]).map((r) => {
-                const initials = (r.displayName || "U")
-                  .trim()
-                  .split(/\s+/)
-                  .filter(Boolean)
-                  .slice(0, 2)
-                  .map((p) => p[0]?.toUpperCase())
-                  .join("");
-                const rating = Math.max(1, Math.min(5, Math.round(r.rating || 5)));
-                return (
-                  <Card key={r.id}>
-                    <CardHeader>
-                      <div className="flex items-center gap-1 text-yellow-500">
-                        {Array.from({ length: 5 }).map((_, idx) => (
-                          <Star
-                            key={idx}
-                            className={`h-4 w-4 ${idx + 1 <= rating ? "fill-current" : ""}`}
-                          />
-                        ))}
-                      </div>
-                      <CardDescription>“{r.message}”</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold">
-                          {initials || "U"}
-                        </div>
-                        <div>
-                          <div className="font-semibold text-gray-900">{r.displayName}</div>
-                          {r.role && <div className="text-sm text-gray-600">{r.role}</div>}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
+            {reviews.length > 0 ? (
+              <TestimonialCarousel reviews={reviews} />
+            ) : (
+              <div className="grid gap-6 md:grid-cols-3">
+                {[
+                  {
+                    id: "fallback-1",
+                    displayName: "Ayu",
+                    role: "Ibu Rumah Tangga",
+                    rating: 5,
+                    message: "Biasanya bingung bahan sisa mau diapain. Sekarang tinggal input, langsung dapat ide masak.",
+                  },
+                  {
+                    id: "fallback-2",
+                    displayName: "Rizky",
+                    role: "Karyawan",
+                    rating: 5,
+                    message: "Notifikasi bahan mau kadaluarsa bikin saya lebih disiplin. Food waste turun drastis.",
+                  },
+                  {
+                    id: "fallback-3",
+                    displayName: "Dimas",
+                    role: "Mahasiswa",
+                    rating: 5,
+                    message: "Resepnya kreatif dan bisa disesuaikan waktu masak. Cocok buat yang sibuk.",
+                  },
+                ].map((r) => (
+                  <TestimonialCard key={r.id} review={r} />
+                ))}
+              </div>
+            )}
+
             <div className="mt-10 text-center">
               <Link href="/profil">
                 <Button variant="outline">Tulis Ulasan</Button>

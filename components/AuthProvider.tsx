@@ -23,8 +23,8 @@ export default function AuthProvider({
     }
 
     async function sync() {
-      const { data } = await supabase.auth.getSession();
-      const session = data.session;
+      const result = await supabase?.auth.getSession();
+      const session = result?.data?.session;
       if (!session) {
         clearCookie("kb_access_token");
         clearCookie("kb_role");

@@ -29,8 +29,10 @@ async function generateWithGemini(prompt: string, apiKey: string, model: string)
     body: JSON.stringify({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: {
-        temperature: 0.4,
-        maxOutputTokens: 1800,
+        temperature: 0.8,
+        maxOutputTokens: 2400,
+        topP: 0.95,
+        topK: 40,
       },
     }),
   });
@@ -62,8 +64,11 @@ async function generateWithOpenAI(prompt: string, apiKey: string, model: string)
       },
       { role: "user", content: prompt },
     ],
-    temperature: 0.4,
-    max_tokens: 1800,
+    temperature: 0.8,
+    max_tokens: 2400,
+    top_p: 0.95,
+    frequency_penalty: 0.3,
+    presence_penalty: 0.3,
   });
   const content = completion.choices[0].message.content;
   if (!content) throw new Error("OpenAI: response kosong");
@@ -113,20 +118,19 @@ function buildFallbackRecipes(available: InputIngredient[], filters: any): Recip
   const main = availNames.has("bayam") ? "bayam" : available[0]?.name || "bahan";
   const veg = Boolean(filters?.vegetarian);
 
-  const recipes: RecipeOut[] = [
+  // Randomize fallback recipes agar tidak selalu sama
+  const randomOffset = Math.floor(Date.now() / 1000) % 5;
+  
+  const recipeTemplates = [
     {
       name: `Tumis ${main} Bawang Putih`,
       description: `Menu cepat dan simpel untuk mengolah ${main} agar tetap segar, gurih, dan tidak pahit.`,
       prepTime: 8,
       cookTime: 7,
       servings: 2,
-      difficulty: "easy",
+      difficulty: "easy" as const,
       calories: 180,
-      ingredients: uniqueIngredients([
-        ...available,
-        ...pantryBase(),
-        { name: "cabai merah (opsional)", quantity: 1, unit: "buah" },
-      ]),
+      baseIngredients: [{ name: "cabai merah (opsional)", quantity: 1, unit: "buah" }],
       instructions: [
         `Cuci ${main} hingga bersih, tiriskan, lalu potong kasar bila perlu.`,
         "Iris bawang putih dan bawang merah. Iris cabai bila memakai.",
@@ -135,7 +139,6 @@ function buildFallbackRecipes(available: InputIngredient[], filters: any): Recip
         "Bumbui dengan garam dan lada. Aduk rata, koreksi rasa.",
         "Matikan api. Sajikan hangat sebagai lauk atau pendamping nasi.",
       ],
-      matchPercentage: scoreMatch(available, uniqueIngredients([...available, ...pantryBase()])),
     },
     {
       name: `Sup Bening ${main}`,
@@ -143,15 +146,9 @@ function buildFallbackRecipes(available: InputIngredient[], filters: any): Recip
       prepTime: 10,
       cookTime: 15,
       servings: 3,
-      difficulty: "easy",
+      difficulty: "easy" as const,
       calories: 220,
-      ingredients: uniqueIngredients([
-        ...available,
-        ...pantryBase(),
-        { name: "air", quantity: 700, unit: "ml" },
-        { name: "kaldu bubuk (opsional)", quantity: 0.5, unit: "sdt" },
-        { name: "wortel (opsional)", quantity: 1, unit: "buah" },
-      ]),
+      baseIngredients: [{ name: "air", quantity: 700, unit: "ml" }, { name: "kaldu bubuk (opsional)", quantity: 0.5, unit: "sdt" }, { name: "wortel (opsional)", quantity: 1, unit: "buah" }],
       instructions: [
         "Siapkan panci. Tumis bawang putih dan bawang merah sebentar agar wangi.",
         "Tambahkan air. Didihkan.",
@@ -160,24 +157,16 @@ function buildFallbackRecipes(available: InputIngredient[], filters: any): Recip
         "Bumbui garam, lada, dan kaldu bila memakai. Koreksi rasa.",
         "Sajikan sup bening hangat. Tambahkan perasan jeruk nipis bila suka.",
       ],
-      matchPercentage: scoreMatch(
-        available,
-        uniqueIngredients([...available, ...pantryBase(), { name: "air", quantity: 700, unit: "ml" }]),
-      ),
     },
     {
       name: `Omelet ${main} Simpel`,
-      description: `Opsi cepat dan praktis. ${main} jadi lebih “berisi” dengan telur dan bumbu dasar.`,
+      description: `Opsi cepat dan praktis. ${main} jadi lebih "berisi" dengan telur dan bumbu dasar.`,
       prepTime: 10,
       cookTime: 10,
       servings: 2,
-      difficulty: "easy",
+      difficulty: "easy" as const,
       calories: 320,
-      ingredients: uniqueIngredients([
-        ...available,
-        ...pantryBase(),
-        ...(veg ? [{ name: "telur", quantity: 2, unit: "butir" }] : [{ name: "telur", quantity: 2, unit: "butir" }]),
-      ]),
+      baseIngredients: [{ name: "telur", quantity: 2, unit: "butir" }],
       instructions: [
         `Cuci ${main}, tiriskan. Jika daun besar, iris kasar.`,
         "Kocok telur dalam mangkuk. Tambahkan garam dan lada.",
@@ -186,13 +175,71 @@ function buildFallbackRecipes(available: InputIngredient[], filters: any): Recip
         "Tuang adonan, masak api kecil sampai bagian bawah set.",
         "Balik omelet, masak sampai matang. Angkat dan sajikan.",
       ],
-      matchPercentage: scoreMatch(available, uniqueIngredients([...available, ...pantryBase(), { name: "telur", quantity: 2, unit: "butir" }])),
+    },
+    {
+      name: `${main} Goreng Tepung`,
+      description: `Resep crispy dan renyah. Cocok untuk camilan atau lauk pauk.`,
+      prepTime: 15,
+      cookTime: 10,
+      servings: 3,
+      difficulty: "easy" as const,
+      calories: 280,
+      baseIngredients: [{ name: "tepung terigu", quantity: 100, unit: "gram" }, { name: "tepung bumbu", quantity: 50, unit: "gram" }, { name: "air es", quantity: 100, unit: "ml" }],
+      instructions: [
+        `Cuci ${main}, potong sesuai selera.`,
+        "Campur tepung terigu, tepung bumbu, dan air es hingga adonan kental.",
+        `Celupkan ${main} ke adonan tepung hingga terlapis rata.`,
+        "Panaskan minyak banyak dengan api sedang.",
+        "Goreng hingga kuning keemasan dan crispy.",
+        "Tiriskan dan sajikan hangat dengan sambal atau saus.",
+      ],
+    },
+    {
+      name: `Nasi Goreng ${main}`,
+      description: `Nasi goreng sederhana dengan ${main} sebagai pelengkap bergizi.`,
+      prepTime: 10,
+      cookTime: 12,
+      servings: 2,
+      difficulty: "easy" as const,
+      calories: 420,
+      baseIngredients: [{ name: "nasi putih", quantity: 300, unit: "gram" }, { name: "kecap manis", quantity: 2, unit: "sdm" }, { name: "telur", quantity: 1, unit: "butir" }],
+      instructions: [
+        "Panaskan minyak, orak-arik telur hingga matang.",
+        "Masukkan bawang putih dan bawang merah, tumis hingga harum.",
+        "Tambahkan nasi putih, aduk rata dengan telur.",
+        `Masukkan ${main}, aduk hingga layu.`,
+        "Tambahkan kecap manis, garam, dan lada. Aduk hingga merata.",
+        "Sajikan hangat dengan kerupuk dan acar.",
+      ],
     },
   ];
 
+  // Pilih 3-5 resep secara random dari template
+  const startIndex = randomOffset % recipeTemplates.length;
+  const count = 3 + (randomOffset % 3); // 3-5 recipes
+  const selectedRecipes = [];
+  for (let i = 0; i < count; i++) {
+    const idx = (startIndex + i) % recipeTemplates.length;
+    const template = recipeTemplates[idx];
+    selectedRecipes.push(template);
+  }
+
+  const recipes: RecipeOut[] = selectedRecipes.map((template) => ({
+    name: template.name,
+    description: template.description,
+    prepTime: template.prepTime,
+    cookTime: template.cookTime,
+    servings: template.servings,
+    difficulty: template.difficulty,
+    calories: template.calories,
+    ingredients: uniqueIngredients([...available, ...pantryBase(), ...template.baseIngredients]),
+    instructions: template.instructions,
+    matchPercentage: scoreMatch(available, uniqueIngredients([...available, ...pantryBase(), ...template.baseIngredients])),
+  }));
+
   const maxTime = Number(filters?.maxTime);
   const filtered = Number.isFinite(maxTime) && maxTime > 0 ? recipes.filter((r) => r.prepTime + r.cookTime <= maxTime) : recipes;
-  return filtered.length ? filtered : recipes;
+  return filtered.length ? filtered : recipes.slice(0, 3);
 }
 
 function normalizeRecipeOut(raw: any, available: InputIngredient[]): RecipeOut | null {
@@ -267,7 +314,7 @@ export async function POST(req: NextRequest) {
       .map((ing: { name: string; quantity: number; unit: string }) => `${ing.name} (${ing.quantity} ${ing.unit})`)
       .join(", ");
 
-    const prompt = `Buat 3-5 resep kreatif dari bahan yang tersedia: ${ingredientList}
+    const prompt = `Buat 5-8 resep kreatif dari bahan yang tersedia: ${ingredientList}
 
 ${filters?.difficulty ? `Tingkat kesulitan: ${filters.difficulty}` : ""}
 ${filters?.maxTime ? `Waktu maksimum: ${filters.maxTime} menit` : ""}
@@ -278,6 +325,8 @@ Aturan penting:
 - Walaupun bahan tersedia sedikit (misal hanya 1), resep harus tetap masuk akal dengan menambahkan bahan dapur umum (contoh: bawang putih, bawang merah, garam, lada, minyak, air) dan maksimal 3 bahan tambahan opsional.
 - Daftar bahan wajib minimal 6 item.
 - Langkah memasak wajib detail minimal 6 langkah.
+- **VARIASI WAJIB**: Setiap resep harus berbeda jenis masakannya (jangan semua tumis/sup/omelet). Contoh variasi: gorengan, pepes, soto, nasi goreng, mie, salad, sandwich, martabak, bakwan, perkedel, dll.
+- **RANDOM**: Gunakan temperature tinggi untuk hasil lebih variatif dan tidak monoton.
 
 Jawab dalam format JSON persis seperti ini:
 {
@@ -321,7 +370,7 @@ Jawab dalam format JSON persis seperti ini:
       return NextResponse.json({ recipes: buildFallbackRecipes(ingredients, filters) });
     }
 
-    return NextResponse.json({ recipes: normalized.slice(0, 5) });
+    return NextResponse.json({ recipes: normalized.slice(0, 8) });
   } catch (error) {
     console.error("Recipe generation error:", error);
     return NextResponse.json({ recipes: buildFallbackRecipes(ingredients, {}) });
