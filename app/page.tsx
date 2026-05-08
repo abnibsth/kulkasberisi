@@ -64,25 +64,29 @@ export default async function Home() {
     const supabase = getSupabaseServerAdminClient();
 
     // Coba dengan filter is_hidden dulu, fallback ke is_public saja
-    let { data, error } = await supabase
+    const first = await supabase
       .from("reviews")
       .select("id,display_name,role,rating,message,is_public,is_hidden,created_at")
       .eq("is_public", true)
       .eq("is_hidden", false)
       .order("created_at", { ascending: false })
       .limit(10);
+    let data = first.data;
+    let error = first.error;
 
     // Fallback: kalau kolom is_hidden belum ada di DB
     if (error) {
       console.error("[Landing] Query dengan is_hidden gagal, coba fallback:", error.message);
-      ({ data, error } = await supabase
+      const fallback = await supabase
         .from("reviews")
         .select("id,display_name,role,rating,message,is_public,created_at")
         .eq("is_public", true)
         .order("created_at", { ascending: false })
-        .limit(10));
-      if (error) {
-        console.error("[Landing] Fallback query juga gagal:", error.message);
+        .limit(10);
+      data = fallback.data as any;
+      error = fallback.error;
+      if (fallback.error) {
+        console.error("[Landing] Fallback query juga gagal:", fallback.error.message);
       }
     }
 

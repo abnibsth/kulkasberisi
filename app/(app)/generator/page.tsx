@@ -40,6 +40,7 @@ export default function GeneratorPage() {
     vegetarian: false,
     halal: true,
   });
+  const [mainIngredient, setMainIngredient] = useState<string>("");
   const [saveError, setSaveError] = useState<string | null>(null);
   const [savingRecipeId, setSavingRecipeId] = useState<string | null>(null);
 
@@ -79,14 +80,21 @@ export default function GeneratorPage() {
             quantity: ing.quantity,
             unit: ing.unit,
           })),
+          mainIngredient: mainIngredient || undefined,
           filters,
         }),
       });
 
       const data = await response.json();
+      if (!response.ok || data.error) {
+        throw new Error(data.error || "Gagal menghasilkan resep dari AI");
+      }
       setGeneratedRecipes(data.recipes || []);
-    } catch (error) {
+      setSaveError(null); // Clear previous errors
+    } catch (error: any) {
       console.error("Generation failed:", error);
+      setSaveError(error.message); // Use saveError to display the generation error for now
+      setGeneratedRecipes([]);
     } finally {
       setIsGenerating(false);
     }
@@ -142,7 +150,25 @@ export default function GeneratorPage() {
           <CardDescription>Sesuaikan preferensi untuk hasil yang lebih relevan</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-4 gap-4">
+          <div className="grid md:grid-cols-5 gap-4">
+            <div>
+              <Label htmlFor="mainIngredient">Bahan Utama</Label>
+              <Select value={mainIngredient} onValueChange={(value) => setMainIngredient(value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Pilih bahan..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {ingredients.map((ing) => (
+                    <SelectItem key={ing.id ?? ing.name} value={ing.name}>
+                      {ing.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="text-xs text-muted-foreground mt-1">
+                AI akan fokus mengolah bahan ini.
+              </div>
+            </div>
             <div>
               <Label htmlFor="difficulty">Tingkat Kesulitan</Label>
               <Select value={filters.difficulty} onValueChange={(value) => setFilters({ ...filters, difficulty: value })}>
@@ -209,6 +235,12 @@ export default function GeneratorPage() {
         </CardContent>
       </Card>
 
+      {saveError && (
+        <Card className="border-destructive/50">
+          <CardContent className="py-4 text-sm text-destructive">{saveError}</CardContent>
+        </Card>
+      )}
+
       {generatedRecipes.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center text-muted-foreground">
@@ -227,11 +259,6 @@ export default function GeneratorPage() {
         </Card>
       ) : (
         <div className="grid md:grid-cols-2 gap-6">
-          {saveError && (
-            <Card className="md:col-span-2 border-destructive/50">
-              <CardContent className="py-4 text-sm text-destructive">{saveError}</CardContent>
-            </Card>
-          )}
           {generatedRecipes.map((recipe, index) => (
             <Card key={index} className="flex flex-col">
               <CardHeader>

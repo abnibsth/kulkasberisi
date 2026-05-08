@@ -1,10 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 
-async function findUserIdByEmail(supabase: ReturnType<typeof createClient>, email: string) {
+async function findUserIdByEmail(supabase: any, email: string) {
   for (let page = 1; page <= 10; page += 1) {
     const { data, error } = await supabase.auth.admin.listUsers({ page, perPage: 200 });
     if (error) return null;
-    const u = (data.users ?? []).find((x) => (x.email ?? "").toLowerCase() === email.toLowerCase());
+    const u = (data.users ?? []).find((x: any) => (x.email ?? "").toLowerCase() === email.toLowerCase());
     if (u) return u.id;
     if ((data.users ?? []).length < 200) break;
   }
