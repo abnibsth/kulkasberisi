@@ -21,6 +21,7 @@ type RecipeOut = {
 };
 
 async function generateWithGemini(prompt: string, apiKey: string, model: string) {
+  // API v1beta mendukung responseMimeType untuk JSON mode
   const url = new URL(
     `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
   );
@@ -224,24 +225,48 @@ function recipeHasOtherProteins(r: RecipeOut, mainIngredient: string) {
   return kinds.size > 0;
 }
 
-function difficultyPasses(r: RecipeOut, selectedDifficulty: string | undefined) {
+function difficultyPasses(r: RecipeOut, selectedDifficulty: string | undefined, maxTimeFilter?: number) {
   const d = selectedDifficulty;
+  
+  // Cek waktu dulu jika ada filter waktu
+  const totalTime = r.prepTime + r.cookTime;
+  if (maxTimeFilter && maxTimeFilter > 0 && totalTime > maxTimeFilter) {
+    return false;
+  }
+  
   if (!d) return true;
   const steps = Array.isArray(r.instructions) ? r.instructions.length : 0;
   const text = normalize(recipeToText(r));
 
-  if (d === "easy") return steps > 0 && steps <= 8;
-  if (d === "medium") return steps >= 8 && steps <= 12;
-  if (d === "hard") {
-    const easyDish = /(nasi goreng|omelet|telur dadar|tumis .*simpel|simpel|simple|quick|cepat)/i.test(text);
-    return steps >= 12 && !easyDish;
+  // Easy: maksimal 8 langkah, total waktu ≤25 menit
+  if (d === "easy") {
+    return steps > 0 && steps <= 8 && totalTime <= 25;
   }
+  
+  // Medium: 8-12 langkah, total waktu 25-45 menit
+  if (d === "medium") {
+    return steps >= 8 && steps <= 12 && totalTime >= 25 && totalTime <= 45;
+  }
+  
+  // Hard: minimal 12 langkah, total waktu ≥45 menit, bukan resep cepat
+  if (d === "hard") {
+    const easyDish = /(nasi goreng|omelet|telur dadar|tumis .*simpel|simpel|simple|quick|cepat|sup bening|tumis)/i.test(text);
+    return steps >= 12 && totalTime >= 45 && !easyDish;
+  }
+  
   return true;
 }
 
-function buildFallbackRecipes(available: InputIngredient[], filters: any, mainIngredientRaw?: string): RecipeOut[] {
+function buildFallbackRecipes(
+  available: InputIngredient[],
+  filters: { difficulty?: string; maxTime?: string; vegetarian?: boolean; halal?: boolean },
+  mainIngredientRaw?: string,
+  webContext?: string | null
+): RecipeOut[] {
+  // Fallback terakhir: kembalikan resep minimal dari bahan user
+  // Ini HANYA dipakai jika AI gagal total (API error/kuota habis)
   const availNames = new Set(available.map((i) => normalize(i.name)));
-  
+
   let main = "bahan";
   if (mainIngredientRaw && availNames.has(normalize(mainIngredientRaw))) {
     main = mainIngredientRaw;
@@ -250,260 +275,112 @@ function buildFallbackRecipes(available: InputIngredient[], filters: any, mainIn
   } else if (available[0]?.name) {
     main = available[0].name;
   }
-  
-  const veg = Boolean(filters?.vegetarian);
 
-  // Randomize fallback recipes agar tidak selalu sama
-  const randomOffset = Math.floor(Date.now() / 1000) % 5;
-  
-  const recipeTemplates = [
-    {
-      name: `Tumis ${main} Bawang Putih`,
-      description: `Menu cepat dan simpel untuk mengolah ${main} agar tetap segar, gurih, dan tidak pahit.`,
-      prepTime: 8,
-      cookTime: 7,
-      servings: 2,
-      difficulty: "easy" as const,
-      calories: 180,
-      baseIngredients: [{ name: "cabai merah (opsional)", quantity: 1, unit: "buah" }],
-      instructions: [
-        `Cuci ${main} hingga bersih, tiriskan, lalu potong kasar bila perlu.`,
-        "Iris bawang putih dan bawang merah. Iris cabai bila memakai.",
-        "Panaskan minyak. Tumis bawang merah dan bawang putih sampai harum.",
-        `Masukkan ${main}. Aduk cepat 1–2 menit agar tidak terlalu layu.`,
-        "Bumbui dengan garam dan lada. Aduk rata, koreksi rasa.",
-        "Matikan api. Sajikan hangat sebagai lauk atau pendamping nasi.",
-      ],
-    },
-    {
-      name: `Sup Bening ${main}`,
-      description: `Sup ringan yang cocok untuk stok bahan minim. Kuah bening, segar, dan tetap mengenyangkan.`,
-      prepTime: 10,
-      cookTime: 15,
-      servings: 3,
-      difficulty: "easy" as const,
-      calories: 220,
-      baseIngredients: [{ name: "air", quantity: 700, unit: "ml" }, { name: "kaldu bubuk (opsional)", quantity: 0.5, unit: "sdt" }, { name: "wortel (opsional)", quantity: 1, unit: "buah" }],
-      instructions: [
-        "Siapkan panci. Tumis bawang putih dan bawang merah sebentar agar wangi.",
-        "Tambahkan air. Didihkan.",
-        "Jika memakai wortel, masukkan dulu dan masak sampai agak empuk.",
-        `Masukkan ${main}. Masak 2–3 menit saja agar warnanya tetap hijau.`,
-        "Bumbui garam, lada, dan kaldu bila memakai. Koreksi rasa.",
-        "Sajikan sup bening hangat. Tambahkan perasan jeruk nipis bila suka.",
-      ],
-    },
-    {
-      name: `Omelet ${main} Simpel`,
-      description: `Opsi cepat dan praktis. ${main} jadi lebih "berisi" dengan telur dan bumbu dasar.`,
-      prepTime: 10,
-      cookTime: 10,
-      servings: 2,
-      difficulty: "easy" as const,
-      calories: 320,
-      baseIngredients: [{ name: "telur", quantity: 2, unit: "butir" }],
-      instructions: [
-        `Cuci ${main}, tiriskan. Jika daun besar, iris kasar.`,
-        "Kocok telur dalam mangkuk. Tambahkan garam dan lada.",
-        `Masukkan ${main} ke dalam kocokan telur. Aduk rata.`,
-        "Panaskan sedikit minyak di wajan anti lengket.",
-        "Tuang adonan, masak api kecil sampai bagian bawah set.",
-        "Balik omelet, masak sampai matang. Angkat dan sajikan.",
-      ],
-    },
-    {
-      name: `${main} Goreng Tepung`,
-      description: `Resep crispy dan renyah. Cocok untuk camilan atau lauk pauk.`,
-      prepTime: 15,
-      cookTime: 10,
-      servings: 3,
-      difficulty: "easy" as const,
-      calories: 280,
-      baseIngredients: [{ name: "tepung terigu", quantity: 100, unit: "gram" }, { name: "tepung bumbu", quantity: 50, unit: "gram" }, { name: "air es", quantity: 100, unit: "ml" }],
-      instructions: [
-        `Cuci ${main}, potong sesuai selera.`,
-        "Campur tepung terigu, tepung bumbu, dan air es hingga adonan kental.",
-        `Celupkan ${main} ke adonan tepung hingga terlapis rata.`,
-        "Panaskan minyak banyak dengan api sedang.",
-        "Goreng hingga kuning keemasan dan crispy.",
-        "Tiriskan dan sajikan hangat dengan sambal atau saus.",
-      ],
-    },
-    {
-      name: `Nasi Goreng ${main}`,
-      description: `Nasi goreng sederhana dengan ${main} sebagai pelengkap bergizi.`,
-      prepTime: 10,
-      cookTime: 12,
-      servings: 2,
-      difficulty: "easy" as const,
-      calories: 420,
-      baseIngredients: [{ name: "nasi putih", quantity: 300, unit: "gram" }, { name: "kecap manis", quantity: 2, unit: "sdm" }, { name: "telur", quantity: 1, unit: "butir" }],
-      instructions: [
-        "Panaskan minyak, orak-arik telur hingga matang.",
-        "Masukkan bawang putih dan bawang merah, tumis hingga harum.",
-        "Tambahkan nasi putih, aduk rata dengan telur.",
-        `Masukkan ${main}, aduk hingga layu.`,
-        "Tambahkan kecap manis, garam, dan lada. Aduk hingga merata.",
-        "Sajikan hangat dengan kerupuk dan acar.",
-      ],
-    },
-    {
-      name: `Gulai ${main} Spesial`,
-      description: `Sajian kaya rempah dengan kuah santan kental yang gurih dan meresap sempurna.`,
-      prepTime: 20,
-      cookTime: 35,
-      servings: 4,
-      difficulty: "hard" as const,
-      calories: 520,
-      baseIngredients: [{ name: "santan kental", quantity: 200, unit: "ml" }, { name: "bumbu gulai jadi", quantity: 3, unit: "sdm" }, { name: "daun jeruk", quantity: 2, unit: "lembar" }],
-      instructions: [
-        `Cuci bersih ${main} dan potong sesuai selera.`,
-        "Panaskan minyak, tumis bumbu gulai dan daun jeruk hingga harum dan matang.",
-        `Masukkan ${main}, aduk hingga bumbu merata dan bahan berubah warna.`,
-        "Tuangkan air secukupnya, masak dengan api sedang hingga bahan setengah empuk.",
-        "Kecilkan api, tuang santan kental secara perlahan sambil terus diaduk agar santan tidak pecah.",
-        "Bumbui dengan garam dan sedikit gula. Masak perlahan hingga kuah menyusut dan bumbu meresap (sekitar 30 menit).",
-        "Koreksi rasa, angkat, dan sajikan dengan nasi hangat."
-      ],
-    },
-    {
-      name: `${main} Bakar Bumbu Rujak`,
-      description: `Proses memasak multi-tahap (ungkep lalu bakar) menghasilkan bumbu karamelisasi yang luar biasa lezat.`,
-      prepTime: 20,
-      cookTime: 40,
-      servings: 3,
-      difficulty: "hard" as const,
-      calories: 450,
-      baseIngredients: [{ name: "bumbu dasar merah", quantity: 3, unit: "sdm" }, { name: "kecap manis", quantity: 3, unit: "sdm" }, { name: "air asam jawa", quantity: 1, unit: "sdm" }],
-      instructions: [
-        `Bersihkan ${main}. Siapkan wajan besar.`,
-        "Tumis bumbu dasar merah hingga wangi. Masukkan air asam jawa dan kecap manis.",
-        `Masukkan ${main} dan sedikit air. Ungkep dengan api kecil hingga air menyusut dan bumbu mengental menempel (sekitar 25 menit).`,
-        "Panaskan alat panggangan atau teflon dengan sedikit minyak/mentega.",
-        `Bakar ${main} yang sudah diungkep sambil diolesi sisa bumbu ungkep.`,
-        "Panggang hingga terbentuk lapisan karamelisasi yang harum di kedua sisi.",
-        "Sajikan selagi panas dengan sambal terasi."
-      ],
-    },
-    {
-      name: `Rica-Rica ${main} Pedas`,
-      description: `Sajian pedas gurih dengan aroma daun aromatik yang khas dan menggugah selera.`,
-      prepTime: 15,
-      cookTime: 25,
-      servings: 3,
-      difficulty: "medium" as const,
-      calories: 380,
-      baseIngredients: [{ name: "cabai giling", quantity: 2, unit: "sdm" }, { name: "serai", quantity: 1, unit: "batang" }, { name: "daun salam", quantity: 2, unit: "lembar" }],
-      instructions: [
-        `Potong ${main} ukuran kecil agar cepat matang.`,
-        "Panaskan minyak, tumis bawang putih, bawang merah, cabai giling, serai (geprek), dan daun salam hingga wangi.",
-        `Masukkan ${main}. Aduk rata hingga terbalut bumbu.`,
-        "Tambahkan sedikit air agar bumbu tidak gosong. Tutup wajan dan masak dengan api sedang.",
-        "Biarkan hingga air menyusut dan minyak dari bumbu keluar.",
-        "Bumbui dengan garam, lada, dan penyedap bila suka. Aduk rata lalu sajikan."
-      ],
-    },
-  ];
-
+  const requestedDiff = filters?.difficulty || "";
+  const maxTime = Number(filters?.maxTime) || 0;
   const isHalal = Boolean(filters?.halal);
   const isVeg = Boolean(filters?.vegetarian);
-  const requestedDiff = filters?.difficulty;
-  if (requestedDiff) {
-    // Filter templates based on difficulty, but keep some fallback if none match
-    const matchingTemplates = recipeTemplates.filter(t => t.difficulty === requestedDiff);
-    if (matchingTemplates.length > 0) {
-      // Ganti array utama dengan yang cocok, lalu biarkan logic random memilih dari sini
-      recipeTemplates.length = 0;
-      recipeTemplates.push(...matchingTemplates);
-    }
+
+  // Set difficulty-appropriate times
+  let basePrepTime = 10, baseCookTime = 15, steps = 6;
+  if (requestedDiff === "easy") {
+    basePrepTime = 8; baseCookTime = 12; steps = 5;
+  } else if (requestedDiff === "medium") {
+    basePrepTime = 15; baseCookTime = 25; steps = 8;
+  } else if (requestedDiff === "hard") {
+    basePrepTime = 25; baseCookTime = 45; steps = 12;
   }
 
-  if (!isHalal && !isVeg) {
-    recipeTemplates.push({
-      name: `Tumis ${main} Saus Angciu (Non-Halal)`,
-      description: `Tumisan wangi dengan aroma khas dari angciu (arak masak) yang lezat namun tidak halal.`,
-      prepTime: 10,
-      cookTime: 8,
-      servings: 2,
-      difficulty: "medium" as const,
-      calories: 350,
-      baseIngredients: [{ name: "angciu (arak masak)", quantity: 2, unit: "sdm" }, { name: "kecap asin", quantity: 1, unit: "sdm" }],
-      instructions: [
-        `Cuci bersih ${main} dan potong sesuai selera.`,
-        "Panaskan minyak, tumis bawang putih hingga wangi.",
-        `Masukkan ${main}, aduk cepat dengan api besar.`,
-        "Tuangkan angciu di pinggiran wajan agar aromanya keluar.",
-        "Tambahkan kecap asin, garam, dan sedikit air. Masak hingga matang.",
-        "Angkat dan sajikan segera."
-      ]
-    });
-    
-    recipeTemplates.push({
-      name: `${main} Masak Lard (Non-Halal)`,
-      description: `Resep gurih non-halal yang menumis bahan dengan menggunakan minyak babi (lard).`,
-      prepTime: 10,
-      cookTime: 10,
-      servings: 2,
-      difficulty: "medium" as const,
-      calories: 420,
-      baseIngredients: [{ name: "lard (minyak babi)", quantity: 2, unit: "sdm" }],
-      instructions: [
-        `Siapkan ${main} yang sudah dicuci bersih.`,
-        "Lelehkan lard di wajan. Masukkan bawang putih, tumis sampai harum.",
-        `Masukkan ${main}, masak sambil terus diaduk.`,
-        "Bumbui dengan garam dan lada.",
-        "Aduk rata sampai bumbu meresap sempurna.",
-        "Angkat dan sajikan selagi panas."
-      ]
-    });
+  // Adjust if maxTime is set
+  if (maxTime > 0 && basePrepTime + baseCookTime > maxTime) {
+    baseCookTime = maxTime - basePrepTime;
+    if (baseCookTime < 5) baseCookTime = 5;
   }
 
-  // Pilih 3-5 resep secara random dari template
-  const startIndex = randomOffset % recipeTemplates.length;
-  const count = 3 + (randomOffset % 3); // 3-5 recipes
-  const selectedRecipes = [];
-  
-  // Jika tidak halal, paksa masukkan minimal 1 resep non-halal di awal agar terlihat bedanya
-  let forcedNonHalal = false;
-  if (!isHalal && !isVeg) {
-    selectedRecipes.push(recipeTemplates[recipeTemplates.length - 1]);
-    forcedNonHalal = true;
-  }
-  
-  for (let i = 0; i < (forcedNonHalal ? count - 1 : count); i++) {
-    const idx = (startIndex + i) % (recipeTemplates.length - (forcedNonHalal ? 2 : 0));
-    const template = recipeTemplates[idx];
-    selectedRecipes.push(template);
-  }
-
-  const recipes: RecipeOut[] = selectedRecipes.map((template) => ({
-    name: template.name,
-    description: template.description,
-    prepTime: template.prepTime,
-    cookTime: template.cookTime,
-    servings: template.servings,
-    difficulty: template.difficulty,
-    calories: template.calories,
-    // Fallback: jangan masukin semua bahan user (biar nggak ada bahan aneh ikut kebawa)
+  // Simple generic recipe based on main ingredient
+  const genericRecipe: RecipeOut = {
+    name: `Olahan ${main}`,
+    description: `Resep sederhana mengolah ${main} dengan bumbu dasar.`,
+    prepTime: basePrepTime,
+    cookTime: baseCookTime,
+    servings: 3,
+    difficulty: requestedDiff === "easy" || requestedDiff === "medium" || requestedDiff === "hard" ? requestedDiff as any : "easy",
+    calories: 300,
     ingredients: uniqueIngredients([
-      ...(available.slice(0, 2) || []),
+      ...(available.slice(0, 3) || []),
       ...pantryBase(),
-      ...template.baseIngredients,
     ]),
-    instructions: template.instructions,
+    instructions: [
+      `Siapkan ${main} dan semua bahan.`,
+      "Cuci bersih bahan-bahan.",
+      "Tumis bumbu dasar hingga harum.",
+      `Masukkan ${main}, aduk rata.`,
+      "Bumbui dengan garam dan lada.",
+      "Masak hingga matang.",
+      "Koreksi rasa dan sajikan.",
+    ].slice(0, Math.max(6, steps)),
     matchPercentage: scoreMatch(
       available,
       uniqueIngredients([
-        ...(available.slice(0, 2) || []),
+        ...(available.slice(0, 3) || []),
         ...pantryBase(),
-        ...template.baseIngredients,
       ]),
     ),
-  }));
+  };
 
-  const maxTime = Number(filters?.maxTime);
-  const filtered = Number.isFinite(maxTime) && maxTime > 0 ? recipes.filter((r) => r.prepTime + r.cookTime <= maxTime) : recipes;
-  return filtered.length ? filtered : recipes.slice(0, 3);
+  // Return minimal recipes (1-3) just to have something
+  const recipes = [genericRecipe];
+  
+  // Add 1-2 more variations with slight modifications
+  const variations = [
+    { name: `Tumis ${main}`, technique: "tumis", extraTime: 5 },
+    { name: `${main} Goreng`, technique: "goreng", extraTime: 10 },
+    { name: `Sup ${main}`, technique: "rebus", extraTime: 15 },
+  ];
+
+  const randomOffset = Math.floor(Date.now() / 1000) % variations.length;
+  for (let i = 0; i < Math.min(2, variations.length); i++) {
+    const varIdx = (randomOffset + i) % variations.length;
+    const variation = variations[varIdx];
+    
+    const varPrepTime = basePrepTime;
+    const varCookTime = Math.min(baseCookTime + variation.extraTime, maxTime > 0 ? maxTime - basePrepTime : 999);
+    
+    if (maxTime > 0 && varPrepTime + varCookTime > maxTime) continue;
+    
+    recipes.push({
+      name: variation.name,
+      description: `${variation.technique.charAt(0).toUpperCase() + variation.technique.slice(1)} ${main} dengan bumbu sederhana.`,
+      prepTime: varPrepTime,
+      cookTime: varCookTime,
+      servings: 3,
+      difficulty: requestedDiff === "easy" || requestedDiff === "medium" || requestedDiff === "hard" ? requestedDiff as any : "easy",
+      calories: 280 + i * 50,
+      ingredients: uniqueIngredients([
+        ...(available.slice(0, 2) || []),
+        ...pantryBase(),
+      ]),
+      instructions: [
+        `Siapkan ${main}.`,
+        "Cuci bersih.",
+        `Panaskan minyak untuk ${variation.technique}.`,
+        "Tumis bumbu dasar.",
+        `Masukkan ${main}.`,
+        `Masak dengan teknik ${variation.technique} hingga matang.`,
+        "Koreksi rasa.",
+        "Sajikan.",
+      ].slice(0, Math.max(6, steps)),
+      matchPercentage: scoreMatch(
+        available,
+        uniqueIngredients([
+          ...(available.slice(0, 2) || []),
+          ...pantryBase(),
+        ]),
+      ),
+    });
+  }
+
+  return recipes.slice(0, 3);
 }
 
 function normalizeRecipeOut(raw: any, available: InputIngredient[]): RecipeOut | null {
@@ -738,12 +615,31 @@ export async function POST(req: NextRequest) {
     });
 
     const selectedDifficulty = typeof filters?.difficulty === "string" ? filters.difficulty : "";
+    const maxTimeValue = Number(filters?.maxTime) || 0;
+    
+    // Aturan waktu berdasarkan difficulty
+    let timeRule = "";
+    if (selectedDifficulty === "easy") {
+      timeRule = "- Waktu total (prep + cook) MAKSIMAL 25 menit untuk resep mudah.";
+    } else if (selectedDifficulty === "medium") {
+      timeRule = "- Waktu total (prep + cook) 25-45 menit untuk resep tingkat sedang.";
+    } else if (selectedDifficulty === "hard") {
+      timeRule = "- Waktu total (prep + cook) MINIMAL 45 menit untuk resep sulit (bisa 60-120 menit).";
+    }
+    if (maxTimeValue > 0) {
+      timeRule += ` WAJIB: Total waktu tidak boleh melebihi ${maxTimeValue} menit.`;
+    }
+
     const hardExtra =
       selectedDifficulty === "hard"
-        ? `\nAturan ekstra untuk SULIT:\n- Minimal 12 langkah dan harus ada multi-proses (contoh: marinasi + bumbu halus + saus/pelengkap).\n- Jangan berikan resep kategori super cepat seperti nasi goreng/omelet/telur dadar/tumis simpel.\n`
-        : "";
+        ? `\nAturan ekstra untuk SULIT:\n- Minimal 12 langkah dan harus ada multi-proses (contoh: marinasi + bumbu halus + saus/pelengkap).\n- Jangan berikan resep kategori super cepat seperti nasi goreng/omelet/telur dadar/tumis simpel/sup bening.\n- Resep sulit HARUS punya teknik kompleks: ungkep lalu bakar, bumbu halus + santan, atau proses lambat (rendang/gulai/opor).`
+        : selectedDifficulty === "medium"
+          ? `\nAturan untuk SEDANG:\n- 8-12 langkah dengan 1-2 proses tambahan (marinasi singkat, membuat sambal, atau lauk + pelengkap).\n- Boleh teknik bakar, rica-rica, atau nasi goreng spesial.`
+          : selectedDifficulty === "easy"
+            ? `\nAturan untuk MUDAH:\n- Maksimal 8 langkah, teknik dasar (tumis/goreng/rebus).\n- Tanpa proses panjang seperti marinasi atau ungkep.`
+            : "";
 
-    const prompt = `Buat 5-8 resep masakan Indonesia yang kreatif dan MASUK AKAL dari bahan yang tersedia (NAMA bahan saja, bukan takaran resep): ${ingredientList}
+    const prompt = `Buat 3-5 resep masakan Indonesia yang kreatif dan MASUK AKAL dari bahan yang tersedia (NAMA bahan saja, bukan takaran resep): ${ingredientList}
 
 ${mainIngredient ? `BAHAN UTAMA (WAJIB): Fokus mengolah "${mainIngredient}" sebagai bahan utama di semua resep.` : ""}
 ${mainIngredient ? `Jika bahan utama adalah protein hewani (ayam/sapi/ikan/dll), JANGAN campur dengan protein hewani lain (contoh: jika ayam, jangan pakai daging sapi/ikan).` : ""}
@@ -753,6 +649,7 @@ ${filters?.maxTime ? `Waktu maksimum: ${filters.maxTime} menit` : ""}
 ${dietRules}
 
 ${webContext ? `Referensi dari web (ringkas). Gunakan hanya sebagai inspirasi agar masakan lebih realistis. Jangan menyalin teks mentah:\n${webContext}\n` : ""}
+${timeRule}
 ${hardExtra}
 
 Aturan penting:
@@ -764,10 +661,11 @@ Aturan penting:
 - Langkah memasak wajib detail minimal 6 langkah.
 - **PENTING**: Output HARUS berupa JSON yang valid. JANGAN gunakan kutip ganda (") atau enter (newline) di dalam teks value string JSON. Jangan sampai JSON terpotong di tengah jalan.
 - **VARIASI WAJIB**: Setiap resep harus berbeda TEKNIK MASAK (jangan semua tumis/sup/omelet). Pilih teknik berbeda dari daftar ini tanpa mengulang: tumis, sup/kuah, goreng, bakar/panggang, kukus, pepes, semur, soto, balado, rica-rica, opor, gulai, perkedel/bakwan, nasi goreng, mie goreng/rebus.
+- **FILTER PENTING**: Resep yang tidak sesuai tingkat kesulitan dan waktu akan DITOLAK. Pastikan prepTime dan cookTime realistis.
 - Gunakan kunci variasi ini untuk menghasilkan kombinasi ide yang berbeda tiap request: ${variationKey}
 ${difficultyRule}
 
-Jawab dalam format JSON persis seperti ini:
+Jawab dalam format JSON persis seperti ini (HANYA JSON, jangan ada teks pembuka/penutup):
 {
   "recipes": [
     {
@@ -790,15 +688,38 @@ Jawab dalam format JSON persis seperti ini:
     const geminiKey = process.env.GEMINI_API_KEY;
     const openaiKey = process.env.OPENAI_API_KEY;
 
+    // Kalau tidak ada API key sama sekali, langsung error yang jelas
+    if (!geminiKey && !openaiKey) {
+      return NextResponse.json(
+        { 
+          error: "API key belum dikonfigurasi. Silakan set GEMINI_API_KEY atau OPENAI_API_KEY di .env.local",
+          hint: "Dapatkan Gemini API key di https://aistudio.google.com/apikey"
+        },
+        { status: 500 }
+      );
+    }
+
     let content: string | null = null;
     if (geminiKey) {
-      try {
-        const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-        content = await generateWithGemini(prompt, geminiKey, model);
-      } catch (e) {
-        // Kalau Gemini error (mis. model 404), jangan matiin fitur AI — coba OpenAI kalau tersedia.
-        console.error("Gemini generate failed, fallback to OpenAI:", e);
-        content = null;
+      // Model names sesuai dengan yang ada di Rate Limit dashboard
+      // Gemini 2.5 Flash dan Gemini 3 Flash masih ada quota
+      const modelsToTry = [
+        "gemini-2.5-flash", // Model yang ada di dashboard (masih 2/5 RPM used)
+        "gemini-3-flash", // Model yang ada di dashboard (masih 3/5 RPM used)
+        "gemini-1.5-flash", // Fallback ke model stabil
+      ];
+
+      for (const model of modelsToTry) {
+        try {
+          content = await generateWithGemini(prompt, geminiKey, model);
+          if (content) {
+            console.log(`✅ Gemini success with model: ${model}`);
+            break;
+          }
+        } catch (e: any) {
+          console.warn(`❌ Gemini model ${model} failed:`, e?.message || e);
+          // Continue to next model
+        }
       }
     }
     if (!content && openaiKey) {
@@ -806,13 +727,37 @@ Jawab dalam format JSON persis seperti ini:
       content = await generateWithOpenAI(prompt, openaiKey, model);
     }
     if (!content) {
-      return NextResponse.json({ recipes: buildFallbackRecipes(ingredients, filters, mainIngredientRaw) });
+      // Error jika AI gagal total
+      return NextResponse.json(
+        { 
+          error: "Gagal menghubungi AI. Periksa API key dan kuota Anda.",
+          hint: geminiKey ? "Gemini API error - periksa quota/key" : "OpenAI API error - periksa quota/key"
+        },
+        { status: 500 }
+      );
     }
 
     let parsed: { recipes?: any[] };
     try {
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      const jsonStr = jsonMatch ? jsonMatch[0] : content;
+      // Membersihkan string JSON dari kemungkinan markdown atau teks tambahan
+      let jsonStr = content.trim();
+      
+      // Hapus backticks markdown jika ada
+      if (jsonStr.startsWith("```")) {
+        jsonStr = jsonStr.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
+      }
+
+      // Cari kurung kurawal pertama dan terakhir untuk memastikan hanya mengambil objek JSON
+      const start = jsonStr.indexOf('{');
+      const end = jsonStr.lastIndexOf('}');
+      if (start !== -1 && end !== -1) {
+        jsonStr = jsonStr.substring(start, end + 1);
+      }
+
+      // Hapus trailing commas yang sering merusak JSON.parse
+      // Regex ini mencari koma yang diikuti oleh whitespace dan penutup kurung } atau ]
+      jsonStr = jsonStr.replace(/,\s*([}\]])/g, "$1");
+
       parsed = JSON.parse(jsonStr) as { recipes?: any[] };
     } catch (parseErr: any) {
       console.error("Recipe JSON parse failed:", parseErr?.message ?? parseErr, "RAW:", content.slice(0, 500));
@@ -832,21 +777,30 @@ Jawab dalam format JSON persis seperti ini:
       }
       if (fixed) {
         try {
-          const m2 = fixed.match(/\{[\s\S]*\}/);
-          parsed = JSON.parse(m2 ? m2[0] : fixed) as { recipes?: any[] };
+          let fixedStr = fixed.trim();
+          if (fixedStr.startsWith("```")) {
+            fixedStr = fixedStr.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
+          }
+          const m2 = fixedStr.indexOf('{');
+          const e2 = fixedStr.lastIndexOf('}');
+          if (m2 !== -1 && e2 !== -1) {
+            fixedStr = fixedStr.substring(m2, e2 + 1);
+          }
+          fixedStr = fixedStr.replace(/,\s*([}\]])/g, "$1");
+          parsed = JSON.parse(fixedStr) as { recipes?: any[] };
         } catch (e2) {
           console.error("Recipe JSON parse still failed after retry:", e2);
-          return NextResponse.json({ recipes: buildFallbackRecipes(ingredients, filters, mainIngredientRaw) });
+          return NextResponse.json({ recipes: buildFallbackRecipes(ingredients, filters, mainIngredientRaw, webContext) });
         }
       } else {
-        return NextResponse.json({ recipes: buildFallbackRecipes(ingredients, filters, mainIngredientRaw) });
+        return NextResponse.json({ recipes: buildFallbackRecipes(ingredients, filters, mainIngredientRaw, webContext) });
       }
     }
 
     const list = Array.isArray(parsed.recipes) ? parsed.recipes : [];
     const normalized = list.map((r) => normalizeRecipeOut(r, ingredients)).filter(Boolean) as RecipeOut[];
     if (normalized.length === 0) {
-      return NextResponse.json({ recipes: buildFallbackRecipes(ingredients, filters, mainIngredientRaw) });
+      return NextResponse.json({ recipes: buildFallbackRecipes(ingredients, filters, mainIngredientRaw, webContext) });
     }
 
     // Enforce diet rules server-side (biar checkbox benar-benar berfungsi).
@@ -854,55 +808,91 @@ Jawab dalam format JSON persis seperti ini:
     if (vegetarianOn) enforced = enforced.filter((r) => !violatesVegetarian(recipeToText(r)));
     if (halalOn) enforced = enforced.filter((r) => !violatesHalal(recipeToText(r)));
 
-    // Enforce bahan utama + difficulty server-side.
+    // Enforce bahan utama + difficulty + waktu server-side.
+    const maxTimeFilter = Number(filters?.maxTime) || undefined;
+    
     if (mainIngredient) {
       enforced = enforced
         .filter((r) => recipeUsesMainIngredient(r, mainIngredient))
         .filter((r) => !recipeHasOtherProteins(r, mainIngredient));
     }
-    if (selectedDifficulty) {
-      enforced = enforced
-        .filter((r) => difficultyPasses(r, selectedDifficulty))
-        .map((r) => ({ ...r, difficulty: selectedDifficulty as any }));
+    
+    // Filter berdasarkan difficulty DAN waktu maksimum
+    if (selectedDifficulty || maxTimeFilter) {
+      const beforeCount = enforced.length;
+      enforced = enforced.filter((r) => difficultyPasses(r, selectedDifficulty, maxTimeFilter));
+      
+      // Kalau semua terfilter, override difficulty sesuai yang dipilih user
+      if (enforced.length === 0 && selectedDifficulty) {
+        enforced = normalized
+          .filter((r) => !vegetarianOn || !violatesVegetarian(recipeToText(r)))
+          .filter((r) => !halalOn || !violatesHalal(recipeToText(r)))
+          .filter((r) => !mainIngredient || recipeUsesMainIngredient(r, mainIngredient))
+          .filter((r) => !mainIngredient || !recipeHasOtherProteins(r, mainIngredient))
+          .map((r) => ({ ...r, difficulty: selectedDifficulty as any }));
+      }
     }
 
     const needsStrictRetry =
       enforced.length === 0 && (vegetarianOn || halalOn || Boolean(mainIngredient) || Boolean(selectedDifficulty));
     if (needsStrictRetry) {
+      const timeConstraint = maxTimeValue > 0 ? `- Total waktu (prep + cook) TIDAK BOLEH melebihi ${maxTimeValue} menit.` : selectedDifficulty === "easy" ? "- Total waktu maksimal 25 menit." : selectedDifficulty === "medium" ? "- Total waktu 25-45 menit." : "- Total waktu minimal 45 menit.";
+      
       const strictPrompt = `${prompt}
 
-PENTING:
+PENTING - RETRY DENGAN ATURAN LEBIH KETAT:
 - Semua resep WAJIB patuh aturan diet (jika aktif).
 ${mainIngredient ? `- Semua resep WAJIB memasukkan bahan utama "${mainIngredient}" di daftar ingredients.` : ""}
-${selectedDifficulty === "hard" ? "- Mode SULIT: minimal 12 langkah dan jangan resep cepat." : ""}
+${timeConstraint}
+${selectedDifficulty === "hard" ? "- Mode SULIT: minimal 12 langkah, jangan resep cepat (nasi goreng/omelet/tumis), wajib multi-proses (ungkep+bakar, bumbu halus+santan)." : selectedDifficulty === "medium" ? "- Mode SEDANG: 8-12 langkah, boleh marinasi singkat atau buat sambal." : "- Mode MUDAH: maksimal 8 langkah, teknik dasar saja."}
 Buang ide yang tidak patuh dan buat ulang dari nol.`;
       let strictContent: string | null = null;
       if (geminiKey) {
-        const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+        const model = process.env.GEMINI_MODEL || "gemini-1.5-flash";
         strictContent = await generateWithGemini(strictPrompt, geminiKey, model);
       } else if (openaiKey) {
         const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
         strictContent = await generateWithOpenAI(strictPrompt, openaiKey, model);
       }
       if (strictContent) {
-        const m = strictContent.match(/\{[\s\S]*\}/);
-        const p2 = JSON.parse(m ? m[0] : strictContent) as { recipes?: any[] };
-        const l2 = Array.isArray(p2.recipes) ? p2.recipes : [];
-        const n2 = l2.map((r) => normalizeRecipeOut(r, ingredients)).filter(Boolean) as RecipeOut[];
-        let e2 = n2;
-        if (vegetarianOn) e2 = e2.filter((r) => !violatesVegetarian(recipeToText(r)));
-        if (halalOn) e2 = e2.filter((r) => !violatesHalal(recipeToText(r)));
-        if (mainIngredient) {
-          e2 = e2
-            .filter((r) => recipeUsesMainIngredient(r, mainIngredient))
-            .filter((r) => !recipeHasOtherProteins(r, mainIngredient));
+        try {
+          let strictStr = strictContent.trim();
+          if (strictStr.startsWith("```")) {
+            strictStr = strictStr.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
+          }
+          const ms = strictStr.indexOf('{');
+          const es = strictStr.lastIndexOf('}');
+          if (ms !== -1 && es !== -1) {
+            strictStr = strictStr.substring(ms, es + 1);
+          }
+          strictStr = strictStr.replace(/,\s*([}\]])/g, "$1");
+          
+          const p2 = JSON.parse(strictStr) as { recipes?: any[] };
+          const l2 = Array.isArray(p2.recipes) ? p2.recipes : [];
+          const n2 = l2.map((r) => normalizeRecipeOut(r, ingredients)).filter(Boolean) as RecipeOut[];
+          let e2 = n2;
+          if (vegetarianOn) e2 = e2.filter((r) => !violatesVegetarian(recipeToText(r)));
+          if (halalOn) e2 = e2.filter((r) => !violatesHalal(recipeToText(r)));
+          if (mainIngredient) {
+            e2 = e2
+              .filter((r) => recipeUsesMainIngredient(r, mainIngredient))
+              .filter((r) => !recipeHasOtherProteins(r, mainIngredient));
+          }
+          if (selectedDifficulty || maxTimeFilter) {
+            e2 = e2.filter((r) => difficultyPasses(r, selectedDifficulty, maxTimeFilter));
+            if (e2.length === 0 && selectedDifficulty) {
+              e2 = n2
+                .filter((r) => !vegetarianOn || !violatesVegetarian(recipeToText(r)))
+                .filter((r) => !halalOn || !violatesHalal(recipeToText(r)))
+                .filter((r) => !mainIngredient || recipeUsesMainIngredient(r, mainIngredient))
+                .filter((r) => !mainIngredient || !recipeHasOtherProteins(r, mainIngredient))
+                .map((r) => ({ ...r, difficulty: selectedDifficulty as any }));
+            }
+          }
+          if (e2.length) enforced = e2;
+        } catch (err) {
+          console.error("Strict retry JSON parse failed:", err);
         }
-        if (selectedDifficulty) {
-          e2 = e2
-            .filter((r) => difficultyPasses(r, selectedDifficulty))
-            .map((r) => ({ ...r, difficulty: selectedDifficulty as any }));
-        }
-        if (e2.length) enforced = e2;
       }
     }
 
@@ -918,17 +908,11 @@ Buang ide yang tidak patuh dan buat ulang dari nol.`;
     return NextResponse.json({ recipes: enforced.slice(0, 8) });
   } catch (error: any) {
     console.error("Recipe generation error:", error);
-    
-    // Jika user memakai API key, lebih baik tampilkan error daripada template palsu
-    const geminiKey = process.env.GEMINI_API_KEY;
-    const openaiKey = process.env.OPENAI_API_KEY;
-    if (geminiKey || openaiKey) {
-      return NextResponse.json(
-        { error: error?.message || "Terjadi kesalahan saat menghubungi AI. Pastikan API Key valid atau kuota mencukupi." },
-        { status: 500 }
-      );
-    }
-    
-    return NextResponse.json({ recipes: buildFallbackRecipes(ingredients, filters, mainIngredientRaw) });
+
+    // Selalu return error, JANGAN fallback ke template
+    return NextResponse.json(
+      { error: error?.message || "Terjadi kesalahan saat generate resep. Periksa API Key dan kuota Anda." },
+      { status: 500 }
+    );
   }
 }
