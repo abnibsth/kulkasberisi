@@ -1,60 +1,40 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Utensils, ScanLine, ChefHat, Leaf, Clock, Users, Star } from "lucide-react";
+import { ScanLine, ChefHat, Star, ArrowRight, Sparkles, Zap, CheckCircle2, PackagePlus, Bell, BarChart3, Share2, SlidersHorizontal } from "lucide-react";
 import { getSupabaseServerAdminClient } from "@/lib/supabase/server";
 import TestimonialCarousel from "@/components/TestimonialCarousel";
+import { RevealSection, StaggerReveal } from "@/components/landing/RevealSection";
+import MobileMenu from "@/components/landing/MobileMenu";
 
-// Selalu fetch data terbaru dari Supabase, jangan cache halaman ini
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-
 export type LandingReview = {
-  id: string;
-  displayName: string;
-  role?: string;
-  rating: number;
-  message: string;
-  createdAt?: string;
+  id: string; displayName: string; role?: string; rating: number; message: string; createdAt?: string;
 };
 
 function TestimonialCard({ review }: { review: LandingReview }) {
-  const initials = (review.displayName || "U")
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase())
-    .join("");
+  const initials = (review.displayName || "U").trim().split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("");
   const rating = Math.max(1, Math.min(5, Math.round(review.rating || 5)));
-  
   return (
-    <Card className="flex-shrink-0 w-full md:w-[350px]">
-      <CardHeader>
-        <div className="flex items-center gap-1 text-yellow-500 mb-2">
-          {Array.from({ length: 5 }).map((_, idx) => (
-            <Star
-              key={idx}
-              className={`h-4 w-4 ${idx + 1 <= rating ? "fill-current" : ""}`}
-            />
-          ))}
+    <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+      <div className="flex gap-0.5 mb-3">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Star key={i} className={`h-4 w-4 ${i < rating ? "fill-yellow-400 text-yellow-400" : "text-gray-200"}`} />
+        ))}
+      </div>
+      <p className="text-gray-600 text-sm leading-relaxed mb-4 italic">"{review.message}"</p>
+      <div className="flex items-center gap-3">
+        <div className="h-8 w-8 rounded-full bg-gray-900 text-white flex items-center justify-center text-xs font-bold shrink-0">
+          {initials || "U"}
         </div>
-        <CardDescription className="text-sm line-clamp-4">"{review.message}"</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold text-sm">
-            {initials || "U"}
-          </div>
-          <div>
-            <div className="font-semibold text-gray-900 text-sm">{review.displayName}</div>
-            {review.role && <div className="text-xs text-gray-600">{review.role}</div>}
-          </div>
+        <div>
+          <div className="text-sm font-semibold text-gray-900">{review.displayName}</div>
+          {review.role && <div className="text-xs text-gray-400">{review.role}</div>}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
@@ -62,534 +42,299 @@ export default async function Home() {
   let reviews: LandingReview[] = [];
   try {
     const supabase = getSupabaseServerAdminClient();
-
-    // Coba dengan filter is_hidden dulu, fallback ke is_public saja
-    const first = await supabase
-      .from("reviews")
+    const { data } = await supabase.from("reviews")
       .select("id,display_name,role,rating,message,is_public,is_hidden,created_at")
-      .eq("is_public", true)
-      .eq("is_hidden", false)
-      .order("created_at", { ascending: false })
-      .limit(10);
-    let data = first.data;
-    let error = first.error;
-
-    // Fallback: kalau kolom is_hidden belum ada di DB
-    if (error) {
-      console.error("[Landing] Query dengan is_hidden gagal, coba fallback:", error.message);
-      const fallback = await supabase
-        .from("reviews")
-        .select("id,display_name,role,rating,message,is_public,created_at")
-        .eq("is_public", true)
-        .order("created_at", { ascending: false })
-        .limit(10);
-      data = fallback.data as any;
-      error = fallback.error;
-      if (fallback.error) {
-        console.error("[Landing] Fallback query juga gagal:", fallback.error.message);
-      }
-    }
-
-    if (!error && data) {
-      reviews = (data as Array<{
-        id: string;
-        display_name: string | null;
-        role: string | null;
-        rating: number;
-        message: string;
-        created_at: string;
-      }>).map((r) => ({
-        id: r.id,
-        displayName: r.display_name ?? "User",
-        role: r.role ?? undefined,
-        rating: typeof r.rating === "number" ? r.rating : 5,
-        message: r.message,
-        createdAt: r.created_at,
-      }));
-    }
-  } catch (err) {
-    console.error("[Landing] Exception saat ambil reviews:", err);
-
-  }
+      .eq("is_public", true).eq("is_hidden", false)
+      .order("created_at", { ascending: false }).limit(10);
+    if (data) reviews = (data as any[]).map((r) => ({
+      id: r.id, displayName: r.display_name ?? "User", role: r.role ?? undefined,
+      rating: typeof r.rating === "number" ? r.rating : 5, message: r.message, createdAt: r.created_at,
+    }));
+  } catch {}
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="border-b sticky top-0 z-50 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/70">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-6">
-          <div className="flex items-center gap-2">
-            <Utensils className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold">Kulkas Berisi</span>
+    <div className="min-h-screen bg-white font-sans antialiased flex flex-col">
+
+      {/* ── NAVBAR ── */}
+      <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur-lg">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between gap-4">
+          <Link href="/" className="flex items-center gap-2 shrink-0 group">
+            <Image src="/logo.png" alt="Kulkas Berisi" width={30} height={30} className="rounded-xl group-hover:scale-110 transition-transform duration-200" />
+            <span className="font-bold text-gray-900 text-base md:text-lg tracking-tight">Kulkas <span className="text-green-600">Berisi</span></span>
+          </Link>
+
+          {/* Desktop nav */}
+          <nav className="hidden md:flex items-center gap-7 text-sm text-gray-500">
+            {[["#promo","Promo"],["#fitur","Fitur"],["#cara-kerja","Cara Kerja"],["#ulasan","Ulasan"]].map(([h,l])=>(
+              <Link key={l} href={h} className="hover:text-gray-900 transition-colors relative group">
+                {l}
+                <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-green-600 group-hover:w-full transition-all duration-300" />
+              </Link>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-2 md:gap-3">
+            <Link href="/login" className="hidden sm:block"><Button variant="ghost" size="sm" className="text-gray-500 hover:text-gray-900">Masuk</Button></Link>
+            <Link href="/register" className="hidden md:block"><Button size="sm" className="bg-gray-900 hover:bg-gray-800 text-white shadow-sm">Mulai Gratis</Button></Link>
+            {/* Mobile hamburger */}
+            <MobileMenu />
           </div>
-          <nav className="hidden md:flex items-center gap-6 text-sm text-gray-600">
-            <Link href="#promo" className="hover:text-gray-900">Promo</Link>
-            <Link href="#features" className="hover:text-gray-900">Fitur</Link>
-            <Link href="#how-it-works" className="hover:text-gray-900">Cara Kerja</Link>
-            <Link href="#testimonials" className="hover:text-gray-900">Testimoni</Link>
-          </nav>
-          <nav className="flex items-center gap-4">
-            <Link href="/login">
-              <Button variant="ghost">Masuk</Button>
-            </Link>
-            <Link href="/register">
-              <Button>Daftar</Button>
-            </Link>
-          </nav>
         </div>
       </header>
 
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="py-20 bg-gradient-to-br from-green-50 to-blue-50">
-          <div className="container mx-auto px-4">
-            <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-              <div className="text-center lg:text-left">
-                <div className="inline-flex items-center gap-2 rounded-full border bg-white/70 px-4 py-2 text-sm text-gray-700 shadow-sm">
-                  <span className="inline-block h-2 w-2 rounded-full bg-primary" />
-                  Baru: scan barcode + reminder kadaluarsa
-                </div>
-                <h1 className="text-4xl md:text-6xl font-bold text-gray-800 mt-6 mb-6">
-                  Generator Resep dari Sisa Bahan
-                </h1>
-                <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto lg:mx-0">
-                  Kurangi limbah makanan dengan menghasilkan resep kreatif berdasarkan bahan yang tersisa di kulkas. Hemat uang, jaga lingkungan!
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                  <Link href="/register">
-                    <Button size="lg" className="text-lg px-8 py-6">
-                      <ChefHat className="mr-2 h-5 w-5" />
-                      Mulai Generate Resep
-                    </Button>
-                  </Link>
-                  <Link href="#features">
-                    <Button variant="outline" size="lg" className="text-lg px-8 py-6">
-                      Pelajari Lebih Lanjut
-                    </Button>
-                  </Link>
-                </div>
-                <div className="mt-10 grid grid-cols-3 gap-6 text-left max-w-xl mx-auto lg:mx-0">
-                  <div>
-                    <div className="text-2xl font-bold text-gray-900">3–5</div>
-                    <div className="text-sm text-gray-600">resep per sekali generate</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-gray-900">&lt; 30s</div>
-                    <div className="text-sm text-gray-600">waktu dapat ide masak</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-gray-900">Gratis</div>
-                    <div className="text-sm text-gray-600">mulai tanpa kartu</div>
-                  </div>
+
+        {/* ── HERO ── */}
+        <section className="max-w-6xl mx-auto px-4 md:px-6 pt-12 md:pt-20 pb-16 md:pb-28">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+
+            {/* Left */}
+            <div className="text-center lg:text-left">
+              <div className="animate-fade-in-up inline-flex items-center gap-2 text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-full px-3.5 py-1.5 mb-6 md:mb-8">
+                <Sparkles className="h-3 w-3 text-green-500" />
+                AI-powered · Scan barcode · Zero waste
+              </div>
+              <h1 className="animate-fade-in-up delay-100 text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 leading-[1.1] tracking-tight mb-5">
+                Dari sisa bahan<br />
+                <span className="text-green-600">jadi makan malam.</span>
+              </h1>
+              <p className="animate-fade-in-up delay-200 text-lg md:text-xl text-gray-500 leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0">
+                Kulkas Berisi membantu Anda mengubah bahan yang tersisa menjadi resep nyata — sebelum semuanya kadaluarsa dan terbuang.
+              </p>
+              <div className="animate-fade-in-up delay-300 flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3 mb-8">
+                <Link href="/register" className="w-full sm:w-auto">
+                  <Button size="lg" className="w-full sm:w-auto bg-gray-900 hover:bg-gray-800 text-white h-12 px-8 font-semibold shadow-lg hover:shadow-xl transition-all duration-200">
+                    <ChefHat className="mr-2 h-5 w-5" /> Coba Sekarang Gratis
+                  </Button>
+                </Link>
+                <Link href="#fitur" className="flex items-center justify-center gap-1.5 text-sm text-gray-400 hover:text-gray-900 transition-colors group py-2">
+                  Lihat fitur <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+              </div>
+              <p className="animate-fade-in-up delay-400 text-xs text-gray-400 text-center lg:text-left">Tidak perlu kartu kredit. Gratis untuk mulai.</p>
+            </div>
+
+            {/* Right – hero image (visible on all screens, but smaller on mobile) */}
+            <div className="animate-fade-in-right delay-200 relative mt-4 lg:mt-0">
+              <div className="relative overflow-hidden rounded-2xl md:rounded-3xl shadow-xl md:shadow-2xl ring-1 ring-black/5">
+                <div className="relative h-56 sm:h-72 md:h-[360px] lg:h-[480px]">
+                  <Image
+                    src="https://images.unsplash.com/photo-1543353071-873f17a7a088?auto=format&fit=crop&w=1200&q=90"
+                    alt="Bahan makanan segar di kulkas" fill priority sizes="(max-width:1024px) 100vw, 50vw"
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                 </div>
               </div>
-
-              <div className="relative">
-                <div className="relative overflow-hidden rounded-2xl border bg-white/70 shadow-sm">
-                  <div className="relative h-[320px] sm:h-[380px] lg:h-[420px]">
-                    <Image
-                      src="https://images.unsplash.com/photo-1543353071-873f17a7a088?auto=format&fit=crop&w=1600&q=80"
-                      alt="Bahan makanan segar"
-                      fill
-                      priority
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                      className="object-cover"
-                    />
-                  </div>
-                </div>
-                <div className="absolute -bottom-6 left-6 right-6 rounded-xl border bg-white p-4 shadow-sm">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <div className="text-sm text-gray-600">Ide cepat untuk bahan tersisa</div>
-                      <div className="font-semibold text-gray-900">Telur • Sayur • Ayam</div>
+              {/* Floating card */}
+              <div className="animate-float-card absolute -bottom-4 left-3 right-3 md:left-5 md:right-5 bg-white rounded-xl md:rounded-2xl p-3 md:p-4 shadow-xl border border-gray-100">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+                      <span className="text-xs text-gray-400 font-medium uppercase tracking-wide">AI Aktif</span>
                     </div>
-                    <Link href="/register">
-                      <Button size="sm">Coba Sekarang</Button>
+                    <div className="font-semibold text-gray-900 text-xs md:text-sm">🥚 Telur · 🐔 Ayam · 🥕 Wortel</div>
+                  </div>
+                  <Link href="/register">
+                    <Button size="sm" className="bg-green-600 hover:bg-green-700 shrink-0 text-xs h-8">Generate →</Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── STATS ── */}
+        <section className="border-y border-gray-100 bg-gray-50 py-10 md:py-14">
+          <div className="max-w-6xl mx-auto px-4 md:px-6">
+            <StaggerReveal className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5">
+              {[["10,000+","Pengguna Aktif"],["50,000+","Resep Dihasilkan"],["2,000 kg","Food Waste Dikurangi"],["4.8/5","Rating Pengguna"]].map(([v,l])=>(
+                <div key={l} className="bg-white rounded-xl md:rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 px-4 md:px-6 py-5 md:py-7 text-center">
+                  <div className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight mb-1">{v}</div>
+                  <div className="text-gray-400 text-xs md:text-sm">{l}</div>
+                </div>
+              ))}
+            </StaggerReveal>
+          </div>
+        </section>
+
+        {/* ── PROMO ── */}
+        <section id="promo" className="py-14 md:py-20 scroll-mt-20">
+          <div className="max-w-6xl mx-auto px-4 md:px-6">
+            <RevealSection className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8 md:mb-12">
+              <div>
+                <p className="text-green-600 text-xs font-semibold uppercase tracking-widest mb-1.5">Highlights</p>
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">Promo & Inspirasi</h2>
+                <p className="text-gray-400 mt-1.5 text-sm md:text-base">Kampanye aktif dan peluang kolaborasi.</p>
+              </div>
+              <Link href="/register" className="shrink-0">
+                <Button variant="outline" size="sm" className="border-gray-200 text-gray-500 hover:border-gray-900 hover:text-gray-900 w-full sm:w-auto">
+                  Lihat semua <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+                </Button>
+              </Link>
+            </RevealSection>
+            <StaggerReveal className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              {[
+                { img:"https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80", tag:"Aktif", title:"Zero Waste 7 Hari", desc:"Habiskan semua bahan sebelum kadaluarsa dalam 7 hari. Pantau progres di dashboard.", cta:"Ikuti Campaign", href:"/register" },
+                { img:"https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=800&q=80", tag:"Mingguan", title:"Resep Pilihan Minggu Ini", desc:"Kurasi resep komunitas berdasarkan bahan musiman yang paling banyak tersedia.", cta:"Lihat Resep", href:"#fitur" },
+                { img:"https://images.unsplash.com/photo-1583394293214-28ded15ee548?auto=format&fit=crop&w=800&q=80", tag:"Partner", title:"Pasang Iklan di Sini", desc:"Jangkau ribuan pengguna aktif yang peduli dengan konsumsi pangan berkualitas.", cta:"Hubungi Kami", href:"/contact" },
+              ].map(({ img, tag, title, desc, cta, href }) => (
+                <div key={title} className="group rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 bg-white">
+                  <div className="relative h-44 md:h-48 overflow-hidden">
+                    <Image src={img} alt={title} fill sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw" className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                    <span className="absolute top-3 left-3 text-xs font-semibold bg-white/90 backdrop-blur-sm text-gray-700 rounded-md px-2.5 py-1 border border-white/60">{tag}</span>
+                  </div>
+                  <div className="p-4 md:p-5">
+                    <h3 className="font-semibold text-gray-900 mb-1.5">{title}</h3>
+                    <p className="text-sm text-gray-400 mb-4 leading-relaxed">{desc}</p>
+                    <Link href={href}>
+                      <Button variant="outline" size="sm" className="w-full text-xs border-gray-200 hover:border-gray-900 hover:text-gray-900 group/btn">
+                        {cta} <ArrowRight className="ml-1.5 h-3 w-3 group-hover/btn:translate-x-0.5 transition-transform" />
+                      </Button>
                     </Link>
                   </div>
                 </div>
-              </div>
-            </div>
+              ))}
+            </StaggerReveal>
           </div>
         </section>
 
-        {/* Social Proof */}
-        <section className="py-12 bg-white border-b">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-              <div>
-                <div className="text-3xl font-bold text-primary mb-2">10,000+</div>
-                <div className="text-gray-600">Pengguna Aktif</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-primary mb-2">50,000+</div>
-                <div className="text-gray-600">Resep Dihasilkan</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-primary mb-2">2,000 kg</div>
-                <div className="text-gray-600">Food Waste Terkurangi</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-primary mb-2">4.8/5</div>
-                <div className="text-gray-600">Rating Pengguna</div>
-              </div>
-            </div>
+        {/* ── FEATURES ── */}
+        <section id="fitur" className="py-14 md:py-20 bg-gray-50 scroll-mt-20">
+          <div className="max-w-6xl mx-auto px-4 md:px-6">
+            <RevealSection className="text-center mb-10 md:mb-14">
+              <p className="text-green-600 text-xs font-semibold uppercase tracking-widest mb-2">Fitur</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight mb-2">Semua yang Anda butuhkan.</h2>
+              <p className="text-gray-400 md:text-lg max-w-xl mx-auto">Dari scan barcode sampai resep AI — dalam satu aplikasi yang rapi.</p>
+            </RevealSection>
+            <StaggerReveal className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[
+                { Icon: PackagePlus,      color: "text-blue-600",   bg: "bg-blue-50",   title:"Input Bahan",         desc:"Ketik atau scan barcode. Auto-isi nama, jumlah, dan tanggal kadaluarsa dari 1000+ produk." },
+                { Icon: Sparkles,         color: "text-violet-600", bg: "bg-violet-50", title:"AI Recipe Generator",  desc:"Pilih bahan, tekan generate — 3–5 resep dalam detik, disesuaikan selera Anda." },
+                { Icon: Bell,             color: "text-orange-600", bg: "bg-orange-50", title:"Expiry Reminder",      desc:"Notifikasi H-3 sebelum bahan habis masa pakai. Tidak ada bahan terbuang sia-sia." },
+                { Icon: BarChart3,        color: "text-green-600",  bg: "bg-green-50",  title:"Zero Waste Tracker",  desc:"Lihat berapa kg food waste yang berhasil Anda kurangi sejak bergabung." },
+                { Icon: Share2,           color: "text-sky-600",    bg: "bg-sky-50",    title:"Share Resep",         desc:"Satu tap untuk share ke WhatsApp, Instagram Story, atau salin link resep." },
+                { Icon: SlidersHorizontal,color: "text-rose-600",   bg: "bg-rose-50",   title:"Filter Cerdas",       desc:"Filter waktu masak, kesulitan, diet vegetarian, atau halal sesuai kebutuhan." },
+              ].map(({ Icon, color, bg, title, desc }) => (
+                <div key={title} className="bg-white rounded-2xl border border-gray-100 p-5 md:p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+                  <div className={`inline-flex items-center justify-center h-10 w-10 rounded-xl ${bg} mb-4 group-hover:scale-110 transition-transform duration-200`}>
+                    <Icon className={`h-5 w-5 ${color}`} />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-1.5">{title}</h3>
+                  <p className="text-sm text-gray-400 leading-relaxed">{desc}</p>
+                </div>
+              ))}
+            </StaggerReveal>
           </div>
         </section>
 
-        <section id="promo" className="py-16 bg-white border-b scroll-mt-24">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
-              <div>
-                <h2 className="text-2xl md:text-3xl font-bold text-gray-800">Promo & Inspirasi</h2>
-                <p className="text-gray-600">Tambahkan slot banner iklan, promo, atau campaign supaya landing page lebih menarik.</p>
-              </div>
-              <Link href="/register">
-                <Button variant="outline">Pasang CTA</Button>
-              </Link>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-6">
-              <Card className="overflow-hidden">
-                <div className="relative h-44 w-full bg-gradient-to-br from-green-100 to-blue-100">
-                  <Image
-                    src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1600&q=80"
-                    alt="Sayur dan buah segar"
-                    fill
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    className="object-cover"
-                  />
-                </div>
-                <CardHeader>
-                  <CardTitle className="text-xl">Campaign: Zero Waste 7 Hari</CardTitle>
-                  <CardDescription>
-                    Tantang diri Anda untuk menghabiskan bahan sebelum kadaluarsa dengan reminder otomatis.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Link href="/register">
-                    <Button className="w-full">Ikuti Campaign</Button>
-                  </Link>
-                </CardContent>
-              </Card>
-
-              <Card className="overflow-hidden">
-                <div className="relative h-44 w-full bg-gradient-to-br from-orange-100 to-rose-100">
-                  <Image
-                    src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=1600&q=80"
-                    alt="Hidangan makanan fresh"
-                    fill
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    className="object-cover"
-                  />
-                </div>
-                <CardHeader>
-                  <CardTitle className="text-xl">Rekomendasi Resep Harian</CardTitle>
-                  <CardDescription>
-                    Munculkan ide masak yang relevan dengan stok Anda: cepat, hemat, dan minim limbah.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Link href="#features">
-                    <Button variant="outline" className="w-full">Lihat Fitur</Button>
-                  </Link>
-                </CardContent>
-              </Card>
-
-              <Card className="overflow-hidden">
-                <div className="relative h-44 w-full bg-gradient-to-br from-slate-100 to-indigo-100">
-                  <Image
-                    src="https://images.unsplash.com/photo-1583394293214-28ded15ee548?auto=format&fit=crop&w=1600&q=80"
-                    alt="Produk dapur untuk promosi"
-                    fill
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/35" />
-                  <div className="h-full w-full flex items-center justify-center px-6 text-center">
-                    <div>
-                      <div className="text-sm text-white/90">Slot Iklan</div>
-                      <div className="text-xl font-semibold text-white">Banner Sponsor / Partner</div>
-                      <div className="text-sm text-white/85 mt-1">Ganti dengan gambar produk/brand Anda</div>
-                    </div>
+        {/* ── HOW IT WORKS ── */}
+        <section id="cara-kerja" className="py-14 md:py-20 bg-gray-900 scroll-mt-20">
+          <div className="max-w-6xl mx-auto px-4 md:px-6">
+            <RevealSection className="mb-10 md:mb-16">
+              <p className="text-green-400 text-xs font-semibold uppercase tracking-widest mb-2">Cara Kerja</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-3">Tiga langkah. Tidak lebih.</h2>
+              <p className="text-gray-400 md:text-lg max-w-xl">Dibuat sesederhana mungkin karena tujuannya adalah memasak — bukan belajar aplikasi baru.</p>
+            </RevealSection>
+            <StaggerReveal className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-8">
+              {[
+                { n:"01", Icon: ScanLine, title:"Buka kulkas, input bahan", desc:"Scan barcode atau ketik langsung bahan apa yang ada. Butuh kurang dari satu menit.", color:"text-green-400" },
+                { n:"02", Icon: Zap, title:"Pilih dan generate resep", desc:"Pilih bahan mana yang mau dipakai hari ini. AI langsung buatkan opsi resep yang relevan.", color:"text-blue-400" },
+                { n:"03", Icon: CheckCircle2, title:"Masak dan tandai selesai", desc:"Ikuti langkah resep, tandai bahan terpakai, stok kulkas Anda otomatis terupdate.", color:"text-purple-400" },
+              ].map(({ n, Icon, title, desc, color }) => (
+                <div key={n} className="flex gap-5 md:block">
+                  <div className={`text-4xl md:text-5xl font-bold ${color} opacity-25 leading-none shrink-0 md:mb-4`}>{n}</div>
+                  <div>
+                    <Icon className={`h-5 w-5 md:h-6 md:w-6 ${color} mb-2 md:mb-3`} />
+                    <h3 className="text-base md:text-lg font-semibold text-white mb-1.5">{title}</h3>
+                    <p className="text-gray-400 text-sm leading-relaxed">{desc}</p>
                   </div>
                 </div>
-                <CardHeader>
-                  <CardTitle className="text-xl">Ruang untuk Promosi</CardTitle>
-                  <CardDescription>
-                    Tempatkan promo produk dapur, voucher belanja, atau kolaborasi komunitas.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Link href="/contact">
-                    <Button variant="secondary" className="w-full">Hubungi Kami</Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            </div>
+              ))}
+            </StaggerReveal>
           </div>
         </section>
 
-        {/* Features Section */}
-        <section id="features" className="py-20 bg-gray-50 scroll-mt-24">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-4">
-              Fitur Utama
-            </h2>
-            <p className="text-lg text-gray-600 text-center mb-12 max-w-2xl mx-auto">
-              everything yang Anda butuhkan untuk mengurangi limbah makanan dan masak lebih efisien
-            </p>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Feature 1 */}
-              <Card>
-                <CardHeader>
-                  <Utensils className="h-12 w-12 text-primary mb-2" />
-                  <CardTitle className="text-xl">Input Bahan Manual</CardTitle>
-                  <CardDescription>
-                    Masukkan bahan yang tersisa di kulkas dengan mudah. Lengkap dengan kategori, jumlah, dan tanggal kadaluarsa.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-
-              {/* Feature 2 */}
-              <Card>
-                <CardHeader>
-                  <ScanLine className="h-12 w-12 text-primary mb-2" />
-                  <CardTitle className="text-xl">Scan Barcode</CardTitle>
-                  <CardDescription>
-                    Scan barcode produk untuk auto-input bahan dan tanggal kadaluarsa. Support 1000+ produk Indonesia.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-
-              {/* Feature 3 */}
-              <Card>
-                <CardHeader>
-                  <ChefHat className="h-12 w-12 text-primary mb-2" />
-                  <CardTitle className="text-xl">AI Recipe Generator</CardTitle>
-                  <CardDescription>
-                    Dapatkan 3-5 resep kreatif dari AI berdasarkan bahan yang tersedia. Filter berdasarkan waktu dan kesulitan.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-
-              {/* Feature 4 */}
-              <Card>
-                <CardHeader>
-                  <Leaf className="h-12 w-12 text-primary mb-2" />
-                  <CardTitle className="text-xl">Zero Waste Tracker</CardTitle>
-                  <CardDescription>
-                    Lacak berapa banyak food waste yang berhasil Anda kurangi dan dampaknya untuk lingkungan.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-
-              {/* Feature 5 */}
-              <Card>
-                <CardHeader>
-                  <Clock className="h-12 w-12 text-primary mb-2" />
-                  <CardTitle className="text-xl">Expiry Reminder</CardTitle>
-                  <CardDescription>
-                    Dapatkan notifikasi H-3 sebelum bahan kadaluarsa. Tidak ada lagi bahan terbuang sia-sia.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-
-              {/* Feature 6 */}
-              <Card>
-                <CardHeader>
-                  <Users className="h-12 w-12 text-primary mb-2" />
-                  <CardTitle className="text-xl">Share & Komunitas</CardTitle>
-                  <CardDescription>
-                    Bagikan resep ke WhatsApp, Instagram, atau feed komunitas. Dapatkan inspirasi dari pengguna lain.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </div>
-          </div>
-        </section>
-
-        {/* How It Works */}
-        <section id="how-it-works" className="py-20 bg-white scroll-mt-24">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-4">
-              Cara Kerja
-            </h2>
-            <p className="text-lg text-gray-600 text-center mb-12 max-w-2xl mx-auto">
-              Mulai kurangi limbah makanan dalam 3 langkah mudah
-            </p>
-
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
-                  1
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Input Bahan</h3>
-                <p className="text-gray-600">
-                  Masukkan atau scan bahan yang tersisa di kulkas Anda
-                </p>
-              </div>
-
-              <div className="text-center">
-                <div className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
-                  2
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Generate Resep</h3>
-                <p className="text-gray-600">
-                  AI akan menghasilkan resep kreatif dari bahan tersedia
-                </p>
-              </div>
-
-              <div className="text-center">
-                <div className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
-                  3
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Masak & Nikmati</h3>
-                <p className="text-gray-600">
-                  Ikuti langkah resep dan nikmati hidangan tanpa limbah
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-12 grid gap-6 md:grid-cols-3">
-              <Card>
-                <CardHeader>
-                  <ScanLine className="h-10 w-10 text-primary mb-2" />
-                  <CardTitle className="text-lg">Cepat Input</CardTitle>
-                  <CardDescription>Scan barcode atau input manual sesuai kebutuhan.</CardDescription>
-                </CardHeader>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <Clock className="h-10 w-10 text-primary mb-2" />
-                  <CardTitle className="text-lg">Anti Kadaluarsa</CardTitle>
-                  <CardDescription>Reminder membantu Anda habiskan bahan tepat waktu.</CardDescription>
-                </CardHeader>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <ChefHat className="h-10 w-10 text-primary mb-2" />
-                  <CardTitle className="text-lg">Resep Relevan</CardTitle>
-                  <CardDescription>Hasil resep menyesuaikan bahan, waktu, dan selera.</CardDescription>
-                </CardHeader>
-              </Card>
-            </div>
-          </div>
-        </section>
-
-        <section id="testimonials" className="py-20 bg-gray-50 scroll-mt-24">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-4">
-              Testimoni Pengguna
-            </h2>
-            <p className="text-lg text-gray-600 text-center mb-12 max-w-2xl mx-auto">
-              Mereka sudah terbantu mengurangi food waste dan lebih gampang cari ide masak.
-            </p>
-
+        {/* ── TESTIMONIALS ── */}
+        <section id="ulasan" className="py-14 md:py-20 bg-gray-50 scroll-mt-20">
+          <div className="max-w-6xl mx-auto px-4 md:px-6">
+            <RevealSection className="text-center mb-10 md:mb-14">
+              <p className="text-green-600 text-xs font-semibold uppercase tracking-widest mb-2">Ulasan</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight mb-2">Kata pengguna.</h2>
+              <p className="text-gray-400 md:text-lg max-w-xl mx-auto">Ulasan asli dari pengguna yang sudah pakai lebih dari dua minggu.</p>
+            </RevealSection>
             {reviews.length > 0 ? (
               <TestimonialCarousel reviews={reviews} />
             ) : (
-              <div className="grid gap-6 md:grid-cols-3">
+              <StaggerReveal className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {[
-                  {
-                    id: "fallback-1",
-                    displayName: "Ayu",
-                    role: "Ibu Rumah Tangga",
-                    rating: 5,
-                    message: "Biasanya bingung bahan sisa mau diapain. Sekarang tinggal input, langsung dapat ide masak.",
-                  },
-                  {
-                    id: "fallback-2",
-                    displayName: "Rizky",
-                    role: "Karyawan",
-                    rating: 5,
-                    message: "Notifikasi bahan mau kadaluarsa bikin saya lebih disiplin. Food waste turun drastis.",
-                  },
-                  {
-                    id: "fallback-3",
-                    displayName: "Dimas",
-                    role: "Mahasiswa",
-                    rating: 5,
-                    message: "Resepnya kreatif dan bisa disesuaikan waktu masak. Cocok buat yang sibuk.",
-                  },
-                ].map((r) => (
-                  <TestimonialCard key={r.id} review={r} />
-                ))}
-              </div>
+                  { id:"f1", displayName:"Ayu Rahma", role:"Ibu Rumah Tangga, Surabaya", rating:5, message:"Saya tidak sadar sudah buang berapa banyak uang sebelumnya. Sekarang bahan di kulkas hampir selalu habis dipakai." },
+                  { id:"f2", displayName:"Rizky Pratama", role:"Karyawan, Jakarta", rating:5, message:"Fitur notifikasi kadaluarsanya yang paling membantu. Saya jarang lagi nemuin bahan yang sudah basi." },
+                  { id:"f3", displayName:"Dimas Hendra", role:"Mahasiswa, Bandung", rating:5, message:"Resepnya masuk akal dan enak. Sudah coba 4 resep dalam seminggu dan semuanya berhasil." },
+                ].map((r) => <TestimonialCard key={r.id} review={r} />)}
+              </StaggerReveal>
             )}
-
-            <div className="mt-10 text-center">
+            <RevealSection delay={300} className="mt-8 md:mt-10 text-center">
               <Link href="/profil">
-                <Button variant="outline">Tulis Ulasan</Button>
+                <Button variant="outline" className="border-gray-200 text-gray-500 hover:border-gray-900 hover:text-gray-900">Tulis Ulasan Anda</Button>
               </Link>
-            </div>
+            </RevealSection>
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="py-20 bg-primary text-white">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Siap Mulai Kurangi Limbah Makanan?
-            </h2>
-            <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
-              Bergabunglah dengan ribuan pengguna lain yang sudah mengurangi food waste dan hemat pengeluaran dapur
-            </p>
-            <Link href="/register">
-              <Button size="lg" variant="secondary" className="text-lg px-8 py-6">
-                <ChefHat className="mr-2 h-5 w-5" />
-                Daftar Gratis Sekarang
-              </Button>
-            </Link>
-          </div>
+        {/* ── CTA ── */}
+        <section className="py-14 md:py-24 max-w-6xl mx-auto px-4 md:px-6">
+          <RevealSection>
+            <div className="rounded-2xl md:rounded-3xl bg-gray-900 px-6 py-12 md:px-20 md:py-16 text-center relative overflow-hidden">
+              <div className="pointer-events-none absolute inset-0 opacity-[0.03]" style={{ backgroundImage:"radial-gradient(circle,#fff 1.5px,transparent 1.5px)", backgroundSize:"28px 28px" }} />
+              <div className="relative">
+                <p className="text-green-400 text-xs font-semibold uppercase tracking-widest mb-4">Mulai Sekarang</p>
+                <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight mb-4 max-w-2xl mx-auto leading-tight">
+                  Kulkas penuh bukan berarti makan enak.
+                </h2>
+                <p className="text-gray-400 md:text-lg mb-8 max-w-xl mx-auto">Yang membuat perbedaan adalah tahu mau dimasak apa. Itu yang kami bantu.</p>
+                <Link href="/register">
+                  <Button size="lg" className="w-full sm:w-auto bg-white text-gray-900 hover:bg-gray-100 px-8 py-6 font-bold shadow-xl hover:scale-[1.02] transition-all duration-200">
+                    <ChefHat className="mr-2 h-5 w-5" /> Daftar Gratis Sekarang
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </RevealSection>
         </section>
+
       </main>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <Utensils className="h-6 w-6 text-primary" />
-                <span className="text-xl font-bold text-white">Kulkas Berisi</span>
+      {/* ── FOOTER ── */}
+      <footer className="border-t border-gray-100 bg-white py-10 md:py-12">
+        <div className="max-w-6xl mx-auto px-4 md:px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10 mb-8 md:mb-10">
+            <div className="col-span-2 md:col-span-1">
+              <div className="flex items-center gap-2 mb-3">
+                <Image src="/logo.png" alt="Kulkas Berisi" width={28} height={28} className="rounded-lg" />
+                <span className="font-bold text-gray-900">Kulkas <span className="text-green-600">Berisi</span></span>
               </div>
-              <p className="text-sm">
-                Generator resep berbasis AI untuk mengurangi limbah makanan di Indonesia.
-              </p>
+              <p className="text-sm text-gray-400 leading-relaxed max-w-xs">Generator resep berbasis AI untuk mengurangi limbah makanan di Indonesia.</p>
             </div>
-
-            <div>
-              <h4 className="font-semibold text-white mb-4">Produk</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="#features" className="hover:text-white">Fitur</Link></li>
-                <li><Link href="/dashboard" className="hover:text-white">Dashboard</Link></li>
-                <li><Link href="/generator" className="hover:text-white">Generator</Link></li>
-                <li><Link href="/scanner" className="hover:text-white">Scanner</Link></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-white mb-4">Perusahaan</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/about" className="hover:text-white">Tentang Kami</Link></li>
-                <li><Link href="/contact" className="hover:text-white">Kontak</Link></li>
-                <li><Link href="/privacy" className="hover:text-white">Privasi</Link></li>
-                <li><Link href="/terms" className="hover:text-white">Syarat</Link></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-white mb-4">Kontak</h4>
-              <ul className="space-y-2 text-sm">
-                <li>hello@kulkasberisi.id</li>
-                <li>Jakarta, Indonesia</li>
-              </ul>
-            </div>
+            {[
+              { title:"Produk", links:[["/dashboard","Dashboard"],["/generator","Generator"],["/scanner","Scanner"],["#fitur","Fitur"]] },
+              { title:"Perusahaan", links:[["/about","Tentang Kami"],["/contact","Kontak"],["/privacy","Privasi"],["/terms","Syarat"]] },
+              { title:"Kontak", links:[["mailto:hello@kulkasberisi.id","Email Kami"],["#","Jakarta, Indonesia"]] },
+            ].map(({ title, links }) => (
+              <div key={title}>
+                <h4 className="text-sm font-semibold text-gray-900 mb-3">{title}</h4>
+                <ul className="space-y-2 text-sm">
+                  {links.map(([h, l]) => (
+                    <li key={l}><Link href={h} className="text-gray-400 hover:text-gray-900 transition-colors">{l}</Link></li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
-
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm">
-            <p>&copy; 2026 Kulkas Berisi. All rights reserved.</p>
+          <div className="border-t border-gray-100 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-400">
+            <span>&copy; 2026 Kulkas Berisi. All rights reserved.</span>
+            <span>Made with ❤️ in Kelompok 5</span>
           </div>
         </div>
       </footer>

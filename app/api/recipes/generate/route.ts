@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import Firecrawl from "@mendable/firecrawl-js";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export const runtime = "nodejs";
 
@@ -20,39 +21,21 @@ type RecipeOut = {
   imageUrl?: string;
 };
 
-async function generateWithGemini(prompt: string, apiKey: string, model: string) {
-  // API v1beta mendukung responseMimeType untuk JSON mode
-  const url = new URL(
-    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
-  );
-  url.searchParams.set("key", apiKey);
-
-  const res = await fetch(url.toString(), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.8,
-        maxOutputTokens: 8192,
-        topP: 0.95,
-        topK: 40,
-        responseMimeType: "application/json",
-      },
-    }),
+async function generateWithGemini(prompt: string, apiKey: string, modelName: string) {
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({
+    model: modelName,
+    generationConfig: {
+      temperature: 0.8,
+      maxOutputTokens: 8192,
+      topP: 0.95,
+      topK: 40,
+      responseMimeType: "application/json",
+    },
   });
 
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`Gemini error (${res.status}): ${text || res.statusText}`);
-  }
-
-  const json = (await res.json()) as {
-    candidates?: Array<{
-      content?: { parts?: Array<{ text?: string }> };
-    }>;
-  };
-  const text = json.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
   if (!text) throw new Error("Gemini: response kosong");
   return text;
 }
@@ -701,25 +684,12 @@ Jawab dalam format JSON persis seperti ini (HANYA JSON, jangan ada teks pembuka/
 
     let content: string | null = null;
     if (geminiKey) {
-      // Model names sesuai dengan yang ada di Rate Limit dashboard
-      // Gemini 2.5 Flash dan Gemini 3 Flash masih ada quota
-      const modelsToTry = [
-        "gemini-2.5-flash", // Model yang ada di dashboard (masih 2/5 RPM used)
-        "gemini-3-flash", // Model yang ada di dashboard (masih 3/5 RPM used)
-        "gemini-1.5-flash", // Fallback ke model stabil
-      ];
-
-      for (const model of modelsToTry) {
-        try {
-          content = await generateWithGemini(prompt, geminiKey, model);
-          if (content) {
-            console.log(`✅ Gemini success with model: ${model}`);
-            break;
-          }
-        } catch (e: any) {
-          console.warn(`❌ Gemini model ${model} failed:`, e?.message || e);
-          // Continue to next model
-        }
+      const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+      try {
+        content = await generateWithGemini(prompt, geminiKey, model);
+        console.log(`✅ Gemini success with model: ${model}`);
+      } catch (e: any) {
+        console.error(`❌ Gemini model ${model} failed:`, e?.message || e);
       }
     }
     if (!content && openaiKey) {
@@ -790,17 +760,17 @@ Jawab dalam format JSON persis seperti ini (HANYA JSON, jangan ada teks pembuka/
           parsed = JSON.parse(fixedStr) as { recipes?: any[] };
         } catch (e2) {
           console.error("Recipe JSON parse still failed after retry:", e2);
-          return NextResponse.json({ recipes: buildFallbackRecipes(ingredients, filters, mainIngredientRaw, webContext) });
+          throw new Error("Gagal parsing JSON dari AI setelah retry");
         }
       } else {
-        return NextResponse.json({ recipes: buildFallbackRecipes(ingredients, filters, mainIngredientRaw, webContext) });
+        throw new Error("Gagal mendapatkan respons JSON dari AI");
       }
     }
 
     const list = Array.isArray(parsed.recipes) ? parsed.recipes : [];
     const normalized = list.map((r) => normalizeRecipeOut(r, ingredients)).filter(Boolean) as RecipeOut[];
     if (normalized.length === 0) {
-      return NextResponse.json({ recipes: buildFallbackRecipes(ingredients, filters, mainIngredientRaw, webContext) });
+      throw new Error("AI tidak menghasilkan resep yang valid (0 resep)");
     }
 
     // Enforce diet rules server-side (biar checkbox benar-benar berfungsi).
@@ -848,7 +818,7 @@ ${selectedDifficulty === "hard" ? "- Mode SULIT: minimal 12 langkah, jangan rese
 Buang ide yang tidak patuh dan buat ulang dari nol.`;
       let strictContent: string | null = null;
       if (geminiKey) {
-        const model = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+        const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
         strictContent = await generateWithGemini(strictPrompt, geminiKey, model);
       } else if (openaiKey) {
         const model = process.env.OPENAI_MODEL || "gpt-4o-mini";

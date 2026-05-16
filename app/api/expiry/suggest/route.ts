@@ -62,10 +62,10 @@ function heuristicShelfLife(nameRaw: string, categoryRaw: string) {
   const matchAny = (keywords: string[]) => keywords.some((k) => name.includes(k));
 
   if (category === "protein") {
+    if (matchAny(["telur"])) return { minDays: 14, maxDays: 28, suggestedDays: 21, rationale: "Telur di kulkas biasanya tahan 2–4 minggu." };
     if (matchAny(["ikan", "udang", "seafood", "cumi"])) return { minDays: 1, maxDays: 2, suggestedDays: 1, rationale: "Protein laut cepat rusak di kulkas." };
     if (matchAny(["ayam"])) return { minDays: 1, maxDays: 2, suggestedDays: 2, rationale: "Ayam segar umumnya aman 1–2 hari di kulkas." };
     if (matchAny(["daging", "sapi", "kambing"])) return { minDays: 2, maxDays: 4, suggestedDays: 3, rationale: "Daging merah segar umumnya 2–4 hari di kulkas." };
-    if (matchAny(["telur"])) return { minDays: 14, maxDays: 28, suggestedDays: 21, rationale: "Telur di kulkas biasanya tahan 2–4 minggu." };
     return { minDays: 1, maxDays: 3, suggestedDays: 2, rationale: "Protein segar umumnya 1–3 hari di kulkas." };
   }
 
@@ -123,7 +123,8 @@ async function generateWithGemini(prompt: string, apiKey: string, model: string)
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: 0.2,
-        maxOutputTokens: 300,
+        maxOutputTokens: 1000,
+        responseMimeType: "application/json",
       },
     }),
   });
@@ -159,10 +160,22 @@ async function aiShelfLife(payload: { name: string; category: string; notes?: st
   const geminiKey = process.env.GEMINI_API_KEY;
   if (geminiKey) {
     try {
-      const model = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+      const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
       const content = await generateWithGemini(prompt, geminiKey, model);
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : content) as {
+      
+      // Bersihkan format markdown (```json ... ```) jika ada
+      let cleanContent = content.trim();
+      if (cleanContent.startsWith("```")) {
+        cleanContent = cleanContent.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/i, "").trim();
+      }
+      
+      // Fallback regex jika masih gagal
+      const jsonMatch = cleanContent.match(/\{[\s\S]*\}/);
+      const finalJsonStr = jsonMatch ? jsonMatch[0] : cleanContent;
+      
+      console.log("Raw Response:", finalJsonStr);
+      
+      const parsed = JSON.parse(finalJsonStr) as {
         minDays?: number;
         maxDays?: number;
         suggestedDays?: number;
@@ -177,7 +190,9 @@ async function aiShelfLife(payload: { name: string; category: string; notes?: st
         const clamped = clampDays(parsed.minDays, parsed.maxDays, parsed.suggestedDays);
         return { ...clamped, rationale: parsed.rationale };
       }
-    } catch {
+    } catch (e: any) {
+      console.error("Gemini expiry prediction error:", e);
+      throw e; // Throw so the POST route can catch it and return 500
     }
   }
 
@@ -213,30 +228,38 @@ async function aiShelfLife(payload: { name: string; category: string; notes?: st
 }
 
 export async function POST(req: NextRequest) {
-  const body = (await req.json().catch(() => null)) as SuggestRequest | null;
-  const name = body?.name?.trim() ?? "";
-  const category = body?.category?.trim() ?? "lainnya";
+  try {
+    const body = (await req.json().catch(() => null)) as SuggestRequest | null;
+    const name = body?.name?.trim() ?? "";
+    const category = body?.category?.trim() ?? "lainnya";
 
-  if (!name) {
-    return NextResponse.json({ error: "Nama bahan wajib diisi" }, { status: 400 });
+    if (!name) {
+      return NextResponse.json({ error: "Nama bahan wajib diisi" }, { status: 400 });
+    }
+
+    const baseDate = parseBaseDate(body?.purchaseDate);
+    const heuristic = heuristicShelfLife(name, category);
+
+    const ai = await aiShelfLife({ name, category, notes: body?.notes });
+    const chosen = ai ?? heuristic;
+    const clamped = clampDays(chosen.minDays, chosen.maxDays, chosen.suggestedDays);
+    const expiryDate = toIsoDate(addDays(baseDate, clamped.suggestedDays));
+
+    const response: SuggestResponse = {
+      expiryDate,
+      minDays: clamped.minDays,
+      maxDays: clamped.maxDays,
+      suggestedDays: clamped.suggestedDays,
+      method: ai ? "ai" : "heuristic",
+      rationale: chosen.rationale,
+    };
+
+    return NextResponse.json(response);
+  } catch (error: any) {
+    console.error("API Expiry Suggest Error:", error);
+    return NextResponse.json(
+      { error: "Gagal memproses prediksi dengan AI. Silakan coba lagi." },
+      { status: 500 }
+    );
   }
-
-  const baseDate = parseBaseDate(body?.purchaseDate);
-  const heuristic = heuristicShelfLife(name, category);
-
-  const ai = await aiShelfLife({ name, category, notes: body?.notes });
-  const chosen = ai ?? heuristic;
-  const clamped = clampDays(chosen.minDays, chosen.maxDays, chosen.suggestedDays);
-  const expiryDate = toIsoDate(addDays(baseDate, clamped.suggestedDays));
-
-  const response: SuggestResponse = {
-    expiryDate,
-    minDays: clamped.minDays,
-    maxDays: clamped.maxDays,
-    suggestedDays: clamped.suggestedDays,
-    method: ai ? "ai" : "heuristic",
-    rationale: chosen.rationale,
-  };
-
-  return NextResponse.json(response);
 }

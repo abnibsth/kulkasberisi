@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type ComponentType, type ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -135,8 +136,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       <aside className="w-72 shrink-0 border-r bg-background">
         <div className="h-full flex flex-col p-4">
           <div className="flex items-center gap-3 px-2 py-2">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold">
-              K
+            <div className="h-10 w-10 rounded-xl overflow-hidden flex items-center justify-center shrink-0">
+              <Image src="/logo.png" alt="KulkasBerisi Logo" width={40} height={40} className="object-cover" />
             </div>
             <div className="min-w-0">
               <div className="font-bold truncate">KulkasBerisi</div>
