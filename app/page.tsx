@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { ScanLine, ChefHat, Star, ArrowRight, Sparkles, Zap, CheckCircle2, PackagePlus, Bell, BarChart3, Share2, SlidersHorizontal } from "lucide-react";
+import { ScanLine, Star, Sparkles, Zap, CheckCircle2, PackagePlus, Bell, BarChart3, Share2, SlidersHorizontal } from "lucide-react";
 import { getSupabaseServerAdminClient } from "@/lib/supabase/server";
 import TestimonialCarousel from "@/components/TestimonialCarousel";
 import { RevealSection, StaggerReveal } from "@/components/landing/RevealSection";
@@ -53,30 +52,28 @@ export default async function Home() {
   } catch {}
 
   return (
-    <div className="min-h-screen bg-white font-sans antialiased flex flex-col">
+    <div className="min-h-[100dvh] font-display antialiased flex flex-col" style={{background:"#FEFCF8"}}>
 
-      {/* ── NAVBAR ── */}
-      <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur-lg">
-        <div className="max-w-6xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between gap-4">
+      {/* ── NAVBAR floating pill ── */}
+      <header className="sticky top-0 z-50 px-4 pt-4 pb-2">
+        <div className="nav-pill max-w-5xl mx-auto px-4 md:px-6 h-14 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2 shrink-0 group">
-            <Image src="/logo.png" alt="Kulkas Berisi" width={30} height={30} className="rounded-xl group-hover:scale-110 transition-transform duration-200" />
-            <span className="font-bold text-gray-900 text-base md:text-lg tracking-tight">Kulkas <span className="text-green-600">Berisi</span></span>
+            <Image src="/logo.png" alt="Kulkas Berisi" width={28} height={28} className="rounded-xl group-hover:scale-110 transition-transform duration-200" />
+            <span className="font-bold text-base tracking-tight" style={{color:"#141210"}}>Kulkas <span style={{color:"#2d6a4f"}}>Berisi</span></span>
           </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-7 text-sm text-gray-500">
+          <nav className="hidden md:flex items-center gap-6 text-sm" style={{color:"#5a5550"}}>
             {[["#promo","Promo"],["#fitur","Fitur"],["#cara-kerja","Cara Kerja"],["#ulasan","Ulasan"]].map(([h,l])=>(
-              <Link key={l} href={h} className="hover:text-gray-900 transition-colors relative group">
+              <Link key={l} href={h} className="hover:opacity-100 transition-opacity relative group" style={{opacity:0.7}}>
                 {l}
-                <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-green-600 group-hover:w-full transition-all duration-300" />
+                <span className="absolute -bottom-0.5 left-0 w-0 h-px group-hover:w-full transition-all duration-300" style={{background:"#2d6a4f"}} />
               </Link>
             ))}
           </nav>
 
-          <div className="flex items-center gap-2 md:gap-3">
-            <Link href="/login" className="hidden sm:block"><Button variant="ghost" size="sm" className="text-gray-500 hover:text-gray-900">Masuk</Button></Link>
-            <Link href="/register" className="hidden md:block"><Button size="sm" className="bg-gray-900 hover:bg-gray-800 text-white shadow-sm">Mulai Gratis</Button></Link>
-            {/* Mobile hamburger */}
+          <div className="flex items-center gap-2">
+            <Link href="/login" className="hidden sm:block text-sm font-medium px-4 py-2 rounded-full hover:bg-black/5 transition-colors" style={{color:"#5a5550"}}>Masuk</Link>
+            <Link href="/register" className="hidden md:block text-sm font-semibold px-4 py-2 rounded-full text-white transition-all" style={{background:"#141210"}}>Mulai Gratis</Link>
             <MobileMenu />
           </div>
         </div>
@@ -85,33 +82,34 @@ export default async function Home() {
       <main className="flex-1">
 
         {/* ── HERO ── */}
-        <section className="max-w-6xl mx-auto px-4 md:px-6 pt-12 md:pt-20 pb-16 md:pb-28">
+        <section className="max-w-6xl mx-auto px-4 md:px-6 pt-10 md:pt-16 pb-20 md:pb-32">
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
             {/* Left */}
-            <div className="text-center lg:text-left">
-              <div className="animate-fade-in-up inline-flex items-center gap-2 text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-full px-3.5 py-1.5 mb-6 md:mb-8">
-                <Sparkles className="h-3 w-3 text-green-500" />
-                AI-powered · Scan barcode · Zero waste
-              </div>
-              <h1 className="animate-fade-in-up delay-100 text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 leading-[1.1] tracking-tight mb-5">
-                Dari sisa bahan<br />
-                <span className="text-green-600">jadi makan malam.</span>
+            <div className="animate-blur-in-up flex flex-col gap-5 lg:gap-7">
+              <span className="eyebrow-tag w-fit">
+                <span className="dot" />
+                AI-Powered · Zero Waste
+              </span>
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.1] tracking-tight" style={{color:"#141210"}}>
+                Dari sisa bahan<br /> jadi makan malam.
               </h1>
-              <p className="animate-fade-in-up delay-200 text-lg md:text-xl text-gray-500 leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0">
+              <p className="text-base md:text-lg leading-relaxed max-w-md" style={{color:"#5a5550"}}>
                 Kulkas Berisi membantu Anda mengubah bahan yang tersisa menjadi resep nyata — sebelum semuanya kadaluarsa dan terbuang.
               </p>
-              <div className="animate-fade-in-up delay-300 flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3 mb-8">
-                <Link href="/register" className="w-full sm:w-auto">
-                  <Button size="lg" className="w-full sm:w-auto bg-gray-900 hover:bg-gray-800 text-white h-12 px-8 font-semibold shadow-lg hover:shadow-xl transition-all duration-200">
-                    <ChefHat className="mr-2 h-5 w-5" /> Coba Sekarang Gratis
-                  </Button>
+              <div className="flex flex-col sm:flex-row items-start gap-3">
+                <Link href="/register" className="btn-primary">
+                  <span>Coba Sekarang Gratis</span>
+                  <span className="btn-icon">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4M9.5 2.5V8" stroke="white" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                  </span>
                 </Link>
-                <Link href="#fitur" className="flex items-center justify-center gap-1.5 text-sm text-gray-400 hover:text-gray-900 transition-colors group py-2">
-                  Lihat fitur <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                <Link href="#fitur" className="btn-ghost-link">
+                  Lihat fitur
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M8 4.5l2.5 2.5L8 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 </Link>
               </div>
-              <p className="animate-fade-in-up delay-400 text-xs text-gray-400 text-center lg:text-left">Tidak perlu kartu kredit. Gratis untuk mulai.</p>
+              <p className="text-xs" style={{color:"#a09890"}}>Tidak perlu kartu kredit. Gratis untuk mulai.</p>
             </div>
 
             {/* Right – hero image (visible on all screens, but smaller on mobile) */}
@@ -127,17 +125,17 @@ export default async function Home() {
                 </div>
               </div>
               {/* Floating card */}
-              <div className="animate-float-card absolute -bottom-4 left-3 right-3 md:left-5 md:right-5 bg-white rounded-xl md:rounded-2xl p-3 md:p-4 shadow-xl border border-gray-100">
+              <div className="animate-float-card absolute -bottom-4 left-3 right-3 md:left-5 md:right-5 rounded-2xl p-3 md:p-4" style={{background:"rgba(255,255,255,0.9)",backdropFilter:"blur(16px)",border:"1px solid rgba(255,255,255,0.95)",boxShadow:"0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,1)"}}>
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-1.5 mb-1">
-                      <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-                      <span className="text-xs text-gray-400 font-medium uppercase tracking-wide">AI Aktif</span>
+                      <div className="h-1.5 w-1.5 rounded-full animate-pulse-green" style={{background:"#2d6a4f"}} />
+                      <span className="text-xs font-semibold uppercase tracking-widest" style={{color:"#2d6a4f"}}>AI Aktif</span>
                     </div>
-                    <div className="font-semibold text-gray-900 text-xs md:text-sm">🥚 Telur · 🐔 Ayam · 🥕 Wortel</div>
+                    <div className="font-semibold text-xs md:text-sm" style={{color:"#141210"}}>Telur · Ayam · Wortel</div>
                   </div>
                   <Link href="/register">
-                    <Button size="sm" className="bg-green-600 hover:bg-green-700 shrink-0 text-xs h-8">Generate →</Button>
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full text-white" style={{background:"#2d6a4f"}}>Generate</span>
                   </Link>
                 </div>
               </div>
@@ -146,16 +144,19 @@ export default async function Home() {
         </section>
 
         {/* ── STATS ── */}
-        <section className="border-y border-gray-100 bg-gray-50 py-10 md:py-14">
+        <section style={{borderTop:"1px solid rgba(0,0,0,0.06)",borderBottom:"1px solid rgba(0,0,0,0.06)",background:"rgba(0,0,0,0.018)"}} className="py-10 md:py-12">
           <div className="max-w-6xl mx-auto px-4 md:px-6">
-            <StaggerReveal className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5">
-              {[["10,000+","Pengguna Aktif"],["50,000+","Resep Dihasilkan"],["2,000 kg","Food Waste Dikurangi"],["4.8/5","Rating Pengguna"]].map(([v,l])=>(
-                <div key={l} className="bg-white rounded-xl md:rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 px-4 md:px-6 py-5 md:py-7 text-center">
-                  <div className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight mb-1">{v}</div>
-                  <div className="text-gray-400 text-xs md:text-sm">{l}</div>
+            <RevealSection className="flex flex-wrap justify-around items-center gap-8">
+              {[["10.4K","Pengguna Aktif"],["51K+","Resep Dihasilkan"],["1.9 ton","Food Waste Dikurangi"],["4.8","Rating Pengguna"]].map(([v,l],i,arr)=>(
+                <div key={l} className="flex items-center gap-6">
+                  <div className="text-center">
+                    <div className="font-mono-nums text-2xl md:text-3xl font-bold tracking-tight mb-0.5" style={{color:"#141210"}}>{v}</div>
+                    <div className="text-xs font-medium" style={{color:"#a09890"}}>{l}</div>
+                  </div>
+                  {i < arr.length-1 && <div className="hidden md:block stat-divider" />}
                 </div>
               ))}
-            </StaggerReveal>
+            </RevealSection>
           </div>
         </section>
 
@@ -168,10 +169,9 @@ export default async function Home() {
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">Promo & Inspirasi</h2>
                 <p className="text-gray-400 mt-1.5 text-sm md:text-base">Kampanye aktif dan peluang kolaborasi.</p>
               </div>
-              <Link href="/register" className="shrink-0">
-                <Button variant="outline" size="sm" className="border-gray-200 text-gray-500 hover:border-gray-900 hover:text-gray-900 w-full sm:w-auto">
-                  Lihat semua <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
-                </Button>
+              <Link href="/register" className="shrink-0 inline-flex items-center gap-1.5 text-sm font-medium px-4 py-2 rounded-full border transition-colors" style={{borderColor:"rgba(0,0,0,0.1)",color:"#5a5550"}}>
+                Lihat semua
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 10.5L10.5 2.5M10.5 2.5H5M10.5 2.5V8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
               </Link>
             </RevealSection>
             <StaggerReveal className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -188,10 +188,9 @@ export default async function Home() {
                   <div className="p-4 md:p-5">
                     <h3 className="font-semibold text-gray-900 mb-1.5">{title}</h3>
                     <p className="text-sm text-gray-400 mb-4 leading-relaxed">{desc}</p>
-                    <Link href={href}>
-                      <Button variant="outline" size="sm" className="w-full text-xs border-gray-200 hover:border-gray-900 hover:text-gray-900 group/btn">
-                        {cta} <ArrowRight className="ml-1.5 h-3 w-3 group-hover/btn:translate-x-0.5 transition-transform" />
-                      </Button>
+                    <Link href={href} className="inline-flex items-center gap-1.5 w-full justify-center text-xs font-semibold px-3 py-2 rounded-xl border transition-all hover:border-black/20" style={{borderColor:"rgba(0,0,0,0.08)",color:"#5a5550"}}>
+                      {cta}
+                      <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 9L9 2M9 2H4.5M9 2V6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
                     </Link>
                   </div>
                 </div>
@@ -201,54 +200,71 @@ export default async function Home() {
         </section>
 
         {/* ── FEATURES ── */}
-        <section id="fitur" className="py-14 md:py-20 bg-gray-50 scroll-mt-20">
+        <section id="fitur" className="py-24 md:py-32 scroll-mt-20" style={{background:"#ffffff"}}>
           <div className="max-w-6xl mx-auto px-4 md:px-6">
-            <RevealSection className="text-center mb-10 md:mb-14">
-              <p className="text-green-600 text-xs font-semibold uppercase tracking-widest mb-2">Fitur</p>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight mb-2">Semua yang Anda butuhkan.</h2>
-              <p className="text-gray-400 md:text-lg max-w-xl mx-auto">Dari scan barcode sampai resep AI — dalam satu aplikasi yang rapi.</p>
+            <RevealSection className="mb-14 md:mb-20">
+              <span className="eyebrow-tag mb-5"><span className="dot" />Fitur</span>
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tight mt-4 mb-3" style={{color:"#141210"}}>Semua yang Anda<br className="hidden md:block" /> butuhkan.</h2>
+              <p className="text-base md:text-lg max-w-md" style={{color:"#5a5550"}}>Dari scan barcode sampai resep AI — satu aplikasi yang rapi dan intuitif.</p>
             </RevealSection>
-            <StaggerReveal className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[
-                { Icon: PackagePlus,      color: "text-blue-600",   bg: "bg-blue-50",   title:"Input Bahan",         desc:"Ketik atau scan barcode. Auto-isi nama, jumlah, dan tanggal kadaluarsa dari 1000+ produk." },
-                { Icon: Sparkles,         color: "text-violet-600", bg: "bg-violet-50", title:"AI Recipe Generator",  desc:"Pilih bahan, tekan generate — 3–5 resep dalam detik, disesuaikan selera Anda." },
-                { Icon: Bell,             color: "text-orange-600", bg: "bg-orange-50", title:"Expiry Reminder",      desc:"Notifikasi H-3 sebelum bahan habis masa pakai. Tidak ada bahan terbuang sia-sia." },
-                { Icon: BarChart3,        color: "text-green-600",  bg: "bg-green-50",  title:"Zero Waste Tracker",  desc:"Lihat berapa kg food waste yang berhasil Anda kurangi sejak bergabung." },
-                { Icon: Share2,           color: "text-sky-600",    bg: "bg-sky-50",    title:"Share Resep",         desc:"Satu tap untuk share ke WhatsApp, Instagram Story, atau salin link resep." },
-                { Icon: SlidersHorizontal,color: "text-rose-600",   bg: "bg-rose-50",   title:"Filter Cerdas",       desc:"Filter waktu masak, kesulitan, diet vegetarian, atau halal sesuai kebutuhan." },
-              ].map(({ Icon, color, bg, title, desc }) => (
-                <div key={title} className="bg-white rounded-2xl border border-gray-100 p-5 md:p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
-                  <div className={`inline-flex items-center justify-center h-10 w-10 rounded-xl ${bg} mb-4 group-hover:scale-110 transition-transform duration-200`}>
-                    <Icon className={`h-5 w-5 ${color}`} />
+            {/* Bento: top row 2-col, bottom row 4-col */}
+            <div className="space-y-4">
+              <StaggerReveal className="grid md:grid-cols-2 gap-4">
+                {[
+                  { Icon: Sparkles, color:"#2d6a4f", bg:"rgba(45,106,79,0.08)", title:"AI Recipe Generator", desc:"Pilih bahan, tekan generate — 3–5 resep dalam detik. AI mempertimbangkan ketersediaan bahan, kesulitan, dan selera Anda.", large:true },
+                  { Icon: PackagePlus, color:"#1d4ed8", bg:"rgba(29,78,216,0.07)", title:"Input Bahan Cepat", desc:"Ketik atau scan barcode. Auto-isi nama, jumlah, dan tanggal kadaluarsa dari 1000+ produk supermarket.", large:true },
+                ].map(({ Icon, color, bg, title, desc }) => (
+                  <div key={title} className="bezel-outer">
+                    <div className="bezel-inner p-6 md:p-8">
+                      <div className="w-10 h-10 rounded-2xl flex items-center justify-center mb-5" style={{background:bg}}>
+                        <Icon className="h-5 w-5" style={{color}} strokeWidth={1.5} />
+                      </div>
+                      <h3 className="font-bold text-lg mb-2" style={{color:"#141210"}}>{title}</h3>
+                      <p className="text-sm leading-relaxed" style={{color:"#5a5550"}}>{desc}</p>
+                    </div>
                   </div>
-                  <h3 className="font-semibold text-gray-900 mb-1.5">{title}</h3>
-                  <p className="text-sm text-gray-400 leading-relaxed">{desc}</p>
-                </div>
-              ))}
-            </StaggerReveal>
+                ))}
+              </StaggerReveal>
+              <StaggerReveal className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { Icon: Bell, color:"#b45309", bg:"rgba(180,83,9,0.07)", title:"Expiry Reminder", desc:"Notifikasi H-3 kadaluarsa." },
+                  { Icon: BarChart3, color:"#2d6a4f", bg:"rgba(45,106,79,0.08)", title:"Zero Waste Tracker", desc:"Pantau kg food waste berkurang." },
+                  { Icon: Share2, color:"#0369a1", bg:"rgba(3,105,161,0.07)", title:"Share Resep", desc:"Satu tap ke WhatsApp atau Instagram." },
+                  { Icon: SlidersHorizontal, color:"#9333ea", bg:"rgba(147,51,234,0.07)", title:"Filter Cerdas", desc:"Vegetarian, halal, durasi memasak." },
+                ].map(({ Icon, color, bg, title, desc }) => (
+                  <div key={title} className="spotlight-card p-5">
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-4" style={{background:bg}}>
+                      <Icon className="h-4 w-4" style={{color}} strokeWidth={1.5} />
+                    </div>
+                    <h3 className="font-semibold text-sm mb-1.5" style={{color:"#141210"}}>{title}</h3>
+                    <p className="text-xs leading-relaxed" style={{color:"#a09890"}}>{desc}</p>
+                  </div>
+                ))}
+              </StaggerReveal>
+            </div>
           </div>
         </section>
 
         {/* ── HOW IT WORKS ── */}
-        <section id="cara-kerja" className="py-14 md:py-20 bg-gray-900 scroll-mt-20">
+        <section id="cara-kerja" className="py-24 md:py-32 scroll-mt-20" style={{background:"#141210"}}>
           <div className="max-w-6xl mx-auto px-4 md:px-6">
-            <RevealSection className="mb-10 md:mb-16">
-              <p className="text-green-400 text-xs font-semibold uppercase tracking-widest mb-2">Cara Kerja</p>
-              <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-3">Tiga langkah. Tidak lebih.</h2>
-              <p className="text-gray-400 md:text-lg max-w-xl">Dibuat sesederhana mungkin karena tujuannya adalah memasak — bukan belajar aplikasi baru.</p>
+            <RevealSection className="mb-16 md:mb-20">
+              <span className="eyebrow-tag mb-5" style={{background:"rgba(45,106,79,0.2)",borderColor:"rgba(64,145,108,0.3)",color:"#6ee7b7"}}><span className="dot" style={{background:"#6ee7b7"}} />Cara Kerja</span>
+              <h2 className="text-3xl md:text-5xl font-bold leading-tight tracking-tight mt-4 mb-3" style={{color:"#ffffff"}}>Tiga langkah.<br className="hidden md:block" /> Tidak lebih.</h2>
+              <p className="text-base md:text-lg max-w-md" style={{color:"rgba(255,255,255,0.4)"}}>Dibuat sesederhana mungkin karena tujuannya adalah memasak — bukan belajar aplikasi baru.</p>
             </RevealSection>
-            <StaggerReveal className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-8">
+            <StaggerReveal className="grid md:grid-cols-3 gap-6">
               {[
-                { n:"01", Icon: ScanLine, title:"Buka kulkas, input bahan", desc:"Scan barcode atau ketik langsung bahan apa yang ada. Butuh kurang dari satu menit.", color:"text-green-400" },
-                { n:"02", Icon: Zap, title:"Pilih dan generate resep", desc:"Pilih bahan mana yang mau dipakai hari ini. AI langsung buatkan opsi resep yang relevan.", color:"text-blue-400" },
-                { n:"03", Icon: CheckCircle2, title:"Masak dan tandai selesai", desc:"Ikuti langkah resep, tandai bahan terpakai, stok kulkas Anda otomatis terupdate.", color:"text-purple-400" },
-              ].map(({ n, Icon, title, desc, color }) => (
-                <div key={n} className="flex gap-5 md:block">
-                  <div className={`text-4xl md:text-5xl font-bold ${color} opacity-25 leading-none shrink-0 md:mb-4`}>{n}</div>
-                  <div>
-                    <Icon className={`h-5 w-5 md:h-6 md:w-6 ${color} mb-2 md:mb-3`} />
-                    <h3 className="text-base md:text-lg font-semibold text-white mb-1.5">{title}</h3>
-                    <p className="text-gray-400 text-sm leading-relaxed">{desc}</p>
+                { n:"01", Icon: ScanLine, title:"Buka kulkas, input bahan", desc:"Scan barcode atau ketik langsung bahan apa yang ada. Butuh kurang dari satu menit.", accent:"#6ee7b7" },
+                { n:"02", Icon: Zap, title:"Pilih dan generate resep", desc:"Pilih bahan mana yang mau dipakai hari ini. AI langsung buatkan opsi resep yang relevan.", accent:"#93c5fd" },
+                { n:"03", Icon: CheckCircle2, title:"Masak dan tandai selesai", desc:"Ikuti langkah resep, tandai bahan terpakai, stok kulkas Anda otomatis terupdate.", accent:"#c4b5fd" },
+              ].map(({ n, Icon, title, desc, accent }) => (
+                <div key={n} className="bezel-outer-dark">
+                  <div className="bezel-inner-dark p-6 md:p-8">
+                    <div className="text-5xl font-bold font-mono-nums mb-6" style={{color:accent,opacity:0.2}}>{n}</div>
+                    <Icon className="h-5 w-5 mb-4" style={{color:accent}} strokeWidth={1.5} />
+                    <h3 className="font-bold text-base mb-2" style={{color:"#ffffff"}}>{title}</h3>
+                    <p className="text-sm leading-relaxed" style={{color:"rgba(255,255,255,0.4)"}}>{desc}</p>
                   </div>
                 </div>
               ))}
@@ -276,28 +292,30 @@ export default async function Home() {
               </StaggerReveal>
             )}
             <RevealSection delay={300} className="mt-8 md:mt-10 text-center">
-              <Link href="/profil">
-                <Button variant="outline" className="border-gray-200 text-gray-500 hover:border-gray-900 hover:text-gray-900">Tulis Ulasan Anda</Button>
+              <Link href="/profil" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-medium transition-colors hover:border-black/20" style={{borderColor:"rgba(0,0,0,0.1)",color:"#5a5550"}}>
+                Tulis Ulasan Anda
               </Link>
             </RevealSection>
           </div>
         </section>
 
         {/* ── CTA ── */}
-        <section className="py-14 md:py-24 max-w-6xl mx-auto px-4 md:px-6">
+        <section className="py-16 md:py-24 max-w-6xl mx-auto px-4 md:px-6">
           <RevealSection>
-            <div className="rounded-2xl md:rounded-3xl bg-gray-900 px-6 py-12 md:px-20 md:py-16 text-center relative overflow-hidden">
-              <div className="pointer-events-none absolute inset-0 opacity-[0.03]" style={{ backgroundImage:"radial-gradient(circle,#fff 1.5px,transparent 1.5px)", backgroundSize:"28px 28px" }} />
+            <div className="rounded-[2rem] px-8 py-16 md:px-20 md:py-20 text-center relative overflow-hidden" style={{background:"#141210"}}>
+              <div className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{backgroundImage:"radial-gradient(circle,#fff 1px,transparent 1px)",backgroundSize:"26px 26px"}} />
+              <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-96 h-64 rounded-full" style={{background:"radial-gradient(circle,rgba(45,106,79,0.25) 0%,transparent 70%)",filter:"blur(40px)"}} />
               <div className="relative">
-                <p className="text-green-400 text-xs font-semibold uppercase tracking-widest mb-4">Mulai Sekarang</p>
-                <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight mb-4 max-w-2xl mx-auto leading-tight">
-                  Kulkas penuh bukan berarti makan enak.
+                <span className="eyebrow-tag mb-6" style={{background:"rgba(45,106,79,0.2)",borderColor:"rgba(64,145,108,0.3)",color:"#6ee7b7"}}><span className="dot" style={{background:"#6ee7b7"}} />Mulai Sekarang</span>
+                <h2 className="text-3xl md:text-5xl font-bold leading-tight tracking-tight mt-4 mb-4 max-w-2xl mx-auto" style={{color:"#ffffff"}}>
+                  Kulkas penuh bukan<br className="hidden md:block" /> berarti makan enak.
                 </h2>
-                <p className="text-gray-400 md:text-lg mb-8 max-w-xl mx-auto">Yang membuat perbedaan adalah tahu mau dimasak apa. Itu yang kami bantu.</p>
-                <Link href="/register">
-                  <Button size="lg" className="w-full sm:w-auto bg-white text-gray-900 hover:bg-gray-100 px-8 py-6 font-bold shadow-xl hover:scale-[1.02] transition-all duration-200">
-                    <ChefHat className="mr-2 h-5 w-5" /> Daftar Gratis Sekarang
-                  </Button>
+                <p className="text-base md:text-lg mb-10 max-w-md mx-auto" style={{color:"rgba(255,255,255,0.4)"}}>Yang membuat perbedaan adalah tahu mau dimasak apa. Itu yang kami bantu.</p>
+                <Link href="/register" className="btn-primary inline-flex" style={{background:"#ffffff",color:"#141210",borderColor:"rgba(255,255,255,0.3)",boxShadow:"0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,1)"}}>
+                  <span>Daftar Gratis Sekarang</span>
+                  <span className="btn-icon" style={{background:"rgba(0,0,0,0.08)"}}>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4M9.5 2.5V8" stroke="#141210" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                  </span>
                 </Link>
               </div>
             </div>
@@ -307,34 +325,37 @@ export default async function Home() {
       </main>
 
       {/* ── FOOTER ── */}
-      <footer className="border-t border-gray-100 bg-white py-10 md:py-12">
+      <footer style={{background:"#141210",borderTop:"1px solid rgba(255,255,255,0.06)"}} className="py-12 md:py-16">
         <div className="max-w-6xl mx-auto px-4 md:px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10 mb-8 md:mb-10">
-            <div className="col-span-2 md:col-span-1">
-              <div className="flex items-center gap-2 mb-3">
-                <Image src="/logo.png" alt="Kulkas Berisi" width={28} height={28} className="rounded-lg" />
-                <span className="font-bold text-gray-900">Kulkas <span className="text-green-600">Berisi</span></span>
-              </div>
-              <p className="text-sm text-gray-400 leading-relaxed max-w-xs">Generator resep berbasis AI untuk mengurangi limbah makanan di Indonesia.</p>
+          <div className="flex flex-col md:flex-row items-start justify-between gap-8 pb-8 mb-8" style={{borderBottom:"1px solid rgba(255,255,255,0.06)"}}>
+            <div>
+              <Link href="/" className="flex items-center gap-2 mb-3">
+                <Image src="/logo.png" alt="Kulkas Berisi" width={28} height={28} className="rounded-xl" />
+                <span className="font-bold" style={{color:"#ffffff"}}>Kulkas <span style={{color:"#6ee7b7"}}>Berisi</span></span>
+              </Link>
+              <p className="text-sm max-w-xs" style={{color:"rgba(255,255,255,0.3)"}}>Generator resep AI dari bahan kulkas yang tersisa. Kurangi food waste, masak lebih cerdas.</p>
             </div>
-            {[
-              { title:"Produk", links:[["/dashboard","Dashboard"],["/generator","Generator"],["/scanner","Scanner"],["#fitur","Fitur"]] },
-              { title:"Perusahaan", links:[["/about","Tentang Kami"],["/contact","Kontak"],["/privacy","Privasi"],["/terms","Syarat"]] },
-              { title:"Kontak", links:[["mailto:hello@kulkasberisi.id","Email Kami"],["#","Jakarta, Indonesia"]] },
-            ].map(({ title, links }) => (
-              <div key={title}>
-                <h4 className="text-sm font-semibold text-gray-900 mb-3">{title}</h4>
-                <ul className="space-y-2 text-sm">
-                  {links.map(([h, l]) => (
-                    <li key={l}><Link href={h} className="text-gray-400 hover:text-gray-900 transition-colors">{l}</Link></li>
-                  ))}
-                </ul>
+            <div className="flex flex-wrap gap-x-12 gap-y-6 text-sm">
+              <div className="flex flex-col gap-2">
+                <span className="font-semibold text-xs uppercase tracking-widest mb-1" style={{color:"rgba(255,255,255,0.3)"}}>Produk</span>
+                {[["#fitur","Fitur"],["#cara-kerja","Cara Kerja"],["#ulasan","Ulasan"]].map(([h,l])=>(
+                  <Link key={l} href={h} className="hover:opacity-80 transition-opacity" style={{color:"rgba(255,255,255,0.5)"}}>{l}</Link>
+                ))}
               </div>
-            ))}
+              <div className="flex flex-col gap-2">
+                <span className="font-semibold text-xs uppercase tracking-widest mb-1" style={{color:"rgba(255,255,255,0.3)"}}>Akun</span>
+                {[["/login","Masuk"],["/register","Daftar Gratis"]].map(([h,l])=>(
+                  <Link key={l} href={h} className="hover:opacity-80 transition-opacity" style={{color:"rgba(255,255,255,0.5)"}}>{l}</Link>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="border-t border-gray-100 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-400">
-            <span>&copy; 2026 Kulkas Berisi. All rights reserved.</span>
-            <span>Made with ❤️ in Kelompok 5</span>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs" style={{color:"rgba(255,255,255,0.25)"}}>
+            <span>&copy; {new Date().getFullYear()} Kulkas Berisi. Dibuat dengan semangat anti food waste.</span>
+            <div className="flex gap-5">
+              <Link href="/terms" className="hover:opacity-60 transition-opacity">Syarat &amp; Ketentuan</Link>
+              <Link href="/privacy" className="hover:opacity-60 transition-opacity">Privasi</Link>
+            </div>
           </div>
         </div>
       </footer>

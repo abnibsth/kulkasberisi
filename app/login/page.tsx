@@ -4,13 +4,50 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { ChefHat, Eye, EyeOff, ScanLine, Clock, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, ScanLine, ChefHat, Clock, Shield, ArrowLeft } from "lucide-react";
 import { getSupabaseBrowserClientOrNull, getSupabaseBrowserConfigError } from "@/lib/supabase/browser";
 
 function setCookie(name: string, value: string, maxAgeSeconds: number) {
   const secure = typeof window !== "undefined" && window.location.protocol === "https:" ? "; Secure" : "";
   document.cookie = `${name}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAgeSeconds}; SameSite=Lax${secure}`;
 }
+
+const FeatureRow = ({ icon: Icon, text }: { icon: React.ElementType; text: string }) => (
+  <div className="flex items-center gap-3 px-4 py-3 rounded-2xl" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+    <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(45,106,79,0.25)", border: "1px solid rgba(64,145,108,0.3)" }}>
+      <Icon className="h-4 w-4" style={{ color: "#6ee7b7" }} strokeWidth={1.5} />
+    </div>
+    <span className="text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>{text}</span>
+  </div>
+);
+
+const InputField = ({
+  label, type = "text", placeholder, value, onChange, autoComplete,
+  required = true, rightEl,
+}: {
+  label: string; type?: string; placeholder: string; value: string;
+  onChange: (v: string) => void; autoComplete?: string; required?: boolean; rightEl?: React.ReactNode;
+}) => (
+  <div className="space-y-2">
+    <label className="block text-sm font-medium" style={{ color: "#3d3530" }}>{label}</label>
+    <div className="relative">
+      <input
+        type={type} required={required} autoComplete={autoComplete}
+        placeholder={placeholder} value={value}
+        onChange={e => onChange(e.target.value)}
+        className="w-full h-12 px-4 text-sm rounded-2xl focus:outline-none transition-all duration-200"
+        style={{
+          background: "rgba(255,255,255,0.72)", border: "1px solid rgba(0,0,0,0.08)",
+          color: "#141210", boxShadow: "0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.9)",
+          paddingRight: rightEl ? "44px" : undefined,
+        }}
+        onFocus={e => { e.target.style.border = "1.5px solid rgba(45,106,79,0.5)"; e.target.style.boxShadow = "0 0 0 3px rgba(45,106,79,0.08), inset 0 1px 0 rgba(255,255,255,0.9)"; }}
+        onBlur={e => { e.target.style.border = "1px solid rgba(0,0,0,0.08)"; e.target.style.boxShadow = "0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.9)"; }}
+      />
+      {rightEl && <div className="absolute right-3.5 top-1/2 -translate-y-1/2">{rightEl}</div>}
+    </div>
+  </div>
+);
 
 export default function LoginPage() {
   const router = useRouter();
@@ -61,224 +98,197 @@ export default function LoginPage() {
     }
   };
 
-  return (
-    <div className="min-h-screen font-sans antialiased flex flex-col lg:flex-row">
+  const nextParam = (searchParams?.get("next") ?? "").trim();
+  const isAdminLogin = nextParam.startsWith("/admin");
 
-      {/* ── LEFT PANEL (dark) ── */}
-      <div className="hidden lg:flex lg:w-[45%] xl:w-[40%] bg-gray-900 flex-col relative overflow-hidden p-12">
-        <div className="pointer-events-none absolute inset-0 opacity-[0.04]"
-          style={{ backgroundImage:"radial-gradient(circle,#fff 1.5px,transparent 1.5px)", backgroundSize:"28px 28px" }} />
-        <div className="pointer-events-none absolute -top-32 -left-32 w-80 h-80 bg-green-500/15 rounded-full blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-32 -right-32 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl" />
+  /* ─── SHARED FORM ─── */
+  const formPanel = (
+    <div className="flex-1 flex flex-col relative overflow-hidden" style={{ background: "#FEFCF8" }}>
+      {/* Ambient orbs */}
+      <div className="pointer-events-none absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full" style={{ background: "radial-gradient(circle, rgba(168,230,207,0.35) 0%, transparent 65%)", filter: "blur(48px)" }} />
+      <div className="pointer-events-none absolute -bottom-32 -left-32 w-96 h-96 rounded-full" style={{ background: "radial-gradient(circle, rgba(209,231,221,0.3) 0%, transparent 65%)", filter: "blur(60px)" }} />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.022]" style={{ backgroundImage: "radial-gradient(circle, #2d6a4f 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
 
-        <Link href="/" className="relative flex items-center gap-2.5 group w-fit">
-          <Image src="/logo.png" alt="Kulkas Berisi" width={36} height={36} className="rounded-xl group-hover:scale-110 transition-transform duration-200" />
-          <span className="font-bold text-white text-lg tracking-tight">Kulkas <span className="text-green-400">Berisi</span></span>
+      {/* Mobile bar */}
+      <div className="lg:hidden flex items-center justify-between px-5 pt-5 pb-4 relative z-10" style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+        <Link href="/" className="flex items-center gap-2">
+          <Image src="/logo.png" alt="Kulkas Berisi" width={28} height={28} className="rounded-xl" />
+          <span className="font-bold text-sm" style={{ color: "#141210" }}>Kulkas <span style={{ color: "#2d6a4f" }}>Berisi</span></span>
         </Link>
-
-        <div className="relative mt-auto mb-auto pt-16">
-          <p className="text-green-400 text-xs font-semibold uppercase tracking-widest mb-4">Selamat datang kembali</p>
-          <h1 className="text-4xl xl:text-5xl font-bold text-white leading-tight tracking-tight mb-5">
-            Masak lebih<br />pintar hari ini.
-          </h1>
-          <p className="text-gray-400 text-lg leading-relaxed max-w-sm">
-            Masukkan bahan yang tersisa, dan biarkan AI kami menyiapkan idenya.
-          </p>
-        </div>
-
-        <div className="relative mt-auto space-y-3">
-          {[
-            { Icon: ScanLine, text: "Scan barcode — bahan langsung masuk" },
-            { Icon: ChefHat, text: "3–5 resep AI dari bahan yang ada" },
-            { Icon: Clock,   text: "Reminder H-3 sebelum kadaluarsa" },
-          ].map(({ Icon, text }) => (
-            <div key={text} className="flex items-center gap-3 rounded-xl bg-white/5 border border-white/10 px-4 py-3">
-              <div className="h-8 w-8 rounded-lg bg-green-500/20 border border-green-500/30 flex items-center justify-center shrink-0">
-                <Icon className="h-4 w-4 text-green-400" />
-              </div>
-              <span className="text-sm text-gray-300">{text}</span>
-            </div>
-          ))}
-        </div>
+        <Link href="/register" className="text-sm font-medium flex items-center gap-1" style={{ color: "#5a5550" }}>
+          Daftar <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={1.5} />
+        </Link>
       </div>
 
-      {/* ── RIGHT PANEL (light + glass form) ── */}
-      <div className="flex-1 flex flex-col relative overflow-hidden"
-        style={{ background: "linear-gradient(145deg, #f0fdf4 0%, #f8fafc 50%, #ecfdf5 100%)" }}>
-
-        {/* iOS-style glossy background with colored light blobs */}
-        <div className="pointer-events-none absolute inset-0" style={{
-          background: "linear-gradient(135deg, #f0fffe 0%, #ffffff 35%, #fafff0 65%, #f5f0ff 100%)",
-        }} />
-        <div className="pointer-events-none absolute -top-32 -right-32 w-[420px] h-[420px] rounded-full" style={{
-          background: "radial-gradient(circle, rgba(167,243,208,0.45) 0%, rgba(110,231,183,0.2) 40%, transparent 70%)",
-          filter: "blur(40px)",
-        }} />
-        <div className="pointer-events-none absolute -bottom-24 -left-24 w-80 h-80 rounded-full" style={{
-          background: "radial-gradient(circle, rgba(196,181,253,0.3) 0%, rgba(167,243,208,0.2) 50%, transparent 70%)",
-          filter: "blur(50px)",
-        }} />
-        <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full" style={{
-          background: "radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(240,253,244,0.4) 50%, transparent 70%)",
-          filter: "blur(30px)",
-        }} />
-        <div className="pointer-events-none absolute top-1/4 right-10 w-48 h-48 rounded-full" style={{
-          background: "radial-gradient(circle, rgba(186,230,253,0.35) 0%, transparent 70%)",
-          filter: "blur(30px)",
-        }} />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.025]" style={{
-          backgroundImage: "radial-gradient(circle, #064e3b 1px, transparent 1px)",
-          backgroundSize: "20px 20px",
-        }} />
-
-        {/* Mobile top bar */}
-        <div className="lg:hidden flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100 relative z-10">
-          <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo.png" alt="Kulkas Berisi" width={30} height={30} className="rounded-lg" />
-            <span className="font-bold text-gray-900">Kulkas <span className="text-green-600">Berisi</span></span>
+      {/* Form area */}
+      <div className="flex-1 flex items-center justify-center px-5 py-12 relative z-10">
+        <div className="w-full max-w-[400px]">
+          <Link href="/" className="hidden lg:inline-flex items-center gap-2 text-sm mb-10 group" style={{ color: "#5a5550" }}>
+            <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" strokeWidth={1.5} />
+            Kembali ke beranda
           </Link>
-          <Link href="/register" className="text-sm text-gray-500 hover:text-gray-900 transition-colors flex items-center gap-1">
-            Daftar <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
 
-        {/* Centered form area */}
-        <div className="flex-1 flex items-center justify-center px-6 py-12 relative z-10">
-          <div className="w-full max-w-md">
-
-            <Link href="/" className="hidden lg:inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-8 group">
-              <span className="group-hover:-translate-x-0.5 transition-transform inline-block">←</span> Kembali ke beranda
-            </Link>
-
-            {/* GLASS CARD */}
-            <div className="relative overflow-hidden" style={{
-              background: "linear-gradient(145deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.65) 100%)",
-              backdropFilter: "blur(28px)",
-              WebkitBackdropFilter: "blur(28px)",
-              border: "1px solid rgba(255,255,255,0.95)",
-              borderTop: "1px solid rgba(255,255,255,1)",
-              borderRadius: "20px",
-              boxShadow: "0 20px 60px rgba(0,0,0,0.1), 0 4px 16px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,1)",
-            }}>
-              {/* Gloss shine overlay — top half of card */}
-              <div className="pointer-events-none absolute top-0 left-0 right-0 rounded-t-[20px]" style={{
-                height: "45%",
-                background: "linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.15) 60%, transparent 100%)",
-                zIndex: 0,
-              }} />
-              {/* Top shine line */}
-              <div className="pointer-events-none absolute top-0 left-8 right-8 h-px rounded-full" style={{
-                background: "linear-gradient(90deg, transparent, rgba(255,255,255,1) 30%, rgba(255,255,255,1) 70%, transparent)",
-                zIndex: 1,
-              }} />
-              {/* Subtle diagonal glare */}
-              <div className="pointer-events-none absolute -top-10 -left-10 w-48 h-48 rounded-full" style={{
-                background: "radial-gradient(circle, rgba(255,255,255,0.5) 0%, transparent 70%)",
-                zIndex: 0,
-              }} />
-
-              <div className="p-8 relative" style={{ zIndex: 2 }}>
+          {/* Card outer shell */}
+          <div className="bezel-outer">
+            <div className="bezel-inner">
+              <div className="p-7">
+                {/* Header */}
                 <div className="mb-7">
-                  <h2 className="text-2xl font-bold text-gray-900 tracking-tight mb-1">Masuk</h2>
-                  <p className="text-gray-400 text-sm">
-                    Belum punya akun?{" "}
-                    <Link href="/register" className="text-green-600 hover:text-green-700 font-medium hover:underline">Daftar gratis</Link>
-                  </p>
+                  <div className="eyebrow-tag mb-4">
+                    <span className="dot" />
+                    {isAdminLogin ? "Admin Portal" : "Selamat datang kembali"}
+                  </div>
+                  <h1 className="text-2xl font-bold tracking-tight leading-tight mb-1.5" style={{ color: "#141210" }}>
+                    {isAdminLogin ? "Masuk sebagai Admin" : "Masuk ke akun Anda"}
+                  </h1>
+                  {!isAdminLogin && (
+                    <p className="text-sm" style={{ color: "#5a5550" }}>
+                      Belum punya akun?{" "}
+                      <Link href="/register" className="font-semibold hover:underline" style={{ color: "#2d6a4f" }}>Daftar gratis</Link>
+                    </p>
+                  )}
                 </div>
 
+                {/* Error */}
                 {error && (
-                  <div className="mb-5 flex items-start gap-2.5 p-3.5 bg-red-50/80 border border-red-200 rounded-xl text-red-700 text-sm backdrop-blur-sm">
-                    <span className="shrink-0">⚠️</span><span>{error}</span>
+                  <div className="mb-5 flex items-start gap-2.5 p-3.5 rounded-2xl text-sm" style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.18)", color: "#b91c1c" }}>
+                    <svg className="h-4 w-4 mt-0.5 shrink-0" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/><path d="M8 5v3.5M8 11v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                    <span>{error}</span>
                   </div>
                 )}
 
+                {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
-                    <input type="email" required autoComplete="email" placeholder="nama@email.com"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full h-12 px-4 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none transition-all"
-                      style={{
-                        background: "rgba(255,255,255,0.7)",
-                        border: "1px solid rgba(0,0,0,0.1)",
-                        backdropFilter: "blur(8px)",
-                        boxShadow: "0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8)",
-                      }}
-                      onFocus={(e) => { e.target.style.border = "1px solid rgba(22,163,74,0.5)"; e.target.style.boxShadow = "0 0 0 3px rgba(22,163,74,0.08), inset 0 1px 0 rgba(255,255,255,0.8)"; }}
-                      onBlur={(e) => { e.target.style.border = "1px solid rgba(0,0,0,0.1)"; e.target.style.boxShadow = "0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8)"; }}
-                    />
-                  </div>
-
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="text-sm font-medium text-gray-700">Password</label>
-                      <Link href="/forgot-password" className="text-xs text-gray-400 hover:text-gray-700 transition-colors">Lupa password?</Link>
+                  <InputField
+                    label="Email" type="email" placeholder={isAdminLogin ? "admin@kulkasberisi.id" : "nama@email.com"}
+                    value={formData.email} onChange={v => setFormData(f => ({ ...f, email: v }))}
+                    autoComplete="email"
+                  />
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium" style={{ color: "#3d3530" }}>Password</label>
+                      <Link href="/forgot-password" className="text-xs hover:underline" style={{ color: "#5a5550" }}>Lupa password?</Link>
                     </div>
                     <div className="relative">
-                      <input required autoComplete="current-password" placeholder="••••••••"
-                        type={showPassword ? "text" : "password"}
-                        value={formData.password}
-                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        className="w-full h-12 px-4 pr-11 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none transition-all"
-                        style={{
-                          background: "rgba(255,255,255,0.7)",
-                          border: "1px solid rgba(0,0,0,0.1)",
-                          backdropFilter: "blur(8px)",
-                          boxShadow: "0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8)",
-                        }}
-                        onFocus={(e) => { e.target.style.border = "1px solid rgba(22,163,74,0.5)"; e.target.style.boxShadow = "0 0 0 3px rgba(22,163,74,0.08), inset 0 1px 0 rgba(255,255,255,0.8)"; }}
-                        onBlur={(e) => { e.target.style.border = "1px solid rgba(0,0,0,0.1)"; e.target.style.boxShadow = "0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8)"; }}
+                      <input
+                        required autoComplete="current-password" placeholder="••••••••"
+                        type={showPassword ? "text" : "password"} value={formData.password}
+                        onChange={e => setFormData(f => ({ ...f, password: e.target.value }))}
+                        className="w-full h-12 px-4 pr-12 text-sm rounded-2xl focus:outline-none transition-all duration-200"
+                        style={{ background: "rgba(255,255,255,0.72)", border: "1px solid rgba(0,0,0,0.08)", color: "#141210", boxShadow: "0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.9)" }}
+                        onFocus={e => { e.target.style.border = "1.5px solid rgba(45,106,79,0.5)"; e.target.style.boxShadow = "0 0 0 3px rgba(45,106,79,0.08), inset 0 1px 0 rgba(255,255,255,0.9)"; }}
+                        onBlur={e => { e.target.style.border = "1px solid rgba(0,0,0,0.08)"; e.target.style.boxShadow = "0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.9)"; }}
                       />
                       <button type="button" onClick={() => setShowPassword(v => !v)}
-                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 hover:opacity-70 transition-opacity" style={{ color: "#a09890" }}>
+                        {showPassword ? <EyeOff className="h-4 w-4" strokeWidth={1.5} /> : <Eye className="h-4 w-4" strokeWidth={1.5} />}
                       </button>
                     </div>
                   </div>
 
-                  {/* Glossy dark button */}
+                  {/* Submit */}
                   <button type="submit" disabled={isLoading || !isSupabaseReady}
-                    className="w-full h-12 rounded-xl text-sm font-bold text-white transition-all duration-200 disabled:opacity-60 flex items-center justify-center gap-2"
-                    style={{
-                      background: "linear-gradient(180deg, #1f2937 0%, #111827 100%)",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      borderTop: "1px solid rgba(255,255,255,0.18)",
-                      boxShadow: "0 4px 16px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.12)",
-                    }}>
+                    className="w-full h-12 rounded-2xl text-sm font-semibold text-white mt-2 flex items-center justify-center gap-2.5 transition-all duration-200 disabled:opacity-50 active:scale-[0.98]"
+                    style={{ background: "linear-gradient(180deg, #2d6a4f 0%, #1b4332 100%)", border: "1px solid rgba(255,255,255,0.08)", borderTop: "1px solid rgba(255,255,255,0.14)", boxShadow: "0 4px 20px rgba(27,67,50,0.35), inset 0 1px 0 rgba(255,255,255,0.1)" }}>
                     {isLoading ? (
-                      <><svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                      </svg> Memuat...</>
-                    ) : "Masuk ke Dashboard"}
+                      <><svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg> Memuat...</>
+                    ) : (
+                      <><span>{isAdminLogin ? "Masuk ke Dashboard Admin" : "Masuk ke Dashboard"}</span>
+                      <span className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.15)" }}>
+                        <ArrowLeft className="h-3 w-3 rotate-180" strokeWidth={2} />
+                      </span></>
+                    )}
                   </button>
                 </form>
 
-                {/* Feature grid */}
-                <div className="mt-6 pt-5 border-t border-black/5">
-                  <p className="text-xs text-gray-400 text-center mb-3">Yang bisa Anda lakukan setelah masuk</p>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[{ Icon: ScanLine, l:"Scan Bahan" }, { Icon: ChefHat, l:"Generate Resep" }, { Icon: Clock, l:"Cek Kadaluarsa" }].map(({ Icon, l }) => (
-                      <div key={l} className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl text-center"
-                        style={{ background:"rgba(255,255,255,0.6)", border:"1px solid rgba(0,0,0,0.06)", backdropFilter:"blur(4px)" }}>
-                        <Icon className="h-4 w-4 text-green-600" />
-                        <span className="text-xs text-gray-500">{l}</span>
-                      </div>
-                    ))}
+                {/* Feature hints — user only */}
+                {!isAdminLogin && (
+                  <div className="mt-6 pt-5" style={{ borderTop: "1px solid rgba(0,0,0,0.05)" }}>
+                    <p className="text-xs text-center mb-3" style={{ color: "#a09890" }}>Yang tersedia setelah masuk</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[{ Icon: ScanLine, l: "Scan Bahan" }, { Icon: ChefHat, l: "Resep AI" }, { Icon: Clock, l: "Kadaluarsa" }].map(({ Icon, l }) => (
+                        <div key={l} className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl text-center" style={{ background: "rgba(45,106,79,0.05)", border: "1px solid rgba(45,106,79,0.1)" }}>
+                          <Icon className="h-4 w-4" style={{ color: "#40916c" }} strokeWidth={1.5} />
+                          <span className="text-xs font-medium" style={{ color: "#5a5550" }}>{l}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
-                <p className="mt-5 text-center text-xs text-gray-400">
-                  Dengan masuk, Anda menyetujui{" "}
-                  <Link href="/terms" className="underline hover:text-gray-700">Syarat</Link> dan{" "}
-                  <Link href="/privacy" className="underline hover:text-gray-700">Privasi</Link> kami.
+                <p className="mt-5 text-center text-xs" style={{ color: "#a09890" }}>
+                  Dengan masuk Anda menyetujui{" "}
+                  <Link href="/terms" className="underline hover:opacity-70">Syarat</Link> &{" "}
+                  <Link href="/privacy" className="underline hover:opacity-70">Privasi</Link> kami.
                 </p>
               </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
+  );
+
+  /* ─── LEFT PANEL (shared dark) ─── */
+  const leftPanel = (
+    <div className="hidden lg:flex lg:w-[44%] xl:w-[40%] flex-col relative overflow-hidden p-12" style={{ background: "#141210" }}>
+      {/* Dot grid */}
+      <div className="pointer-events-none absolute inset-0 opacity-[0.035]" style={{ backgroundImage: "radial-gradient(circle, #fff 1px, transparent 1px)", backgroundSize: "26px 26px" }} />
+      {/* Green orb top */}
+      <div className="pointer-events-none absolute -top-32 -left-32 w-80 h-80 rounded-full" style={{ background: "radial-gradient(circle, rgba(52,211,153,0.12) 0%, transparent 70%)", filter: "blur(40px)" }} />
+      {/* Green orb bottom */}
+      <div className="pointer-events-none absolute -bottom-32 -right-32 w-80 h-80 rounded-full" style={{ background: "radial-gradient(circle, rgba(45,106,79,0.18) 0%, transparent 70%)", filter: "blur(50px)" }} />
+
+      {/* Logo */}
+      <Link href="/" className="relative flex items-center gap-2.5 group w-fit">
+        <Image src="/logo.png" alt="Kulkas Berisi" width={34} height={34} className="rounded-xl group-hover:scale-105 transition-transform duration-200" />
+        <span className="font-bold text-lg tracking-tight" style={{ color: "#ffffff" }}>
+          Kulkas <span style={{ color: "#6ee7b7" }}>Berisi</span>
+        </span>
+      </Link>
+
+      {/* Body */}
+      <div className="relative mt-auto mb-auto pt-16">
+        <div className="eyebrow-tag mb-5" style={{ background: "rgba(45,106,79,0.2)", borderColor: "rgba(64,145,108,0.3)", color: "#6ee7b7" }}>
+          <span className="dot" style={{ background: "#6ee7b7" }} />
+          {isAdminLogin ? "Management System" : "Selamat datang kembali"}
+        </div>
+        <h2 className="text-4xl xl:text-5xl font-bold leading-tight tracking-tight mb-5" style={{ color: "#ffffff" }}>
+          {isAdminLogin ? <>Admin<br />Dashboard.</> : <>Masak lebih<br />pintar hari ini.</>}
+        </h2>
+        <p className="text-base leading-relaxed max-w-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
+          {isAdminLogin
+            ? "Kelola pengguna, pantau ulasan, dan analitik platform dari satu tempat."
+            : "Masukkan bahan yang tersisa, dan biarkan AI kami menyiapkan idenya."}
+        </p>
+      </div>
+
+      {/* Bottom */}
+      <div className="relative mt-auto space-y-2.5">
+        {isAdminLogin ? (
+          <div className="grid grid-cols-3 gap-2">
+            {[{ label: "Pengguna", value: "10K+" }, { label: "Resep AI", value: "50K+" }, { label: "Rating", value: "4.8" }].map(({ label, value }) => (
+              <div key={label} className="rounded-2xl px-3 py-3 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div className="text-lg font-bold font-mono-nums" style={{ color: "#6ee7b7" }}>{value}</div>
+                <div className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>{label}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <>
+            <FeatureRow icon={ScanLine} text="Scan barcode — bahan langsung masuk" />
+            <FeatureRow icon={ChefHat} text="3–5 resep AI dari bahan yang ada" />
+            <FeatureRow icon={Clock} text="Reminder H-3 sebelum kadaluarsa" />
+          </>
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-[100dvh] font-display antialiased flex flex-col lg:flex-row">
+      {leftPanel}
+      {formPanel}
     </div>
   );
 }

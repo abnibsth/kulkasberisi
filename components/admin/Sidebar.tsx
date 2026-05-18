@@ -2,59 +2,57 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
 import { BarChart3, LayoutGrid, MessageSquareQuote, Shield, Users } from "lucide-react";
 
 const NAV = [
-  { href: "/admin", label: "Dashboard", icon: LayoutGrid, exact: true },
-  { href: "/admin/users", label: "Users", icon: Users, exact: false },
-  { href: "/admin/reviews", label: "Reviews", icon: MessageSquareQuote, exact: false },
-  { href: "/admin/analytics", label: "Analytics", icon: BarChart3, exact: false },
+  { href: "/admin",           label: "Dashboard", icon: LayoutGrid,          exact: true  },
+  { href: "/admin/users",     label: "Users",     icon: Users,               exact: false },
+  { href: "/admin/reviews",   label: "Reviews",   icon: MessageSquareQuote,  exact: false },
+  { href: "/admin/analytics", label: "Analytics", icon: BarChart3,           exact: false },
 ] as const;
+
+const navActive   = { background: "rgba(139,92,246,0.18)", border: "1px solid rgba(167,139,250,0.3)", color: "#c4b5fd" } as React.CSSProperties;
+const navInactive = { background: "transparent", border: "1px solid transparent", color: "rgba(255,255,255,0.45)" } as React.CSSProperties;
 
 export function AdminSidebar() {
   const pathname = usePathname();
+
   return (
-    <aside className="w-full md:w-64 min-h-screen bg-white text-gray-900 flex flex-col border-r">
-      <div className="px-5 py-6 border-b border-gray-200">
-        <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center shadow-sm">
-            <Shield className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <div>
-            <div className="font-bold text-sm leading-tight text-gray-900">Admin Panel</div>
-            <div className="text-xs text-muted-foreground leading-tight">Kulkas Berisi</div>
-          </div>
+    <aside className="w-64 min-h-screen flex flex-col font-display" style={{ background: "#141210", borderRight: "1px solid rgba(255,255,255,0.06)" }}>
+
+      {/* Brand */}
+      <div className="px-5 py-5 flex items-center gap-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="h-9 w-9 rounded-2xl flex items-center justify-center shrink-0"
+          style={{ background: "rgba(139,92,246,0.2)", border: "1px solid rgba(139,92,246,0.3)" }}>
+          <Shield className="h-4.5 w-4.5" style={{ color: "#c4b5fd" }} strokeWidth={1.5} />
+        </div>
+        <div>
+          <div className="font-bold text-sm leading-tight" style={{ color: "#ffffff" }}>Admin Panel</div>
+          <div className="text-[10px] leading-tight" style={{ color: "rgba(255,255,255,0.3)" }}>Kulkas Berisi</div>
         </div>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-1">
+      {/* Nav */}
+      <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
         {NAV.map((item) => {
-          const active = item.exact
-            ? pathname === item.href
-            : pathname === item.href || pathname.startsWith(item.href + "/");
+          const active = item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(item.href + "/");
           const Icon = item.icon;
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
-                active
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-gray-600 hover:bg-muted hover:text-gray-900",
-              )}
+            <Link key={item.href} href={item.href}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-medium transition-all duration-150"
+              style={active ? navActive : navInactive}
             >
-              <Icon className={cn("h-4 w-4 flex-shrink-0", active ? "text-primary-foreground" : "text-gray-500")} />
+              <Icon className="h-4 w-4 shrink-0" strokeWidth={1.5} />
               <span>{item.label}</span>
-              {active ? <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary-foreground/80" /> : null}
+              {active && <span className="ml-auto h-1.5 w-1.5 rounded-full" style={{ background: "#c4b5fd" }} />}
             </Link>
           );
         })}
       </nav>
 
-      <div className="px-5 py-4 border-t border-gray-200">
-        <div className="text-xs text-muted-foreground">v1.0 · Kulkas Berisi</div>
+      {/* Footer */}
+      <div className="px-5 py-4" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="text-xs" style={{ color: "rgba(255,255,255,0.25)" }}>v1.0 · Kulkas Berisi Admin</div>
       </div>
     </aside>
   );
