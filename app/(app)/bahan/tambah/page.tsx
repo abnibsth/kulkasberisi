@@ -237,18 +237,19 @@ export default function TambahBahanPage() {
                     Kosongkan jika tidak ada label; sistem akan buat perkiraan berdasarkan lokasi penyimpanan.
                   </div>
                 )}
-                <div className="flex items-center justify-between gap-3">
+                <div className="space-y-2 pt-1">
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     onClick={handleSuggestExpiry}
                     disabled={isSuggestingExpiry}
+                    className="w-full sm:w-auto"
                   >
                     {isSuggestingExpiry ? "Memprediksi..." : "Prediksi Kadaluarsa"}
                   </Button>
                   {expiryHint && (
-                    <div className="text-xs text-muted-foreground line-clamp-2 text-right">
+                    <div className="rounded-md bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/50 px-3 py-2 text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
                       {expiryHint}
                     </div>
                   )}

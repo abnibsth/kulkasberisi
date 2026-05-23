@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAppStore, Recipe } from "@/lib/store";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import {
   Card,
   CardContent,
@@ -22,6 +23,7 @@ import { Utensils, Clock, Flame, Share2, Bookmark } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { getRecipeImageUrl } from "@/lib/utils";
 
 export default function GeneratorPage() {
   const router = useRouter();
@@ -260,26 +262,33 @@ export default function GeneratorPage() {
       ) : (
         <div className="grid md:grid-cols-2 gap-6">
           {generatedRecipes.map((recipe, index) => (
-            <Card key={index} className="flex flex-col">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle>{recipe.name}</CardTitle>
-                    <CardDescription>{recipe.description}</CardDescription>
+            <Card key={index} className="flex flex-col overflow-hidden hover:shadow-md transition-shadow duration-200">
+              <div className="relative h-48 w-full overflow-hidden bg-muted">
+                <Image
+                  src={getRecipeImageUrl(recipe.name)}
+                  alt={recipe.name}
+                  fill
+                  className="object-cover transition-transform duration-300 hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
+                {recipe.matchPercentage && (
+                  <div
+                    className={`absolute top-3 right-3 text-xs font-bold px-2.5 py-1 rounded-full backdrop-blur shadow-sm ${
+                      recipe.matchPercentage >= 80
+                        ? "bg-green-600/90 text-white"
+                        : recipe.matchPercentage >= 50
+                          ? "bg-amber-500/90 text-white"
+                          : "bg-red-600/90 text-white"
+                    }`}
+                  >
+                    {recipe.matchPercentage}% match
                   </div>
-                  {recipe.matchPercentage && (
-                    <div
-                      className={`text-sm font-semibold px-2 py-1 rounded ${
-                        recipe.matchPercentage >= 80
-                          ? "bg-green-100 text-green-800"
-                          : recipe.matchPercentage >= 50
-                            ? "bg-amber-100 text-amber-800"
-                            : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {recipe.matchPercentage}% match
-                    </div>
-                  )}
+                )}
+              </div>
+              <CardHeader className="pt-4 pb-2">
+                <div>
+                  <CardTitle className="text-xl">{recipe.name}</CardTitle>
+                  <CardDescription className="line-clamp-2 mt-1">{recipe.description}</CardDescription>
                 </div>
               </CardHeader>
               <CardContent className="flex-1">

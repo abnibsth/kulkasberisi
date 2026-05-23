@@ -9,6 +9,7 @@ import { useAppStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, Clock, Users, Flame } from "lucide-react";
+import { getRecipeImageUrl } from "@/lib/utils";
 
 type TabKey = "bahan" | "langkah" | "nutrisi";
 
@@ -85,8 +86,7 @@ export default function DetailResepPage() {
   }
 
   const imageUrl =
-    recipe.imageUrl ||
-    "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1600&q=80";
+    recipe.imageUrl || getRecipeImageUrl(recipe.name);
 
   return (
     <div className="space-y-6">

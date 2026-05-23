@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { useAppStore, Recipe } from "@/lib/store";
@@ -9,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, Clock, Users, AlertTriangle } from "lucide-react";
+import { getRecipeImageUrl } from "@/lib/utils";
 
 function getDaysUntilExpiry(expiryDate?: string) {
   if (!expiryDate) return null;
@@ -196,8 +198,28 @@ export default function ResepPage() {
             const urgent = isRecipeUrgent(recipe, urgentIngredientNames);
             const fav = recipe.isFavorite === true;
             return (
-              <Card key={recipe.id} className="overflow-hidden">
-                <CardHeader className="pb-3">
+              <Card key={recipe.id} className="overflow-hidden flex flex-col h-full hover:shadow-md transition-shadow duration-200">
+                <div className="relative h-44 w-full overflow-hidden bg-muted">
+                  <Image
+                    src={getRecipeImageUrl(recipe.name)}
+                    alt={recipe.name}
+                    fill
+                    className="object-cover transition-transform duration-300 hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
+                  {urgent && (
+                    <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-red-600/90 backdrop-blur px-2.5 py-1 text-xs font-bold text-white shadow-sm">
+                      <AlertTriangle className="h-3 w-3" />
+                      URGENT
+                    </span>
+                  )}
+                  {typeof recipe.matchPercentage === "number" && (
+                    <span className="absolute top-3 right-3 rounded-full bg-black/75 backdrop-blur px-2.5 py-1 text-xs font-bold text-white shadow-sm">
+                      Match {recipe.matchPercentage}%
+                    </span>
+                  )}
+                </div>
+                <CardHeader className="pb-2 pt-4 flex-1">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <CardTitle className="text-lg truncate">
@@ -208,14 +230,14 @@ export default function ResepPage() {
                           {recipe.name}
                         </Link>
                       </CardTitle>
-                      <div className="text-sm text-muted-foreground line-clamp-2">
+                      <div className="text-sm text-muted-foreground line-clamp-2 mt-1">
                         {recipe.description}
                       </div>
                     </div>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className={fav ? "text-red-500" : "text-muted-foreground"}
+                      className={fav ? "text-red-500 hover:text-red-600 shrink-0" : "text-muted-foreground shrink-0"}
                       onClick={async () => {
                         setActionError(null);
                         if (!recipe.id) return;
@@ -238,35 +260,23 @@ export default function ResepPage() {
                         }
                       }}
                     >
-                      <Heart className="h-5 w-5" />
+                      <Heart className="h-5 w-5" fill={fav ? "currentColor" : "none"} />
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                <CardContent className="space-y-3 pt-0">
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground pt-2 border-t border-muted">
                     <span className="inline-flex items-center gap-1">
                       <Clock className="h-4 w-4" />
                       {recipe.prepTime + recipe.cookTime}m
                     </span>
                     <span className="inline-flex items-center gap-1">
                       <Users className="h-4 w-4" />
-                      {recipe.servings}
+                      {recipe.servings} porsi
                     </span>
-                    <span className="capitalize">{recipe.difficulty}</span>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    {urgent && (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-destructive/30 bg-destructive/10 px-2 py-1 text-xs font-medium text-destructive">
-                        <AlertTriangle className="h-3 w-3" />
-                        URGENT
-                      </span>
-                    )}
-                    {typeof recipe.matchPercentage === "number" && (
-                      <span className="rounded-full border bg-muted/30 px-2 py-1 text-xs font-medium">
-                        Match {recipe.matchPercentage}%
-                      </span>
-                    )}
+                    <span className="capitalize px-2 py-0.5 rounded-full bg-muted text-[11px] font-medium">
+                      {recipe.difficulty === "easy" ? "Mudah" : recipe.difficulty === "medium" ? "Sedang" : "Sulit"}
+                    </span>
                   </div>
                 </CardContent>
               </Card>
