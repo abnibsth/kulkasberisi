@@ -201,7 +201,7 @@ export default function ResepPage() {
               <Card key={recipe.id} className="overflow-hidden flex flex-col h-full hover:shadow-md transition-shadow duration-200">
                 <div className="relative h-44 w-full overflow-hidden bg-muted">
                   <Image
-                    src={getRecipeImageUrl(recipe.name)}
+                    src={recipe.imageUrl || getRecipeImageUrl(recipe.name)}
                     alt={recipe.name}
                     fill
                     className="object-cover transition-transform duration-300 hover:scale-105"

@@ -1,0 +1,136 @@
+{
+  "timestamp": "2026-05-28T18:04:07.908Z",
+  "ingredients": [
+    {
+      "name": "ayam",
+      "quantity": 3,
+      "unit": "kg"
+    },
+    {
+      "name": "daging sapi",
+      "quantity": 5,
+      "unit": "kg"
+    },
+    {
+      "name": "daging kambing",
+      "quantity": 3,
+      "unit": "kg"
+    },
+    {
+      "name": "telur ayam ",
+      "quantity": 1,
+      "unit": "kg"
+    }
+  ],
+  "mainIngredient": "ayam",
+  "filters": {
+    "difficulty": "medium",
+    "maxTime": "45",
+    "vegetarian": false,
+    "halal": true
+  },
+  "rawContentFromGemini": "{\n  \"recipes\": [\n    {\n      \"name\": \"Ayam Goreng Sambal Matah\",\n      \"description\": \"Ayam goreng renyah disajikan dengan sambal matah segar khas Bali yang pedas dan aromatik.\",\n      \"prepTime\": 15,\n      \"cookTime\": 20,\n      \"servings\": 4,\n      \"difficulty\": \"medium\",\n      \"calories\": 400,\n      \"ingredients\": [\n        { \"name\": \"Ayam paha/dada\", \"quantity\": 500, \"unit\": \"gram\" },\n        { \"name\": \"Bawang merah\", \"quantity\": 10, \"unit\": \"siung\" },\n        { \"name\": \"Cabai rawit\", \"quantity\": 15, \"unit\": \"buah\" },\n        { \"name\": \"Serai\", \"quantity\": 2, \"unit\": \"batang\" },\n        { \"name\": \"Daun jeruk\", \"quantity\": 3, \"unit\": \"lembar\" },\n        { \"name\": \"Jeruk limau\", \"quantity\": 1, \"unit\": \"buah\" },\n        { \"name\": \"Minyak goreng\", \"quantity\": 100, \"unit\": \"ml\" },\n        { \"name\": \"Garam\", \"quantity\": 1, \"unit\": \"sdt\" },\n        { \"name\": \"Gula\", \"quantity\": 0.5, \"unit\": \"sdt\" },\n        { \"name\": \"Kaldu bubuk\", \"quantity\": 1, \"unit\": \"sdt\" }\n      ],\n      \"instructions\": [\n        \"Potong ayam menjadi 8 bagian, cuci bersih. Lumuri dengan garam dan sedikit air jeruk nipis, diamkan 10 menit.\",\n        \"Goreng ayam dalam minyak panas hingga matang dan kuning keemasan. Angkat, tiriskan.\",\n        \"Iris tipis bawang merah, cabai rawit, dan bagian putih serai.\",\n        \"Iris tipis daun jeruk, buang tulangnya.\",\n        \"Campurkan irisan bawang, cabai, serai, dan daun jeruk dalam mangkuk.\",\n        \"Tambahkan garam, gula, dan kaldu bubuk ke dalam campuran sambal. Aduk rata.\",\n        \"Panaskan 5-6 sdm minyak bekas menggoreng ayam hingga benar-benar panas.\",\n        \"Siramkan minyak panas ke campuran sambal. Aduk cepat.\",\n        \"Peras jeruk limau ke dalam sambal, aduk kembali.\",\n        \"Tata ayam goreng di piring saji, tuang sambal matah di atasnya.\"\n      ],\n      \"matchPercentage\": 95,\n      \"imageKeyword\": \"fried chicken\"\n    },\n    {\n      \"name\": \"Soto Ayam Bening\",\n      \"description\": \"Soto ayam kuah bening yang segar dengan rempah khas Indonesia, dilengkapi irisan kentang dan tomat.\",\n      \"prepTime\": 15,\n      \"cookTime\": 25,\n      \"servings\": 4,\n      \"difficulty\": \"medium\",\n      \"calories\": 380,\n      \"ingredients\": [\n        { \"name\": \"Ayam dada/paha\", \"quantity\": 400, \"unit\": \"gram\" },\n        { \"name\": \"Air\", \"quantity\": 1.5, \"unit\": \"liter\" },\n        { \"name\": \"Bawang merah (bumbu halus)\", \"quantity\": 6, \"unit\": \"siung\" },\n        { \"name\": \"Bawang putih (bumbu halus)\", \"quantity\": 4, \"unit\": \"siung\" },\n        { \"name\": \"Kemiri sangrai\", \"quantity\": 3, \"unit\": \"butir\" },\n        { \"name\": \"Jahe\", \"quantity\": 2, \"unit\": \"cm\" },\n        { \"name\": \"Kunyit\", \"quantity\": 2, \"unit\": \"cm\" },\n        { \"name\": \"Merica butiran\", \"quantity\": 0.5, \"unit\": \"sdt\" },\n        { \"name\": \"Daun jeruk\", \"quantity\": 3, \"unit\": \"lembar\" },\n        { \"name\": \"Serai (memarkan)\", \"quantity\": 2, \"unit\": \"batang\" },\n        { \"name\": \"Lengkuas (memarkan)\", \"quantity\": 2, \"unit\": \"cm\" },\n        { \"name\": \"Daun salam\", \"quantity\": 2, \"unit\": \"lembar\" },\n        { \"name\": \"Kentang\", \"quantity\": 2, \"unit\": \"buah\" },\n        { \"name\": \"Tomat\", \"quantity\": 1, \"unit\": \"buah\" },\n        { \"name\": \"Seledri\", \"quantity\": 2, \"unit\": \"batang\" },\n        { \"name\": \"Garam\", \"quantity\": 1.5, \"unit\": \"sdt\" },\n        { \"name\": \"Gula\", \"quantity\": 0.5, \"unit\": \"sdt\" },\n        { \"name\": \"Kaldu bubuk\", \"quantity\": 1, \"unit\": \"sdt\" },\n        { \"name\": \"Minyak goreng\", \"quantity\": 2, \"unit\": \"sdm\" }\n      ],\n      \"instructions\": [\n        \"Rebus ayam dalam 1.5 liter air hingga matang. Angkat ayam, saring kaldunya. Sisihkan.\",\n        \"Suwir-suwir ayam yang sudah direbus.\",\n        \"Haluskan bawang merah, bawang putih, kemiri, jahe, kunyit, dan merica.\",\n        \"Panaskan minyak, tumis bumbu halus hingga harum dan matang. Masukkan daun jeruk, serai, lengkuas, dan daun salam, tumis sebentar.\",\n        \"Tuang bumbu tumis ke dalam kaldu ayam yang sudah disaring. Masak hingga mendidih.\",\n        \"Bumbui kuah dengan garam, gula, dan kaldu bubuk. Koreksi rasa.\",\n        \"Goreng kentang yang sudah diiris tipis hingga matang dan renyah.\",\n        \"Siapkan mangkuk, tata suwiran ayam, kentang goreng, irisan tomat, dan irisan seledri.\",\n        \"Siram dengan kuah soto panas. Sajikan.\"\n      ],\n      \"matchPercentage\": 95,\n      \"imageKeyword\": \"chicken soup\"\n    },\n    {\n      \"name\": \"Ayam Bakar Madu\",\n      \"description\": \"Ayam bakar dengan bumbu madu manis gurih yang meresap sempurna, cocok untuk hidangan utama.\",\n      \"prepTime\": 15,\n      \"cookTime\": 25,\n      \"servings\": 4,\n      \"difficulty\": \"medium\",\n      \"calories\": 420,\n      \"ingredients\": [\n        { \"name\": \"Ayam paha/dada\", \"quantity\": 500, \"unit\": \"gram\" },\n        { \"name\": \"Bawang merah (bumbu halus)\", \"quantity\": 5, \"unit\": \"siung\" },\n        { \"name\": \"Bawang putih (bumbu halus)\", \"quantity\": 3, \"unit\": \"siung\" },\n        { \"name\": \"Kemiri sangrai\", \"quantity\": 2, \"unit\": \"butir\" },\n        { \"name\": \"Jahe\", \"quantity\": 1, \"unit\": \"cm\" },\n        { \"name\": \"Ketumbar\", \"quantity\": 1, \"unit\": \"sdt\" },\n        { \"name\": \"Kunyit\", \"quantity\": 1, \"unit\": \"cm\" },\n        { \"name\": \"Madu\", \"quantity\": 3, \"unit\": \"sdm\" },\n        { \"name\": \"Kecap manis\", \"quantity\": 4, \"unit\": \"sdm\" },\n        { \"name\": \"Air asam jawa\", \"quantity\": 1, \"unit\": \"sdm\" },\n        { \"name\": \"Garam\", \"quantity\": 1, \"unit\": \"sdt\" },\n        { \"name\": \"Merica\", \"quantity\": 0.5, \"unit\": \"sdt\" },\n        { \"name\": \"Minyak goreng\", \"quantity\": 2, \"unit\": \"sdm\" }\n      ],\n      \"instructions\": [\n        \"Bersihkan ayam, kerat-kerat permukaannya agar bumbu lebih meresap.\",\n        \"Haluskan bawang merah, bawang putih, kemiri, jahe, ketumbar, dan kunyit.\",\n        \"Panaskan minyak, tumis bumbu halus hingga harum.\",\n        \"Masukkan ayam, aduk rata dengan bumbu. Tambahkan kecap manis, madu, air asam jawa, garam, dan merica.\",\n        \"Masak ayam hingga bumbu meresap dan air menyusut (ungkep). Angkat ayam, sisihkan sisa bumbu ungkep.\",\n        \"Panaskan panggangan atau teflon anti lengket.\",\n        \"Bakar ayam sambil sesekali dioles sisa bumbu ungkep hingga matang dan berwarna kecoklatan.\",\n        \"Balik sisi ayam, ulangi proses mengoles bumbu hingga kedua sisi matang sempurna.\",\n        \"Sajikan Ayam Bakar Madu selagi hangat.\"\n      ],\n      \"matchPercentage\": 95,\n      \"imageKeyword\": \"grilled chicken\"\n    }\n  ]\n}",
+  "normalizedRecipes": [
+    {
+      "name": "Ayam Goreng Sambal Matah",
+      "ingredients": [
+        {
+          "name": "ayam",
+          "quantity": 1,
+          "unit": "secukupnya"
+        },
+        {
+          "name": "Ayam paha/dada",
+          "quantity": 500,
+          "unit": "gram"
+        },
+        {
+          "name": "Cabai rawit",
+          "quantity": 15,
+          "unit": "buah"
+        },
+        {
+          "name": "Serai",
+          "quantity": 2,
+          "unit": "batang"
+        }
+      ],
+      "difficulty": "medium",
+      "prepTime": 15,
+      "cookTime": 20,
+      "halalPass": true,
+      "vegPass": false,
+      "mainIngPass": true,
+      "otherProPass": true,
+      "diffPass": true
+    },
+    {
+      "name": "Soto Ayam Bening",
+      "ingredients": [
+        {
+          "name": "ayam",
+          "quantity": 1,
+          "unit": "secukupnya"
+        },
+        {
+          "name": "Ayam dada/paha",
+          "quantity": 400,
+          "unit": "gram"
+        },
+        {
+          "name": "Air",
+          "quantity": 1.5,
+          "unit": "liter"
+        },
+        {
+          "name": "Bawang merah (bumbu halus)",
+          "quantity": 6,
+          "unit": "siung"
+        }
+      ],
+      "difficulty": "medium",
+      "prepTime": 15,
+      "cookTime": 25,
+      "halalPass": true,
+      "vegPass": false,
+      "mainIngPass": true,
+      "otherProPass": true,
+      "diffPass": true
+    },
+    {
+      "name": "Ayam Bakar Madu",
+      "ingredients": [
+        {
+          "name": "ayam",
+          "quantity": 1,
+          "unit": "secukupnya"
+        },
+        {
+          "name": "Ayam paha/dada",
+          "quantity": 500,
+          "unit": "gram"
+        },
+        {
+          "name": "Bawang merah (bumbu halus)",
+          "quantity": 5,
+          "unit": "siung"
+        },
+        {
+          "name": "Bawang putih (bumbu halus)",
+          "quantity": 3,
+          "unit": "siung"
+        }
+      ],
+      "difficulty": "medium",
+      "prepTime": 15,
+      "cookTime": 25,
+      "halalPass": true,
+      "vegPass": false,
+      "mainIngPass": true,
+      "otherProPass": true,
+      "diffPass": true
+    }
+  ],
+  "enforcedCount": 3,
+  "finalRecipesCount": 3
+}
