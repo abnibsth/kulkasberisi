@@ -5,7 +5,11 @@ KulkasBerisi adalah aplikasi manajemen inventaris bahan makanan pintar yang memb
 ## 🌟 Fitur Utama
 
 - **Smart Inventory Management**: Kelola bahan makanan (kulkas/pantry) dengan kategori, jumlah, dan tanggal kedaluwarsa.
+<<<<<<< HEAD
 - **AI Recipe Generator**: Menghasilkan 1 resep masakan Indonesia kreatif berdasarkan bahan yang ada.
+=======
+- **AI Recipe Generator**: Menghasilkan 1-3 resep masakan Indonesia kreatif berdasarkan bahan yang ada.
+>>>>>>> 197dc2cd140f3873a2bb71314df8dc51ee1fa20d
 - **Multi-Model Orchestration**:
   - **Gemini 2.5 Flash**: Menghasilkan teks resep, instruksi memasak, dan estimasi kalori secara akurat.
   - **Unsplash API**: Mencari foto makanan yang relevan secara otomatis sesuai dengan nama resep.
