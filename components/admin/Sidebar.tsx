@@ -11,20 +11,20 @@ const NAV = [
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3,           exact: false },
 ] as const;
 
-const navActive   = { background: "rgba(139,92,246,0.18)", border: "1px solid rgba(167,139,250,0.3)", color: "#c4b5fd" } as React.CSSProperties;
-const navInactive = { background: "transparent", border: "1px solid transparent", color: "rgba(255,255,255,0.45)" } as React.CSSProperties;
+const navActive   = { background: "rgba(212,233,226,0.18)", border: "1px solid rgba(212,233,226,0.25)", color: "#d4e9e2" } as React.CSSProperties;
+const navInactive = { background: "transparent", border: "1px solid transparent", color: "rgba(255,255,255,0.50)" } as React.CSSProperties;
 
 export function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 min-h-screen flex flex-col font-display" style={{ background: "#141210", borderRight: "1px solid rgba(255,255,255,0.06)" }}>
+    <aside className="w-64 min-h-screen flex flex-col font-display" style={{ background: "#1E3932", borderRight: "1px solid rgba(255,255,255,0.06)" }}>
 
       {/* Brand */}
       <div className="px-5 py-5 flex items-center gap-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="h-9 w-9 rounded-2xl flex items-center justify-center shrink-0"
-          style={{ background: "rgba(139,92,246,0.2)", border: "1px solid rgba(139,92,246,0.3)" }}>
-          <Shield className="h-4.5 w-4.5" style={{ color: "#c4b5fd" }} strokeWidth={1.5} />
+          style={{ background: "rgba(212,233,226,0.15)", border: "1px solid rgba(212,233,226,0.22)" }}>
+          <Shield className="h-4.5 w-4.5" style={{ color: "#d4e9e2" }} strokeWidth={1.5} />
         </div>
         <div>
           <div className="font-bold text-sm leading-tight" style={{ color: "#ffffff" }}>Admin Panel</div>
@@ -44,7 +44,7 @@ export function AdminSidebar() {
             >
               <Icon className="h-4 w-4 shrink-0" strokeWidth={1.5} />
               <span>{item.label}</span>
-              {active && <span className="ml-auto h-1.5 w-1.5 rounded-full" style={{ background: "#c4b5fd" }} />}
+              {active && <span className="ml-auto h-1.5 w-1.5 rounded-full" style={{ background: "#d4e9e2" }} />}
             </Link>
           );
         })}

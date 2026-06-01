@@ -15,13 +15,14 @@ type NavItem = {
   isActive: (pathname: string) => boolean;
 };
 
+// ── Starbucks sidebar tokens (House Green #1E3932)
 const S = {
-  sidebar: { background: "#141210", borderRight: "1px solid rgba(255,255,255,0.06)" } as React.CSSProperties,
-  sidebarNav: { color: "rgba(255,255,255,0.5)" } as React.CSSProperties,
-  navActive: { background: "rgba(45,106,79,0.25)", border: "1px solid rgba(64,145,108,0.25)", color: "#6ee7b7" } as React.CSSProperties,
-  navInactive: { background: "transparent", border: "1px solid transparent", color: "rgba(255,255,255,0.5)" } as React.CSSProperties,
-  mainBg: { background: "#FEFCF8" } as React.CSSProperties,
-  headerBorder: { borderBottom: "1px solid rgba(0,0,0,0.06)", background: "rgba(254,252,248,0.9)", backdropFilter: "blur(12px)" } as React.CSSProperties,
+  sidebar:     { background: "#1E3932", borderRight: "1px solid rgba(255,255,255,0.06)" } as React.CSSProperties,
+  sidebarNav:  { color: "rgba(255,255,255,0.55)" } as React.CSSProperties,
+  navActive:   { background: "rgba(212,233,226,0.15)", border: "1px solid rgba(212,233,226,0.20)", color: "#d4e9e2" } as React.CSSProperties,
+  navInactive: { background: "transparent", border: "1px solid transparent", color: "rgba(255,255,255,0.55)" } as React.CSSProperties,
+  mainBg:      { background: "#f2f0eb" } as React.CSSProperties,
+  headerBorder:{ borderBottom: "1px solid rgba(0,117,74,0.10)", background: "rgba(242,240,235,0.95)", backdropFilter: "blur(12px)" } as React.CSSProperties,
 };
 
 export default function AppLayout({ children }: { children: ReactNode }) {
@@ -118,8 +119,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       <Link href="/" className="flex items-center gap-2.5 px-2 py-1 mb-6 group">
         <Image src="/logo.png" alt="Kulkas Berisi" width={32} height={32} className="rounded-xl group-hover:scale-105 transition-transform" />
         <div>
-          <div className="font-bold text-sm leading-tight" style={{ color: "#ffffff" }}>Kulkas <span style={{ color: "#6ee7b7" }}>Berisi</span></div>
-          <div className="text-[10px] leading-tight" style={{ color: "rgba(255,255,255,0.3)" }}>From fridge to table</div>
+          <div className="font-bold text-sm leading-tight" style={{ color: "#ffffff" }}>Kulkas <span style={{ color: "#d4e9e2" }}>Berisi</span></div>
+          <div className="text-[10px] leading-tight" style={{ color: "rgba(255,255,255,0.45)" }}>From fridge to table</div>
         </div>
       </Link>
 
@@ -144,7 +145,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       <div className="mt-5">
         <Link href="/bahan/tambah"
           className="flex items-center justify-center gap-2 w-full py-2.5 rounded-2xl text-sm font-semibold transition-all active:scale-95"
-          style={{ background: "rgba(45,106,79,0.2)", border: "1px solid rgba(64,145,108,0.25)", color: "#6ee7b7" }}
+          style={{ background: "rgba(212,233,226,0.15)", border: "1px solid rgba(212,233,226,0.22)", color: "#d4e9e2" }}
         >
           <Plus className="h-4 w-4" strokeWidth={2} />
           Tambah Bahan
@@ -168,7 +169,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         <div className="p-3 rounded-2xl" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="flex items-center gap-3 mb-3">
             <div className="h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-              style={{ background: "rgba(45,106,79,0.3)", border: "1px solid rgba(64,145,108,0.4)", color: "#6ee7b7" }}>
+              style={{ background: "rgba(212,233,226,0.18)", border: "1px solid rgba(212,233,226,0.25)", color: "#d4e9e2" }}>
               {initials}
             </div>
             <div className="min-w-0 flex-1">
@@ -199,7 +200,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       {/* ── MOBILE SIDEBAR OVERLAY ── */}
       {sidebarOpen && (
         <div className="lg:hidden fixed inset-0 z-50 flex">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
+          <div className="absolute inset-0 backdrop-blur-sm" style={{ background: "rgba(30,57,50,0.55)" }} onClick={() => setSidebarOpen(false)} />
           <aside className="relative w-72 flex flex-col" style={S.sidebar}>
             <SidebarContent />
           </aside>
@@ -214,21 +215,21 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           <div className="px-4 md:px-6 h-14 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               {/* Mobile hamburger */}
-              <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 rounded-xl hover:bg-black/5 transition-colors" style={{ color: "#5a5550" }}>
+              <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 rounded-xl transition-colors hover:bg-green-900/5" style={{ color: "#33433d" }}>
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                   <path d="M2 4.5h14M2 9h14M2 13.5h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                 </svg>
               </button>
               <div>
-                <div className="font-bold text-base leading-tight" style={{ color: "#141210" }}>{pageTitle}</div>
+                <div className="font-bold text-base leading-tight" style={{ color: "#006241", letterSpacing: "-0.01em" }}>{pageTitle}</div>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {pathname !== "/scanner" && (
                 <Link href="/scanner"
-                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors hover:bg-black/5"
-                  style={{ color: "#5a5550", border: "1px solid rgba(0,0,0,0.08)" }}
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors"
+                  style={{ color: "#33433d", border: "1px solid rgba(0,117,74,0.15)" }}
                 >
                   <ScanLine className="h-3.5 w-3.5" strokeWidth={1.5} /> Scan
                 </Link>
@@ -237,8 +238,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               {/* Notif bell */}
               <div className="relative" ref={notifRef}>
                 <button type="button" onClick={() => setNotifOpen(v => !v)}
-                  className="relative flex items-center justify-center h-9 w-9 rounded-xl transition-colors hover:bg-black/5"
-                  style={{ border: "1px solid rgba(0,0,0,0.08)", color: "#5a5550" }}
+                  className="relative flex items-center justify-center h-9 w-9 rounded-xl transition-colors"
+                  style={{ border: "1px solid rgba(0,117,74,0.15)", color: "#33433d" }}
                 >
                   <Bell className="h-4 w-4" strokeWidth={1.5} />
                   {notifCount > 0 && (
@@ -251,10 +252,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
                 {notifOpen && (
                   <div className="absolute right-0 top-full mt-2 w-80 z-50 rounded-2xl overflow-hidden"
-                    style={{ background: "rgba(254,252,248,0.97)", backdropFilter: "blur(20px)", border: "1px solid rgba(0,0,0,0.08)", boxShadow: "0 20px 60px rgba(0,0,0,0.12)" }}>
-                    <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
-                      <div className="font-semibold text-sm" style={{ color: "#141210" }}>Notifikasi</div>
-                      <button onClick={() => setNotifOpen(false)} className="rounded-lg p-1 hover:bg-black/5 transition-colors" style={{ color: "#5a5550" }}>
+                    style={{ background: "rgba(242,240,235,0.98)", backdropFilter: "blur(20px)", border: "1px solid rgba(0,117,74,0.12)", boxShadow: "0 20px 60px rgba(30,57,50,0.16)" }}>
+                    <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid rgba(0,117,74,0.08)" }}>
+                      <div className="font-semibold text-sm" style={{ color: "#006241", letterSpacing: "-0.01em" }}>Notifikasi</div>
+                      <button onClick={() => setNotifOpen(false)} className="rounded-lg p-1 transition-colors" style={{ color: "#33433d" }}>
                         <X className="h-4 w-4" strokeWidth={1.5} />
                       </button>
                     </div>
@@ -268,7 +269,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                               <div className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#ef4444" }}>Expired ({expired.length})</div>
                               {expired.slice(0, 5).map(i => (
                                 <div key={i.id} className="flex items-center justify-between gap-3 p-2.5 rounded-xl" style={{ background: "rgba(239,68,68,0.06)" }}>
-                                  <div className="text-sm font-medium truncate" style={{ color: "#141210" }}>{i.name}</div>
+                                  <div className="text-sm font-medium truncate" style={{ color: "#1E3932" }}>{i.name}</div>
                                   <span className="text-xs shrink-0 font-medium" style={{ color: "#ef4444" }}>Expired</span>
                                 </div>
                               ))}
@@ -279,7 +280,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                               <div className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#b45309" }}>Segera Kadaluarsa ({soon.length})</div>
                               {soon.slice(0, 5).map(i => (
                                 <div key={i.id} className="flex items-center justify-between gap-3 p-2.5 rounded-xl" style={{ background: "rgba(245,158,11,0.06)" }}>
-                                  <div className="text-sm font-medium truncate" style={{ color: "#141210" }}>{i.name}</div>
+                                  <div className="text-sm font-medium truncate" style={{ color: "#1E3932" }}>{i.name}</div>
                                   <span className="text-xs shrink-0 font-medium" style={{ color: "#b45309" }}>{i.days === 0 ? "Hari ini" : `H-${i.days}`}</span>
                                 </div>
                               ))}
@@ -289,13 +290,13 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                       )}
                       <div className="flex gap-2 pt-1">
                         <Link href="/bahan" onClick={() => setNotifOpen(false)}
-                          className="flex-1 py-2 rounded-xl text-xs font-semibold text-center transition-colors"
-                          style={{ background: "#141210", color: "#ffffff" }}>
+                          className="flex-1 py-2 rounded-xl text-xs font-semibold text-center transition-colors active:scale-95"
+                          style={{ background: "#00754A", color: "#ffffff", borderRadius: "50px" }}>
                           Lihat di Bahan
                         </Link>
                         <button onClick={async () => { try { await loadIngredients(); } catch {} }}
-                          className="flex-1 py-2 rounded-xl text-xs font-semibold transition-colors"
-                          style={{ border: "1px solid rgba(0,0,0,0.1)", color: "#5a5550" }}>
+                          className="flex-1 py-2 rounded-xl text-xs font-semibold transition-colors active:scale-95"
+                          style={{ border: "1px solid rgba(0,117,74,0.2)", color: "#00754A", borderRadius: "50px" }}>
                           Refresh
                         </button>
                       </div>
@@ -309,8 +310,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
               {pathname !== "/generator" && (
                 <Link href="/generator"
-                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all text-white"
-                  style={{ background: "#141210", boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-all active:scale-95 text-white"
+                  style={{ borderRadius: "50px", background: "#00754A", boxShadow: "0 2px 8px rgba(0,117,74,0.25)", letterSpacing: "-0.01em" }}
                 >
                   <ChefHat className="h-3.5 w-3.5" strokeWidth={1.5} /> Generate Resep
                 </Link>

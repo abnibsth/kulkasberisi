@@ -13,9 +13,9 @@ function setCookie(name: string, value: string, maxAgeSeconds: number) {
 }
 
 const FeatureRow = ({ icon: Icon, text }: { icon: React.ElementType; text: string }) => (
-  <div className="flex items-center gap-3 px-4 py-3 rounded-2xl" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
-    <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(45,106,79,0.25)", border: "1px solid rgba(64,145,108,0.3)" }}>
-      <Icon className="h-4 w-4" style={{ color: "#6ee7b7" }} strokeWidth={1.5} />
+  <div className="flex items-center gap-3 px-4 py-3 rounded-2xl" style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(212,233,226,0.15)" }}>
+    <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(212,233,226,0.15)", border: "1px solid rgba(212,233,226,0.22)" }}>
+      <Icon className="h-4 w-4" style={{ color: "#d4e9e2" }} strokeWidth={1.5} />
     </div>
     <span className="text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>{text}</span>
   </div>
@@ -38,11 +38,11 @@ const InputField = ({
         className="w-full h-12 px-4 text-sm rounded-2xl focus:outline-none transition-all duration-200"
         style={{
           background: "rgba(255,255,255,0.72)", border: "1px solid rgba(0,0,0,0.08)",
-          color: "#141210", boxShadow: "0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.9)",
+          color: "#1E3932", boxShadow: "0 1px 3px rgba(30,57,50,0.05), inset 0 1px 0 rgba(255,255,255,0.9)",
           paddingRight: rightEl ? "44px" : undefined,
         }}
-        onFocus={e => { e.target.style.border = "1.5px solid rgba(45,106,79,0.5)"; e.target.style.boxShadow = "0 0 0 3px rgba(45,106,79,0.08), inset 0 1px 0 rgba(255,255,255,0.9)"; }}
-        onBlur={e => { e.target.style.border = "1px solid rgba(0,0,0,0.08)"; e.target.style.boxShadow = "0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.9)"; }}
+        onFocus={e => { e.target.style.border = "1.5px solid rgba(0,117,74,0.5)"; e.target.style.boxShadow = "0 0 0 3px rgba(0,117,74,0.10), inset 0 1px 0 rgba(255,255,255,0.9)"; }}
+        onBlur={e => { e.target.style.border = "1px solid rgba(0,98,65,0.12)"; e.target.style.boxShadow = "0 1px 3px rgba(30,57,50,0.05), inset 0 1px 0 rgba(255,255,255,0.9)"; }}
       />
       {rightEl && <div className="absolute right-3.5 top-1/2 -translate-y-1/2">{rightEl}</div>}
     </div>
@@ -113,7 +113,7 @@ export default function LoginPage() {
       <div className="lg:hidden flex items-center justify-between px-5 pt-5 pb-4 relative z-10" style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
         <Link href="/" className="flex items-center gap-2">
           <Image src="/logo.png" alt="Kulkas Berisi" width={28} height={28} className="rounded-xl" />
-          <span className="font-bold text-sm" style={{ color: "#141210" }}>Kulkas <span style={{ color: "#2d6a4f" }}>Berisi</span></span>
+          <span className="font-bold text-sm" style={{ color: "#1E3932" }}>Kulkas <span style={{ color: "#006241" }}>Berisi</span></span>
         </Link>
         <Link href="/register" className="text-sm font-medium flex items-center gap-1" style={{ color: "#5a5550" }}>
           Daftar <ArrowLeft className="h-3.5 w-3.5 rotate-180" strokeWidth={1.5} />
@@ -138,13 +138,13 @@ export default function LoginPage() {
                     <span className="dot" />
                     {isAdminLogin ? "Admin Portal" : "Selamat datang kembali"}
                   </div>
-                  <h1 className="text-2xl font-bold tracking-tight leading-tight mb-1.5" style={{ color: "#141210" }}>
+                  <h1 className="text-2xl font-bold tracking-tight leading-tight mb-1.5" style={{ color: "#1E3932" }}>
                     {isAdminLogin ? "Masuk sebagai Admin" : "Masuk ke akun Anda"}
                   </h1>
                   {!isAdminLogin && (
                     <p className="text-sm" style={{ color: "#5a5550" }}>
                       Belum punya akun?{" "}
-                      <Link href="/register" className="font-semibold hover:underline" style={{ color: "#2d6a4f" }}>Daftar gratis</Link>
+                      <Link href="/register" className="font-semibold hover:underline" style={{ color: "#006241" }}>Daftar gratis</Link>
                     </p>
                   )}
                 </div>
@@ -175,9 +175,9 @@ export default function LoginPage() {
                         type={showPassword ? "text" : "password"} value={formData.password}
                         onChange={e => setFormData(f => ({ ...f, password: e.target.value }))}
                         className="w-full h-12 px-4 pr-12 text-sm rounded-2xl focus:outline-none transition-all duration-200"
-                        style={{ background: "rgba(255,255,255,0.72)", border: "1px solid rgba(0,0,0,0.08)", color: "#141210", boxShadow: "0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.9)" }}
-                        onFocus={e => { e.target.style.border = "1.5px solid rgba(45,106,79,0.5)"; e.target.style.boxShadow = "0 0 0 3px rgba(45,106,79,0.08), inset 0 1px 0 rgba(255,255,255,0.9)"; }}
-                        onBlur={e => { e.target.style.border = "1px solid rgba(0,0,0,0.08)"; e.target.style.boxShadow = "0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.9)"; }}
+                        style={{ background: "rgba(255,255,255,0.72)", border: "1px solid rgba(0,98,65,0.12)", color: "#1E3932", boxShadow: "0 1px 3px rgba(30,57,50,0.05), inset 0 1px 0 rgba(255,255,255,0.9)" }}
+                        onFocus={e => { e.target.style.border = "1.5px solid rgba(0,117,74,0.5)"; e.target.style.boxShadow = "0 0 0 3px rgba(0,117,74,0.10), inset 0 1px 0 rgba(255,255,255,0.9)"; }}
+                        onBlur={e => { e.target.style.border = "1px solid rgba(0,98,65,0.12)"; e.target.style.boxShadow = "0 1px 3px rgba(30,57,50,0.05), inset 0 1px 0 rgba(255,255,255,0.9)"; }}
                       />
                       <button type="button" onClick={() => setShowPassword(v => !v)}
                         className="absolute right-3.5 top-1/2 -translate-y-1/2 hover:opacity-70 transition-opacity" style={{ color: "#a09890" }}>
@@ -189,7 +189,7 @@ export default function LoginPage() {
                   {/* Submit */}
                   <button type="submit" disabled={isLoading || !isSupabaseReady}
                     className="w-full h-12 rounded-2xl text-sm font-semibold text-white mt-2 flex items-center justify-center gap-2.5 transition-all duration-200 disabled:opacity-50 active:scale-[0.98]"
-                    style={{ background: "linear-gradient(180deg, #2d6a4f 0%, #1b4332 100%)", border: "1px solid rgba(255,255,255,0.08)", borderTop: "1px solid rgba(255,255,255,0.14)", boxShadow: "0 4px 20px rgba(27,67,50,0.35), inset 0 1px 0 rgba(255,255,255,0.1)" }}>
+                    style={{ background: "linear-gradient(180deg, #00754A 0%, #1E3932 100%)", border: "1px solid rgba(255,255,255,0.08)", borderTop: "1px solid rgba(255,255,255,0.14)", boxShadow: "0 4px 20px rgba(0,117,74,0.30), inset 0 1px 0 rgba(255,255,255,0.1)" }}>
                     {isLoading ? (
                       <><svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg> Memuat...</>
                     ) : (
@@ -208,7 +208,7 @@ export default function LoginPage() {
                     <div className="grid grid-cols-3 gap-2">
                       {[{ Icon: ScanLine, l: "Scan Bahan" }, { Icon: ChefHat, l: "Resep AI" }, { Icon: Clock, l: "Kadaluarsa" }].map(({ Icon, l }) => (
                         <div key={l} className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl text-center" style={{ background: "rgba(45,106,79,0.05)", border: "1px solid rgba(45,106,79,0.1)" }}>
-                          <Icon className="h-4 w-4" style={{ color: "#40916c" }} strokeWidth={1.5} />
+                          <Icon className="h-4 w-4" style={{ color: "#00754A" }} strokeWidth={1.5} />
                           <span className="text-xs font-medium" style={{ color: "#5a5550" }}>{l}</span>
                         </div>
                       ))}
@@ -231,7 +231,7 @@ export default function LoginPage() {
 
   /* ─── LEFT PANEL (shared dark) ─── */
   const leftPanel = (
-    <div className="hidden lg:flex lg:w-[44%] xl:w-[40%] flex-col relative overflow-hidden p-12" style={{ background: "#141210" }}>
+    <div className="hidden lg:flex lg:w-[44%] xl:w-[40%] flex-col relative overflow-hidden p-12" style={{ background: "#1E3932" }}>
       {/* Dot grid */}
       <div className="pointer-events-none absolute inset-0 opacity-[0.035]" style={{ backgroundImage: "radial-gradient(circle, #fff 1px, transparent 1px)", backgroundSize: "26px 26px" }} />
       {/* Green orb top */}
@@ -243,14 +243,14 @@ export default function LoginPage() {
       <Link href="/" className="relative flex items-center gap-2.5 group w-fit">
         <Image src="/logo.png" alt="Kulkas Berisi" width={34} height={34} className="rounded-xl group-hover:scale-105 transition-transform duration-200" />
         <span className="font-bold text-lg tracking-tight" style={{ color: "#ffffff" }}>
-          Kulkas <span style={{ color: "#6ee7b7" }}>Berisi</span>
+          Kulkas <span style={{ color: "#d4e9e2" }}>Berisi</span>
         </span>
       </Link>
 
       {/* Body */}
       <div className="relative mt-auto mb-auto pt-16">
-        <div className="eyebrow-tag mb-5" style={{ background: "rgba(45,106,79,0.2)", borderColor: "rgba(64,145,108,0.3)", color: "#6ee7b7" }}>
-          <span className="dot" style={{ background: "#6ee7b7" }} />
+        <div className="eyebrow-tag mb-5" style={{ background: "rgba(212,233,226,0.15)", borderColor: "rgba(212,233,226,0.22)", color: "#d4e9e2" }}>
+          <span className="dot" style={{ background: "#d4e9e2" }} />
           {isAdminLogin ? "Management System" : "Selamat datang kembali"}
         </div>
         <h2 className="text-4xl xl:text-5xl font-bold leading-tight tracking-tight mb-5" style={{ color: "#ffffff" }}>
@@ -269,7 +269,7 @@ export default function LoginPage() {
           <div className="grid grid-cols-3 gap-2">
             {[{ label: "Pengguna", value: "10K+" }, { label: "Resep AI", value: "50K+" }, { label: "Rating", value: "4.8" }].map(({ label, value }) => (
               <div key={label} className="rounded-2xl px-3 py-3 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                <div className="text-lg font-bold font-mono-nums" style={{ color: "#6ee7b7" }}>{value}</div>
+                <div className="text-lg font-bold font-mono-nums" style={{ color: "#d4e9e2" }}>{value}</div>
                 <div className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>{label}</div>
               </div>
             ))}

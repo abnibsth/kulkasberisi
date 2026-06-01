@@ -589,9 +589,9 @@ export async function POST(req: NextRequest) {
      * Contoh: "fried rice", "chicken curry", "beef stew".
      * Harus singkat dan relevan dengan nama makanan.
      */
-    const prompt = `Buat MAKSIMAL 3 resep masakan Indonesia yang kreatif dari bahan: ${ingredientList}
+    const prompt = `Buat TEPAT 1 resep masakan Indonesia yang kreatif dari bahan: ${ingredientList}
 
-${mainIngredient ? `BAHAN UTAMA (WAJIB): Fokus mengolah "${mainIngredient}" di semua resep.` : ""}
+${mainIngredient ? `BAHAN UTAMA (WAJIB): Fokus mengolah "${mainIngredient}" di resep ini.` : ""}
 ${mainIngredient ? `Jika bahan utama adalah protein hewani, JANGAN campur protein hewani lain.` : ""}
 ${filters?.difficulty ? `Tingkat kesulitan: ${filters.difficulty}` : ""}
 ${filters?.maxTime    ? `Waktu maksimum: ${filters.maxTime} menit`  : ""}
@@ -601,13 +601,12 @@ ${timeRule}
 ${hardExtra}
 
 Aturan penting:
-- MAKSIMAL 3 RESEP: Batasi hasil hanya 1, 2, atau maksimal 3 resep saja. Jangan pernah membuat lebih dari 3 resep.
+- OUTPUT WAJIB 1 RESEP SAJA: Kembalikan tepat 1 resep. Jangan membuat 2 atau 3 resep.
 - TULISAN PADAT & SINGKAT: Buat instruksi dan langkah memasak yang singkat, padat, dan langsung pada intinya. Hindari deskripsi bertele-tele agar menghemat token dan mencegah respons terputus di tengah jalan.
 - Prioritaskan bahan yang tersedia. Jangan abaikan bahan tersedia.
 - Takaran realistis 2–4 porsi (bukan stok massal). Gunakan angka wajar (200g, 1 sdm, dll).
-- Tambahan bahan lain maksimal 3 item per resep.
+- Tambahan bahan lain maksimal 3 item.
 - Langkah minimal 6 langkah, detail namun padat.
-- VARIASI WAJIB: Setiap resep berbeda TEKNIK MASAK (tumis/sup/goreng/bakar/kukus/pepes/semur/soto/balado/rica-rica/gulai).
 - FILTER PENTING: Resep tidak sesuai kesulitan/waktu akan ditolak.
 - Kunci variasi unik: ${variationKey}
 ${difficultyRule}
@@ -802,7 +801,7 @@ Buang semua ide yang tidak patuh dan buat ulang dari nol.`;
       }
     }
 
-    const finalRecipes = enforced.slice(0, 8);
+    const finalRecipes = enforced.slice(0, 1);
 
     const debugData = {
       timestamp: new Date().toISOString(),

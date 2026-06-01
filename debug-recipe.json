@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-05-28T18:04:07.908Z",
+  "timestamp": "2026-06-01T11:32:16.303Z",
   "ingredients": [
     {
       "name": "ayam",
@@ -22,17 +22,17 @@
       "unit": "kg"
     }
   ],
-  "mainIngredient": "ayam",
+  "mainIngredient": "daging sapi",
   "filters": {
-    "difficulty": "medium",
+    "difficulty": "hard",
     "maxTime": "45",
     "vegetarian": false,
     "halal": true
   },
-  "rawContentFromGemini": "{\n  \"recipes\": [\n    {\n      \"name\": \"Ayam Goreng Sambal Matah\",\n      \"description\": \"Ayam goreng renyah disajikan dengan sambal matah segar khas Bali yang pedas dan aromatik.\",\n      \"prepTime\": 15,\n      \"cookTime\": 20,\n      \"servings\": 4,\n      \"difficulty\": \"medium\",\n      \"calories\": 400,\n      \"ingredients\": [\n        { \"name\": \"Ayam paha/dada\", \"quantity\": 500, \"unit\": \"gram\" },\n        { \"name\": \"Bawang merah\", \"quantity\": 10, \"unit\": \"siung\" },\n        { \"name\": \"Cabai rawit\", \"quantity\": 15, \"unit\": \"buah\" },\n        { \"name\": \"Serai\", \"quantity\": 2, \"unit\": \"batang\" },\n        { \"name\": \"Daun jeruk\", \"quantity\": 3, \"unit\": \"lembar\" },\n        { \"name\": \"Jeruk limau\", \"quantity\": 1, \"unit\": \"buah\" },\n        { \"name\": \"Minyak goreng\", \"quantity\": 100, \"unit\": \"ml\" },\n        { \"name\": \"Garam\", \"quantity\": 1, \"unit\": \"sdt\" },\n        { \"name\": \"Gula\", \"quantity\": 0.5, \"unit\": \"sdt\" },\n        { \"name\": \"Kaldu bubuk\", \"quantity\": 1, \"unit\": \"sdt\" }\n      ],\n      \"instructions\": [\n        \"Potong ayam menjadi 8 bagian, cuci bersih. Lumuri dengan garam dan sedikit air jeruk nipis, diamkan 10 menit.\",\n        \"Goreng ayam dalam minyak panas hingga matang dan kuning keemasan. Angkat, tiriskan.\",\n        \"Iris tipis bawang merah, cabai rawit, dan bagian putih serai.\",\n        \"Iris tipis daun jeruk, buang tulangnya.\",\n        \"Campurkan irisan bawang, cabai, serai, dan daun jeruk dalam mangkuk.\",\n        \"Tambahkan garam, gula, dan kaldu bubuk ke dalam campuran sambal. Aduk rata.\",\n        \"Panaskan 5-6 sdm minyak bekas menggoreng ayam hingga benar-benar panas.\",\n        \"Siramkan minyak panas ke campuran sambal. Aduk cepat.\",\n        \"Peras jeruk limau ke dalam sambal, aduk kembali.\",\n        \"Tata ayam goreng di piring saji, tuang sambal matah di atasnya.\"\n      ],\n      \"matchPercentage\": 95,\n      \"imageKeyword\": \"fried chicken\"\n    },\n    {\n      \"name\": \"Soto Ayam Bening\",\n      \"description\": \"Soto ayam kuah bening yang segar dengan rempah khas Indonesia, dilengkapi irisan kentang dan tomat.\",\n      \"prepTime\": 15,\n      \"cookTime\": 25,\n      \"servings\": 4,\n      \"difficulty\": \"medium\",\n      \"calories\": 380,\n      \"ingredients\": [\n        { \"name\": \"Ayam dada/paha\", \"quantity\": 400, \"unit\": \"gram\" },\n        { \"name\": \"Air\", \"quantity\": 1.5, \"unit\": \"liter\" },\n        { \"name\": \"Bawang merah (bumbu halus)\", \"quantity\": 6, \"unit\": \"siung\" },\n        { \"name\": \"Bawang putih (bumbu halus)\", \"quantity\": 4, \"unit\": \"siung\" },\n        { \"name\": \"Kemiri sangrai\", \"quantity\": 3, \"unit\": \"butir\" },\n        { \"name\": \"Jahe\", \"quantity\": 2, \"unit\": \"cm\" },\n        { \"name\": \"Kunyit\", \"quantity\": 2, \"unit\": \"cm\" },\n        { \"name\": \"Merica butiran\", \"quantity\": 0.5, \"unit\": \"sdt\" },\n        { \"name\": \"Daun jeruk\", \"quantity\": 3, \"unit\": \"lembar\" },\n        { \"name\": \"Serai (memarkan)\", \"quantity\": 2, \"unit\": \"batang\" },\n        { \"name\": \"Lengkuas (memarkan)\", \"quantity\": 2, \"unit\": \"cm\" },\n        { \"name\": \"Daun salam\", \"quantity\": 2, \"unit\": \"lembar\" },\n        { \"name\": \"Kentang\", \"quantity\": 2, \"unit\": \"buah\" },\n        { \"name\": \"Tomat\", \"quantity\": 1, \"unit\": \"buah\" },\n        { \"name\": \"Seledri\", \"quantity\": 2, \"unit\": \"batang\" },\n        { \"name\": \"Garam\", \"quantity\": 1.5, \"unit\": \"sdt\" },\n        { \"name\": \"Gula\", \"quantity\": 0.5, \"unit\": \"sdt\" },\n        { \"name\": \"Kaldu bubuk\", \"quantity\": 1, \"unit\": \"sdt\" },\n        { \"name\": \"Minyak goreng\", \"quantity\": 2, \"unit\": \"sdm\" }\n      ],\n      \"instructions\": [\n        \"Rebus ayam dalam 1.5 liter air hingga matang. Angkat ayam, saring kaldunya. Sisihkan.\",\n        \"Suwir-suwir ayam yang sudah direbus.\",\n        \"Haluskan bawang merah, bawang putih, kemiri, jahe, kunyit, dan merica.\",\n        \"Panaskan minyak, tumis bumbu halus hingga harum dan matang. Masukkan daun jeruk, serai, lengkuas, dan daun salam, tumis sebentar.\",\n        \"Tuang bumbu tumis ke dalam kaldu ayam yang sudah disaring. Masak hingga mendidih.\",\n        \"Bumbui kuah dengan garam, gula, dan kaldu bubuk. Koreksi rasa.\",\n        \"Goreng kentang yang sudah diiris tipis hingga matang dan renyah.\",\n        \"Siapkan mangkuk, tata suwiran ayam, kentang goreng, irisan tomat, dan irisan seledri.\",\n        \"Siram dengan kuah soto panas. Sajikan.\"\n      ],\n      \"matchPercentage\": 95,\n      \"imageKeyword\": \"chicken soup\"\n    },\n    {\n      \"name\": \"Ayam Bakar Madu\",\n      \"description\": \"Ayam bakar dengan bumbu madu manis gurih yang meresap sempurna, cocok untuk hidangan utama.\",\n      \"prepTime\": 15,\n      \"cookTime\": 25,\n      \"servings\": 4,\n      \"difficulty\": \"medium\",\n      \"calories\": 420,\n      \"ingredients\": [\n        { \"name\": \"Ayam paha/dada\", \"quantity\": 500, \"unit\": \"gram\" },\n        { \"name\": \"Bawang merah (bumbu halus)\", \"quantity\": 5, \"unit\": \"siung\" },\n        { \"name\": \"Bawang putih (bumbu halus)\", \"quantity\": 3, \"unit\": \"siung\" },\n        { \"name\": \"Kemiri sangrai\", \"quantity\": 2, \"unit\": \"butir\" },\n        { \"name\": \"Jahe\", \"quantity\": 1, \"unit\": \"cm\" },\n        { \"name\": \"Ketumbar\", \"quantity\": 1, \"unit\": \"sdt\" },\n        { \"name\": \"Kunyit\", \"quantity\": 1, \"unit\": \"cm\" },\n        { \"name\": \"Madu\", \"quantity\": 3, \"unit\": \"sdm\" },\n        { \"name\": \"Kecap manis\", \"quantity\": 4, \"unit\": \"sdm\" },\n        { \"name\": \"Air asam jawa\", \"quantity\": 1, \"unit\": \"sdm\" },\n        { \"name\": \"Garam\", \"quantity\": 1, \"unit\": \"sdt\" },\n        { \"name\": \"Merica\", \"quantity\": 0.5, \"unit\": \"sdt\" },\n        { \"name\": \"Minyak goreng\", \"quantity\": 2, \"unit\": \"sdm\" }\n      ],\n      \"instructions\": [\n        \"Bersihkan ayam, kerat-kerat permukaannya agar bumbu lebih meresap.\",\n        \"Haluskan bawang merah, bawang putih, kemiri, jahe, ketumbar, dan kunyit.\",\n        \"Panaskan minyak, tumis bumbu halus hingga harum.\",\n        \"Masukkan ayam, aduk rata dengan bumbu. Tambahkan kecap manis, madu, air asam jawa, garam, dan merica.\",\n        \"Masak ayam hingga bumbu meresap dan air menyusut (ungkep). Angkat ayam, sisihkan sisa bumbu ungkep.\",\n        \"Panaskan panggangan atau teflon anti lengket.\",\n        \"Bakar ayam sambil sesekali dioles sisa bumbu ungkep hingga matang dan berwarna kecoklatan.\",\n        \"Balik sisi ayam, ulangi proses mengoles bumbu hingga kedua sisi matang sempurna.\",\n        \"Sajikan Ayam Bakar Madu selagi hangat.\"\n      ],\n      \"matchPercentage\": 95,\n      \"imageKeyword\": \"grilled chicken\"\n    }\n  ]\n}",
+  "rawContentFromGemini": "{\n  \"recipes\": [\n    {\n      \"name\": \"Daging Sapi Tumis Bumbu Bali Pedas Manis\",\n      \"description\": \"Hidangan daging sapi iris tipis yang dimarinasi, ditumis cepat dengan bumbu Bali pedas manis yang kaya rempah, menghasilkan tekstur empuk dan rasa mendalam dalam waktu singkat.\",\n      \"prepTime\": 20,\n      \"cookTime\": 25,\n      \"servings\": 4,\n      \"difficulty\": \"hard\",\n      \"calories\": 500,\n      \"ingredients\": [\n        { \"name\": \"Daging Sapi (sirloin/tenderloin)\", \"quantity\": 300, \"unit\": \"gram\" },\n        { \"name\": \"Kecap asin\", \"quantity\": 1, \"unit\": \"sdm\" },\n        { \"name\": \"Jahe parut\", \"quantity\": 1, \"unit\": \"sdt\" },\n        { \"name\": \"Bawang putih cincang\", \"quantity\": 1, \"unit\": \"sdt\" },\n        { \"name\": \"Tepung maizena\", \"quantity\": 1, \"unit\": \"sdm\" },\n        { \"name\": \"Lada hitam bubuk\", \"quantity\": 0.5, \"unit\": \"sdt\" },\n        { \"name\": \"Bawang merah\", \"quantity\": 6, \"unit\": \"siung\" },\n        { \"name\": \"Bawang putih\", \"quantity\": 3, \"unit\": \"siung\" },\n        { \"name\": \"Cabai merah besar\", \"quantity\": 3, \"unit\": \"buah\" },\n        { \"name\": \"Cabai rawit merah\", \"quantity\": 7, \"unit\": \"buah\" },\n        { \"name\": \"Jahe\", \"quantity\": 2, \"unit\": \"cm\" },\n        { \"name\": \"Kunyit\", \"quantity\": 2, \"unit\": \"cm\" },\n        { \"name\": \"Kemiri\", \"quantity\": 3, \"unit\": \"butir\" },\n        { \"name\": \"Terasi\", \"quantity\": 0.5, \"unit\": \"sdt\" },\n        { \"name\": \"Kencur\", \"quantity\": 1, \"unit\": \"cm\" },\n        { \"name\": \"Kecap manis\", \"quantity\": 2, \"unit\": \"sdm\" },\n        { \"name\": \"Gula merah\", \"quantity\": 1, \"unit\": \"sdm\" },\n        { \"name\": \"Asam jawa\", \"quantity\": 1, \"unit\": \"sdt\" },\n        { \"name\": \"Air\", \"quantity\": 100, \"unit\": \"ml\" },\n        { \"name\": \"Sereh\", \"quantity\": 1, \"unit\": \"batang\" },\n        { \"name\": \"Daun jeruk\", \"quantity\": 3, \"unit\": \"lembar\" },\n        { \"name\": \"Daun salam\", \"quantity\": 1, \"unit\": \"lembar\" },\n        { \"name\": \"Minyak goreng\", \"quantity\": null, \"unit\": \"secukupnya\" },\n        { \"name\": \"Garam\", \"quantity\": null, \"unit\": \"secukupnya\" },\n        { \"name\": \"Lada putih\", \"quantity\": null, \"unit\": \"secukupnya\" }\n      ],\n      \"instructions\": [\n        \"Siapkan Daging: Iris tipis daging sapi melawan serat dengan ketebalan seragam sekitar 0.5 cm.\",\n        \"Marinasi Daging: Campurkan irisan daging dengan kecap asin, jahe parut, bawang putih cincang, tepung maizena, dan lada hitam bubuk. Aduk rata, sisihkan untuk dimarinasi minimal 15 menit.\",\n        \"Siapkan Bumbu Halus: Sangrai kemiri hingga harum. Bakar terasi sebentar hingga harum.\",\n        \"Haluskan Bumbu: Blender atau ulek bawang merah, bawang putih, cabai merah, cabai rawit, jahe, kunyit, kemiri sangrai, terasi bakar, dan kencur hingga benar-benar halus. Tambahkan sedikit minyak jika perlu untuk blender.\",\n        \"Siapkan Bumbu Aromatik & Saus: Memarkan sereh. Siapkan daun jeruk dan daun salam. Larutkan asam jawa dengan 2 sdm air panas, saring. Campurkan larutan asam jawa dengan kecap manis dan gula merah, aduk rata hingga gula larut.\",\n        \"Panaskan Wajan: Panaskan 2 sdm minyak goreng dalam wajan besar atau wok dengan api sedang-tinggi.\",\n        \"Sajikan Daging (Sear): Masukkan daging sapi yang sudah dimarinasi. Masak cepat (sear) hingga berubah warna dan sedikit kecoklatan di luar, sekitar 2-3 menit. Angkat daging, sisihkan.\",\n        \"Tumis Bumbu Halus: Dengan sisa minyak (atau tambahkan sedikit jika perlu), tumis bumbu halus hingga harum dan matang sempurna, sekitar 7-10 menit. Pastikan bumbu tidak langu.\",\n        \"Tambahkan Aromatik: Masukkan sereh memar, daun jeruk, dan daun salam ke dalam tumisan bumbu. Aduk rata, masak sebentar hingga harum.\",\n        \"Masukkan Saus: Tuang campuran saus (kecap manis, gula merah, asam jawa) dan 100 ml air ke dalam tumisan bumbu. Aduk rata.\",\n        \"Masak Saus: Kecilkan api, masak saus hingga mendidih dan sedikit mengental, sekitar 5-7 menit. Cicipi dan koreksi rasa dengan garam dan lada putih jika perlu.\",\n        \"Campurkan Daging: Masukkan kembali daging sapi yang sudah disajikan ke dalam wajan berisi saus. Aduk cepat hingga semua daging terlumuri bumbu dan saus meresap. Masak sebentar saja (1-2 menit) agar daging tidak overcook.\",\n        \"Penyelesaian: Angkat dan segera sajikan Daging Sapi Tumis Bumbu Bali Pedas Manis selagi hangat dengan nasi putih.\"\n      ],\n      \"matchPercentage\": 98,\n      \"imageKeyword\": \"Indonesian Beef\"\n    }\n  ]\n}",
   "normalizedRecipes": [
     {
-      "name": "Ayam Goreng Sambal Matah",
+      "name": "Daging Sapi Tumis Bumbu Bali Pedas Manis",
       "ingredients": [
         {
           "name": "ayam",
@@ -40,97 +40,31 @@
           "unit": "secukupnya"
         },
         {
-          "name": "Ayam paha/dada",
-          "quantity": 500,
+          "name": "Daging Sapi (sirloin/tenderloin)",
+          "quantity": 300,
           "unit": "gram"
         },
         {
-          "name": "Cabai rawit",
-          "quantity": 15,
-          "unit": "buah"
-        },
-        {
-          "name": "Serai",
-          "quantity": 2,
-          "unit": "batang"
-        }
-      ],
-      "difficulty": "medium",
-      "prepTime": 15,
-      "cookTime": 20,
-      "halalPass": true,
-      "vegPass": false,
-      "mainIngPass": true,
-      "otherProPass": true,
-      "diffPass": true
-    },
-    {
-      "name": "Soto Ayam Bening",
-      "ingredients": [
-        {
-          "name": "ayam",
+          "name": "Kecap asin",
           "quantity": 1,
-          "unit": "secukupnya"
+          "unit": "sdm"
         },
         {
-          "name": "Ayam dada/paha",
-          "quantity": 400,
-          "unit": "gram"
-        },
-        {
-          "name": "Air",
-          "quantity": 1.5,
-          "unit": "liter"
-        },
-        {
-          "name": "Bawang merah (bumbu halus)",
-          "quantity": 6,
-          "unit": "siung"
+          "name": "Jahe parut",
+          "quantity": 1,
+          "unit": "sdt"
         }
       ],
-      "difficulty": "medium",
-      "prepTime": 15,
+      "difficulty": "hard",
+      "prepTime": 20,
       "cookTime": 25,
       "halalPass": true,
       "vegPass": false,
       "mainIngPass": true,
-      "otherProPass": true,
-      "diffPass": true
-    },
-    {
-      "name": "Ayam Bakar Madu",
-      "ingredients": [
-        {
-          "name": "ayam",
-          "quantity": 1,
-          "unit": "secukupnya"
-        },
-        {
-          "name": "Ayam paha/dada",
-          "quantity": 500,
-          "unit": "gram"
-        },
-        {
-          "name": "Bawang merah (bumbu halus)",
-          "quantity": 5,
-          "unit": "siung"
-        },
-        {
-          "name": "Bawang putih (bumbu halus)",
-          "quantity": 3,
-          "unit": "siung"
-        }
-      ],
-      "difficulty": "medium",
-      "prepTime": 15,
-      "cookTime": 25,
-      "halalPass": true,
-      "vegPass": false,
-      "mainIngPass": true,
-      "otherProPass": true,
+      "otherProPass": false,
       "diffPass": true
     }
   ],
-  "enforcedCount": 3,
-  "finalRecipesCount": 3
+  "enforcedCount": 1,
+  "finalRecipesCount": 1
 }

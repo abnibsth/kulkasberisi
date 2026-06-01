@@ -37,9 +37,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   if (status === "loading") {
     return (
-      <div className="min-h-[100dvh] flex items-center justify-center font-display" style={{ background: "#141210" }}>
+      <div className="min-h-[100dvh] flex items-center justify-center font-display" style={{ background: "#1E3932" }}>
         <div className="flex flex-col items-center gap-4">
-          <div className="h-10 w-10 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "rgba(196,181,253,0.3)", borderTopColor: "#c4b5fd" }} />
+          <div className="h-10 w-10 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "rgba(212,233,226,0.3)", borderTopColor: "#d4e9e2" }} />
           <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>Memuat panel admin...</p>
         </div>
       </div>
@@ -48,7 +48,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   if (status === "forbidden") {
     return (
-      <div className="min-h-[100dvh] flex items-center justify-center p-4 font-display" style={{ background: "#141210" }}>
+      <div className="min-h-[100dvh] flex items-center justify-center p-4 font-display" style={{ background: "#1E3932" }}>
         <div className="max-w-sm w-full p-8 rounded-3xl text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-5" style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.2)" }}>
             <Shield className="h-6 w-6" style={{ color: "#f87171" }} strokeWidth={1.5} />
@@ -77,7 +77,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
       {/* Mobile overlay */}
       {sidebarOpen && (
-        <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 z-40 backdrop-blur-sm md:hidden" style={{ background: "rgba(30,57,50,0.55)" }} onClick={() => setSidebarOpen(false)} />
       )}
 
       {/* Sidebar — desktop */}
@@ -94,7 +94,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       <div className="flex-1 flex flex-col min-w-0">
 
         {/* Header */}
-        <header className="sticky top-0 z-30" style={{ background: "rgba(254,252,248,0.92)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+        <header className="sticky top-0 z-30" style={{ background: "rgba(242,240,235,0.95)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(0,117,74,0.10)" }}>
           <div className="px-4 md:px-6 h-14 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <button className="md:hidden p-2 rounded-xl transition-colors hover:bg-black/5" onClick={() => setSidebarOpen(v => !v)}
@@ -105,7 +105,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 <div className="h-5 w-5 rounded-md flex items-center justify-center" style={{ background: "rgba(139,92,246,0.12)" }}>
                   <Shield className="h-3 w-3" style={{ color: "#8b5cf6" }} strokeWidth={1.5} />
                 </div>
-                <span className="font-semibold text-sm" style={{ color: "#141210" }}>Admin Panel</span>
+                <span className="font-semibold text-sm" style={{ color: "#006241", letterSpacing: "-0.01em" }}>Admin Panel</span>
               </div>
             </div>
 

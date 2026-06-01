@@ -59,7 +59,7 @@ export default async function Home() {
         <div className="nav-pill max-w-5xl mx-auto px-4 md:px-6 h-14 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2 shrink-0 group">
             <Image src="/logo.png" alt="Kulkas Berisi" width={28} height={28} className="rounded-xl group-hover:scale-110 transition-transform duration-200" />
-            <span className="font-bold text-base tracking-tight" style={{color:"#141210"}}>Kulkas <span style={{color:"#2d6a4f"}}>Berisi</span></span>
+            <span className="font-bold text-base tracking-tight" style={{color:"#1E3932"}}>Kulkas <span style={{color:"#006241"}}>Berisi</span></span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-6 text-sm" style={{color:"#5a5550"}}>
@@ -73,7 +73,7 @@ export default async function Home() {
 
           <div className="flex items-center gap-2">
             <Link href="/login" className="hidden sm:block text-sm font-medium px-4 py-2 rounded-full hover:bg-black/5 transition-colors" style={{color:"#5a5550"}}>Masuk</Link>
-            <Link href="/register" className="hidden md:block text-sm font-semibold px-4 py-2 rounded-full text-white transition-all" style={{background:"#141210"}}>Mulai Gratis</Link>
+            <Link href="/register" className="hidden md:block text-sm font-semibold px-4 py-2 text-white transition-all active:scale-95" style={{borderRadius:"50px",background:"#00754A",letterSpacing:"-0.01em"}}>Mulai Gratis</Link>
             <MobileMenu />
           </div>
         </div>
@@ -91,7 +91,7 @@ export default async function Home() {
                 <span className="dot" />
                 AI-Powered · Zero Waste
               </span>
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.1] tracking-tight" style={{color:"#141210"}}>
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.1] tracking-tight" style={{color:"#1E3932"}}>
                 Dari sisa bahan<br /> jadi makan malam.
               </h1>
               <p className="text-base md:text-lg leading-relaxed max-w-md" style={{color:"#5a5550"}}>
@@ -132,7 +132,7 @@ export default async function Home() {
                       <div className="h-1.5 w-1.5 rounded-full animate-pulse-green" style={{background:"#2d6a4f"}} />
                       <span className="text-xs font-semibold uppercase tracking-widest" style={{color:"#2d6a4f"}}>AI Aktif</span>
                     </div>
-                    <div className="font-semibold text-xs md:text-sm" style={{color:"#141210"}}>Telur · Ayam · Wortel</div>
+                    <div className="font-semibold text-xs md:text-sm" style={{color:"#1E3932"}}>Telur · Ayam · Wortel</div>
                   </div>
                   <Link href="/register">
                     <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full text-white" style={{background:"#2d6a4f"}}>Generate</span>
@@ -150,7 +150,7 @@ export default async function Home() {
               {[["10.4K","Pengguna Aktif"],["51K+","Resep Dihasilkan"],["1.9 ton","Food Waste Dikurangi"],["4.8","Rating Pengguna"]].map(([v,l],i,arr)=>(
                 <div key={l} className="flex items-center gap-6">
                   <div className="text-center">
-                    <div className="font-mono-nums text-2xl md:text-3xl font-bold tracking-tight mb-0.5" style={{color:"#141210"}}>{v}</div>
+                    <div className="font-mono-nums text-2xl md:text-3xl font-bold tracking-tight mb-0.5" style={{color:"#1E3932"}}>{v}</div>
                     <div className="text-xs font-medium" style={{color:"#a09890"}}>{l}</div>
                   </div>
                   {i < arr.length-1 && <div className="hidden md:block stat-divider" />}
@@ -204,7 +204,7 @@ export default async function Home() {
           <div className="max-w-6xl mx-auto px-4 md:px-6">
             <RevealSection className="mb-14 md:mb-20">
               <span className="eyebrow-tag mb-5"><span className="dot" />Fitur</span>
-              <h2 className="text-3xl md:text-5xl font-bold tracking-tight mt-4 mb-3" style={{color:"#141210"}}>Semua yang Anda<br className="hidden md:block" /> butuhkan.</h2>
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tight mt-4 mb-3" style={{color:"#1E3932"}}>Semua yang Anda<br className="hidden md:block" /> butuhkan.</h2>
               <p className="text-base md:text-lg max-w-md" style={{color:"#5a5550"}}>Dari scan barcode sampai resep AI — satu aplikasi yang rapi dan intuitif.</p>
             </RevealSection>
             {/* Bento: top row 2-col, bottom row 4-col */}
@@ -219,7 +219,7 @@ export default async function Home() {
                       <div className="w-10 h-10 rounded-2xl flex items-center justify-center mb-5" style={{background:bg}}>
                         <Icon className="h-5 w-5" style={{color}} strokeWidth={1.5} />
                       </div>
-                      <h3 className="font-bold text-lg mb-2" style={{color:"#141210"}}>{title}</h3>
+                      <h3 className="font-bold text-lg mb-2" style={{color:"#1E3932"}}>{title}</h3>
                       <p className="text-sm leading-relaxed" style={{color:"#5a5550"}}>{desc}</p>
                     </div>
                   </div>
@@ -236,7 +236,7 @@ export default async function Home() {
                     <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-4" style={{background:bg}}>
                       <Icon className="h-4 w-4" style={{color}} strokeWidth={1.5} />
                     </div>
-                    <h3 className="font-semibold text-sm mb-1.5" style={{color:"#141210"}}>{title}</h3>
+                    <h3 className="font-semibold text-sm mb-1.5" style={{color:"#1E3932"}}>{title}</h3>
                     <p className="text-xs leading-relaxed" style={{color:"#a09890"}}>{desc}</p>
                   </div>
                 ))}
@@ -246,7 +246,7 @@ export default async function Home() {
         </section>
 
         {/* ── HOW IT WORKS ── */}
-        <section id="cara-kerja" className="py-24 md:py-32 scroll-mt-20" style={{background:"#141210"}}>
+        <section id="cara-kerja" className="py-24 md:py-32 scroll-mt-20" style={{background:"#1E3932"}}>
           <div className="max-w-6xl mx-auto px-4 md:px-6">
             <RevealSection className="mb-16 md:mb-20">
               <span className="eyebrow-tag mb-5" style={{background:"rgba(45,106,79,0.2)",borderColor:"rgba(64,145,108,0.3)",color:"#6ee7b7"}}><span className="dot" style={{background:"#6ee7b7"}} />Cara Kerja</span>
@@ -302,7 +302,7 @@ export default async function Home() {
         {/* ── CTA ── */}
         <section className="py-16 md:py-24 max-w-6xl mx-auto px-4 md:px-6">
           <RevealSection>
-            <div className="rounded-[2rem] px-8 py-16 md:px-20 md:py-20 text-center relative overflow-hidden" style={{background:"#141210"}}>
+            <div className="rounded-[2rem] px-8 py-16 md:px-20 md:py-20 text-center relative overflow-hidden" style={{background:"#1E3932"}}>
               <div className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{backgroundImage:"radial-gradient(circle,#fff 1px,transparent 1px)",backgroundSize:"26px 26px"}} />
               <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-96 h-64 rounded-full" style={{background:"radial-gradient(circle,rgba(45,106,79,0.25) 0%,transparent 70%)",filter:"blur(40px)"}} />
               <div className="relative">
@@ -311,10 +311,10 @@ export default async function Home() {
                   Kulkas penuh bukan<br className="hidden md:block" /> berarti makan enak.
                 </h2>
                 <p className="text-base md:text-lg mb-10 max-w-md mx-auto" style={{color:"rgba(255,255,255,0.4)"}}>Yang membuat perbedaan adalah tahu mau dimasak apa. Itu yang kami bantu.</p>
-                <Link href="/register" className="btn-primary inline-flex" style={{background:"#ffffff",color:"#141210",borderColor:"rgba(255,255,255,0.3)",boxShadow:"0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,1)"}}>
+                <Link href="/register" className="btn-primary inline-flex" style={{background:"#ffffff",color:"#1E3932",borderColor:"rgba(255,255,255,0.3)",boxShadow:"0 4px 20px rgba(30,57,50,0.3), inset 0 1px 0 rgba(255,255,255,1)"}}>
                   <span>Daftar Gratis Sekarang</span>
-                  <span className="btn-icon" style={{background:"rgba(0,0,0,0.08)"}}>
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4M9.5 2.5V8" stroke="#141210" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                  <span className="btn-icon" style={{background:"rgba(30,57,50,0.10)"}}>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4M9.5 2.5V8" stroke="#1E3932" strokeWidth="1.5" strokeLinecap="round"/></svg>
                   </span>
                 </Link>
               </div>
@@ -325,13 +325,13 @@ export default async function Home() {
       </main>
 
       {/* ── FOOTER ── */}
-      <footer style={{background:"#141210",borderTop:"1px solid rgba(255,255,255,0.06)"}} className="py-12 md:py-16">
+      <footer style={{background:"#1E3932",borderTop:"1px solid rgba(255,255,255,0.08)"}} className="py-12 md:py-16">
         <div className="max-w-6xl mx-auto px-4 md:px-6">
           <div className="flex flex-col md:flex-row items-start justify-between gap-8 pb-8 mb-8" style={{borderBottom:"1px solid rgba(255,255,255,0.06)"}}>
             <div>
               <Link href="/" className="flex items-center gap-2 mb-3">
                 <Image src="/logo.png" alt="Kulkas Berisi" width={28} height={28} className="rounded-xl" />
-                <span className="font-bold" style={{color:"#ffffff"}}>Kulkas <span style={{color:"#6ee7b7"}}>Berisi</span></span>
+                <span className="font-bold" style={{color:"#ffffff"}}>Kulkas <span style={{color:"#d4e9e2"}}>Berisi</span></span>
               </Link>
               <p className="text-sm max-w-xs" style={{color:"rgba(255,255,255,0.3)"}}>Generator resep AI dari bahan kulkas yang tersisa. Kurangi food waste, masak lebih cerdas.</p>
             </div>
