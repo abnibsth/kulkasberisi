@@ -122,23 +122,25 @@ export default function DetailResepPage() {
         </Button>
       </div>
 
-      <div className="relative h-56 md:h-80 w-full -mx-6 overflow-hidden">
+      <div className="relative h-56 md:h-80 w-full rounded-2xl overflow-hidden shadow-sm border border-black/[0.05]">
         <Image
           src={imageUrl}
           alt={recipe.name}
           fill
           priority
           className="object-cover"
-          sizes="100vw"
+          sizes="(max-width: 768px) 100vw, 80vw"
         />
-        <div className="absolute inset-0 bg-black/35" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10" />
         <div className="absolute inset-x-0 bottom-0">
-          <div className="px-6 pb-6">
+          <div className="px-5 pb-5 md:px-6 md:pb-6">
             <div className="text-white">
-              <div className="text-2xl md:text-3xl font-bold">
+              <div className="text-2xl md:text-3xl font-bold tracking-tight">
                 {recipe.name}
               </div>
-              <div className="text-white/85 mt-1">{recipe.description}</div>
+              <div className="text-white/85 mt-1.5 text-xs md:text-sm leading-relaxed max-w-xl">
+                {recipe.description}
+              </div>
             </div>
           </div>
         </div>

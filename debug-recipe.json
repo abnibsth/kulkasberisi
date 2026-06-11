@@ -1,58 +1,43 @@
 {
-  "timestamp": "2026-06-01T11:32:16.303Z",
+  "timestamp": "2026-06-11T13:23:25.664Z",
   "ingredients": [
     {
-      "name": "ayam",
-      "quantity": 3,
-      "unit": "kg"
-    },
-    {
-      "name": "daging sapi",
-      "quantity": 5,
-      "unit": "kg"
-    },
-    {
-      "name": "daging kambing",
-      "quantity": 3,
-      "unit": "kg"
-    },
-    {
-      "name": "telur ayam ",
-      "quantity": 1,
+      "name": "Dada ayam fillet",
+      "quantity": 4,
       "unit": "kg"
     }
   ],
-  "mainIngredient": "daging sapi",
+  "mainIngredient": "Dada ayam fillet",
   "filters": {
     "difficulty": "hard",
     "maxTime": "45",
     "vegetarian": false,
-    "halal": true
+    "halal": false
   },
-  "rawContentFromGemini": "{\n  \"recipes\": [\n    {\n      \"name\": \"Daging Sapi Tumis Bumbu Bali Pedas Manis\",\n      \"description\": \"Hidangan daging sapi iris tipis yang dimarinasi, ditumis cepat dengan bumbu Bali pedas manis yang kaya rempah, menghasilkan tekstur empuk dan rasa mendalam dalam waktu singkat.\",\n      \"prepTime\": 20,\n      \"cookTime\": 25,\n      \"servings\": 4,\n      \"difficulty\": \"hard\",\n      \"calories\": 500,\n      \"ingredients\": [\n        { \"name\": \"Daging Sapi (sirloin/tenderloin)\", \"quantity\": 300, \"unit\": \"gram\" },\n        { \"name\": \"Kecap asin\", \"quantity\": 1, \"unit\": \"sdm\" },\n        { \"name\": \"Jahe parut\", \"quantity\": 1, \"unit\": \"sdt\" },\n        { \"name\": \"Bawang putih cincang\", \"quantity\": 1, \"unit\": \"sdt\" },\n        { \"name\": \"Tepung maizena\", \"quantity\": 1, \"unit\": \"sdm\" },\n        { \"name\": \"Lada hitam bubuk\", \"quantity\": 0.5, \"unit\": \"sdt\" },\n        { \"name\": \"Bawang merah\", \"quantity\": 6, \"unit\": \"siung\" },\n        { \"name\": \"Bawang putih\", \"quantity\": 3, \"unit\": \"siung\" },\n        { \"name\": \"Cabai merah besar\", \"quantity\": 3, \"unit\": \"buah\" },\n        { \"name\": \"Cabai rawit merah\", \"quantity\": 7, \"unit\": \"buah\" },\n        { \"name\": \"Jahe\", \"quantity\": 2, \"unit\": \"cm\" },\n        { \"name\": \"Kunyit\", \"quantity\": 2, \"unit\": \"cm\" },\n        { \"name\": \"Kemiri\", \"quantity\": 3, \"unit\": \"butir\" },\n        { \"name\": \"Terasi\", \"quantity\": 0.5, \"unit\": \"sdt\" },\n        { \"name\": \"Kencur\", \"quantity\": 1, \"unit\": \"cm\" },\n        { \"name\": \"Kecap manis\", \"quantity\": 2, \"unit\": \"sdm\" },\n        { \"name\": \"Gula merah\", \"quantity\": 1, \"unit\": \"sdm\" },\n        { \"name\": \"Asam jawa\", \"quantity\": 1, \"unit\": \"sdt\" },\n        { \"name\": \"Air\", \"quantity\": 100, \"unit\": \"ml\" },\n        { \"name\": \"Sereh\", \"quantity\": 1, \"unit\": \"batang\" },\n        { \"name\": \"Daun jeruk\", \"quantity\": 3, \"unit\": \"lembar\" },\n        { \"name\": \"Daun salam\", \"quantity\": 1, \"unit\": \"lembar\" },\n        { \"name\": \"Minyak goreng\", \"quantity\": null, \"unit\": \"secukupnya\" },\n        { \"name\": \"Garam\", \"quantity\": null, \"unit\": \"secukupnya\" },\n        { \"name\": \"Lada putih\", \"quantity\": null, \"unit\": \"secukupnya\" }\n      ],\n      \"instructions\": [\n        \"Siapkan Daging: Iris tipis daging sapi melawan serat dengan ketebalan seragam sekitar 0.5 cm.\",\n        \"Marinasi Daging: Campurkan irisan daging dengan kecap asin, jahe parut, bawang putih cincang, tepung maizena, dan lada hitam bubuk. Aduk rata, sisihkan untuk dimarinasi minimal 15 menit.\",\n        \"Siapkan Bumbu Halus: Sangrai kemiri hingga harum. Bakar terasi sebentar hingga harum.\",\n        \"Haluskan Bumbu: Blender atau ulek bawang merah, bawang putih, cabai merah, cabai rawit, jahe, kunyit, kemiri sangrai, terasi bakar, dan kencur hingga benar-benar halus. Tambahkan sedikit minyak jika perlu untuk blender.\",\n        \"Siapkan Bumbu Aromatik & Saus: Memarkan sereh. Siapkan daun jeruk dan daun salam. Larutkan asam jawa dengan 2 sdm air panas, saring. Campurkan larutan asam jawa dengan kecap manis dan gula merah, aduk rata hingga gula larut.\",\n        \"Panaskan Wajan: Panaskan 2 sdm minyak goreng dalam wajan besar atau wok dengan api sedang-tinggi.\",\n        \"Sajikan Daging (Sear): Masukkan daging sapi yang sudah dimarinasi. Masak cepat (sear) hingga berubah warna dan sedikit kecoklatan di luar, sekitar 2-3 menit. Angkat daging, sisihkan.\",\n        \"Tumis Bumbu Halus: Dengan sisa minyak (atau tambahkan sedikit jika perlu), tumis bumbu halus hingga harum dan matang sempurna, sekitar 7-10 menit. Pastikan bumbu tidak langu.\",\n        \"Tambahkan Aromatik: Masukkan sereh memar, daun jeruk, dan daun salam ke dalam tumisan bumbu. Aduk rata, masak sebentar hingga harum.\",\n        \"Masukkan Saus: Tuang campuran saus (kecap manis, gula merah, asam jawa) dan 100 ml air ke dalam tumisan bumbu. Aduk rata.\",\n        \"Masak Saus: Kecilkan api, masak saus hingga mendidih dan sedikit mengental, sekitar 5-7 menit. Cicipi dan koreksi rasa dengan garam dan lada putih jika perlu.\",\n        \"Campurkan Daging: Masukkan kembali daging sapi yang sudah disajikan ke dalam wajan berisi saus. Aduk cepat hingga semua daging terlumuri bumbu dan saus meresap. Masak sebentar saja (1-2 menit) agar daging tidak overcook.\",\n        \"Penyelesaian: Angkat dan segera sajikan Daging Sapi Tumis Bumbu Bali Pedas Manis selagi hangat dengan nasi putih.\"\n      ],\n      \"matchPercentage\": 98,\n      \"imageKeyword\": \"Indonesian Beef\"\n    }\n  ]\n}",
+  "rawContentFromGemini": "{\n  \"recipes\": [\n    {\n      \"name\": \"Ayam Panggang Bumbu Rujak Kemiri\",\n      \"description\": \"Dada ayam panggang yang dimarinasi, kemudian dilumuri dan dimasak dalam saus bumbu rujak kaya rasa dengan sentuhan kemiri, asam jawa, dan gula merah yang meresap sempurna.\",\n      \"prepTime\": 20,\n      \"cookTime\": 25,\n      \"servings\": 4,\n      \"difficulty\": \"hard\",\n      \"calories\": 275,\n      \"ingredients\": [\n        {\"name\": \"Dada ayam fillet\", \"quantity\": 400, \"unit\": \"gram\"},\n        {\"name\": \"Bawang merah\", \"quantity\": 6, \"unit\": \"siung\"},\n        {\"name\": \"Bawang putih\", \"quantity\": 3, \"unit\": \"siung\"},\n        {\"name\": \"Cabai merah besar\", \"quantity\": 3, \"unit\": \"buah\"},\n        {\"name\": \"Cabai rawit\", \"quantity\": 5, \"unit\": \"buah\"},\n        {\"name\": \"Kemiri\", \"quantity\": 3, \"unit\": \"butir\"},\n        {\"name\": \"Jahe\", \"quantity\": 1, \"unit\": \"ruas jari (2 cm)\"},\n        {\"name\": \"Kunyit\", \"quantity\": 1, \"unit\": \"ruas jari (2 cm)\"},\n        {\"name\": \"Serai\", \"quantity\": 1, \"unit\": \"batang\"},\n        {\"name\": \"Lengkuas\", \"quantity\": 1, \"unit\": \"ruas jari (2 cm)\"},\n        {\"name\": \"Daun jeruk\", \"quantity\": 3, \"unit\": \"lembar\"},\n        {\"name\": \"Gula merah sisir\", \"quantity\": 2, \"unit\": \"sdm\"},\n        {\"name\": \"Asam jawa\", \"quantity\": 1, \"unit\": \"sdt\"},\n        {\"name\": \"Air panas (untuk asam jawa)\", \"quantity\": 2, \"unit\": \"sdm\"},\n        {\"name\": \"Garam\", \"quantity\": 1, \"unit\": \"sdt\"},\n        {\"name\": \"Lada hitam bubuk\", \"quantity\": 0.5, \"unit\": \"sdt\"},\n        {\"name\": \"Minyak goreng\", \"quantity\": 3, \"unit\": \"sdm\"},\n        {\"name\": \"Air\", \"quantity\": 100, \"unit\": \"ml\"}\n      ],\n      \"instructions\": [\n        \"Siapkan dada ayam, belah melebar menjadi 2 bagian (butterfly cut) per potongnya agar lebih tipis. Lumuri dengan 1/2 sdt garam dan 1/4 sdt lada hitam.\",\n        \"Sangrai kemiri hingga harum dan matang, sisihkan.\",\n        \"Haluskan semua bahan bumbu halus (bawang merah, bawang putih, cabai merah besar, cabai rawit, jahe, kunyit, kemiri sangrai) menggunakan blender atau ulekan hingga benar-benar halus. Tambahkan sedikit minyak jika menggunakan blender.\",\n        \"Memarkan serai dan lengkuas. Sobek daun jeruk agar aromanya keluar.\",\n        \"Panaskan 2 sdm minyak goreng di wajan. Tumis bumbu halus hingga harum, matang, dan pecah minyak (sekitar 5-7 menit).\",\n        \"Masukkan serai, lengkuas, dan daun jeruk ke dalam tumisan bumbu. Aduk rata hingga layu dan aromanya keluar.\",\n        \"Larutkan asam jawa dengan 2 sdm air panas, saring, dan ambil airnya.\",\n        \"Masukkan air asam jawa, gula merah sisir, sisa garam (1/2 sdt), dan sisa lada hitam (1/4 sdt) ke dalam tumisan bumbu. Aduk rata.\",\n        \"Tambahkan 100 ml air ke dalam bumbu, masak hingga mendidih dan saus sedikit mengental. Sisihkan sekitar sepertiga bagian saus ke dalam mangkuk terpisah untuk lumuran.\",\n        \"Panaskan grill pan atau wajan anti lengket dengan 1 sdm minyak goreng. Panggang dada ayam hingga kedua sisi berwarna keemasan dan setengah matang (sekitar 2-3 menit per sisi).\",\n        \"Lumuri dada ayam yang sudah dipanggang setengah matang dengan saus bumbu rujak yang telah disisihkan. Lanjutkan memanggang sebentar agar bumbu meresap dan sedikit karamelisasi.\",\n        \"Pindahkan ayam panggang ke dalam wajan berisi sisa saus bumbu rujak. Masak dengan api kecil, balik sesekali, hingga ayam matang sempurna, bumbu meresap, dan saus mengental pekat.\",\n        \"Angkat Ayam Panggang Bumbu Rujak Kemiri dan sajikan hangat dengan nasi putih.\"\n      ],\n      \"matchPercentage\": 100,\n      \"imageKeyword\": \"Indonesian grilled chicken\"\n    }\n  ]\n}",
   "normalizedRecipes": [
     {
-      "name": "Daging Sapi Tumis Bumbu Bali Pedas Manis",
+      "name": "Ayam Panggang Bumbu Rujak Kemiri",
       "ingredients": [
         {
-          "name": "ayam",
-          "quantity": 1,
-          "unit": "secukupnya"
-        },
-        {
-          "name": "Daging Sapi (sirloin/tenderloin)",
-          "quantity": 300,
+          "name": "Dada ayam fillet",
+          "quantity": 400,
           "unit": "gram"
         },
         {
-          "name": "Kecap asin",
-          "quantity": 1,
-          "unit": "sdm"
+          "name": "Cabai merah besar",
+          "quantity": 3,
+          "unit": "buah"
         },
         {
-          "name": "Jahe parut",
-          "quantity": 1,
-          "unit": "sdt"
+          "name": "Cabai rawit",
+          "quantity": 5,
+          "unit": "buah"
+        },
+        {
+          "name": "Kemiri",
+          "quantity": 3,
+          "unit": "butir"
         }
       ],
       "difficulty": "hard",
@@ -61,7 +46,7 @@
       "halalPass": true,
       "vegPass": false,
       "mainIngPass": true,
-      "otherProPass": false,
+      "otherProPass": true,
       "diffPass": true
     }
   ],
