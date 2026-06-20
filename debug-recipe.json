@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "timestamp": "2026-06-06T06:10:02.828Z",
   "ingredients": [
     {
@@ -18,12 +19,24 @@
     }
   ],
   "mainIngredient": "daging kambing",
+=======
+  "timestamp": "2026-06-11T13:23:25.664Z",
+  "ingredients": [
+    {
+      "name": "Dada ayam fillet",
+      "quantity": 4,
+      "unit": "kg"
+    }
+  ],
+  "mainIngredient": "Dada ayam fillet",
+>>>>>>> 7268196430e99416a93c5cf88fb2fa1dbd85c196
   "filters": {
     "difficulty": "hard",
     "maxTime": "60",
     "vegetarian": false,
-    "halal": true
+    "halal": false
   },
+<<<<<<< HEAD
   "rawContentFromGemini": "{\n  \"recipes\": [\n    {\n      \"name\": \"Kambing Tumis Bumbu Bali Pedas Manis\",\n      \"description\": \"Daging kambing empuk yang dimarinasi, ditumis dengan bumbu Bali kaya rempah, dimasak dengan santan hingga meresap, dan sentuhan pedas manis yang kompleks.\",\n      \"prepTime\": 20,\n      \"cookTime\": 35,\n      \"servings\": 4,\n      \"difficulty\": \"hard\",\n      \"calories\": 480,\n      \"ingredients\": [\n        {\n          \"name\": \"Daging kambing\",\n          \"quantity\": 500,\n          \"unit\": \"gram\"\n        },\n        {\n          \"name\": \"Air jeruk nipis\",\n          \"quantity\": 1,\n          \"unit\": \"sdm\"\n        },\n        {\n          \"name\": \"Garam (marinasi)\",\n          \"quantity\": 0.5,\n          \"unit\": \"sdt\"\n        },\n        {\n          \"name\": \"Lada hitam bubuk\",\n          \"quantity\": 0.5,\n          \"unit\": \"sdt\"\n        },\n        {\n          \"name\": \"Bawang merah\",\n          \"quantity\": 8,\n          \"unit\": \"siung\"\n        },\n        {\n          \"name\": \"Bawang putih\",\n          \"quantity\": 4,\n          \"unit\": \"siung\"\n        },\n        {\n          \"name\": \"Cabai merah besar\",\n          \"quantity\": 3,\n          \"unit\": \"buah\"\n        },\n        {\n          \"name\": \"Cabai rawit merah\",\n          \"quantity\": 5,\n          \"unit\": \"buah\"\n        },\n        {\n          \"name\": \"Kemiri sangrai\",\n          \"quantity\": 3,\n          \"unit\": \"butir\"\n        },\n        {\n          \"name\": \"Jahe\",\n          \"quantity\": 2,\n          \"unit\": \"cm\"\n        },\n        {\n          \"name\": \"Kencur\",\n          \"quantity\": 1,\n          \"unit\": \"cm\"\n        },\n        {\n          \"name\": \"Kunyit bakar\",\n          \"quantity\": 2,\n          \"unit\": \"cm\"\n        },\n        {\n          \"name\": \"Terasi bakar\",\n          \"quantity\": 0.5,\n          \"unit\": \"sdt\"\n        },\n        {\n          \"name\": \"Garam (bumbu halus)\",\n          \"quantity\": 1,\n          \"unit\": \"sdt\"\n        },\n        {\n          \"name\": \"Gula merah\",\n          \"quantity\": 1,\n          \"unit\": \"sdm\"\n        },\n        {\n          \"name\": \"Sereh\",\n          \"quantity\": 1,\n          \"unit\": \"batang\"\n        },\n        {\n          \"name\": \"Daun jeruk\",\n          \"quantity\": 3,\n          \"unit\": \"lembar\"\n        },\n        {\n          \"name\": \"Daun salam\",\n          \"quantity\": 2,\n          \"unit\": \"lembar\"\n        },\n        {\n          \"name\": \"Santan kental\",\n          \"quantity\": 200,\n          \"unit\": \"ml\"\n        },\n        {\n          \"name\": \"Asam jawa (larutkan dengan 2 sdm air)\",\n          \"quantity\": 1,\n          \"unit\": \"sdt\"\n        },\n        {\n          \"name\": \"Minyak goreng\",\n          \"quantity\": 3,\n          \"unit\": \"sdm\"\n        },\n        {\n          \"name\": \"Air\",\n          \"quantity\": 150,\n          \"unit\": \"ml\"\n        },\n        {\n          \"name\": \"Kentang kecil\",\n          \"quantity\": 200,\n          \"unit\": \"gram\"\n        },\n        {\n          \"name\": \"Tomat\",\n          \"quantity\": 1,\n          \"unit\": \"buah\"\n        },\n        {\n          \"name\": \"Daun bawang (untuk taburan)\",\n          \"quantity\": 2,\n          \"unit\": \"batang\"\n        }\n      ],\n      \"instructions\": [\n        \"Potong daging kambing 500g ukuran 2x2 cm. Lumuri dengan 1 sdm air jeruk nipis, 1/2 sdt garam, dan 1/2 sdt lada hitam. Diamkan minimal 15 menit.\",\n        \"Haluskan bawang merah, bawang putih, cabai merah, cabai rawit, kemiri sangrai, jahe, kencur, kunyit bakar, terasi bakar, 1 sdt garam, dan 1 sdm gula merah.\",\n        \"Memarkan 1 batang sereh. Sisihkan 3 lembar daun jeruk dan 2 lembar daun salam.\",\n        \"Potong dadu kecil 200g kentang, goreng setengah matang. Potong dadu 1 buah tomat.\",\n        \"Panaskan 3 sdm minyak goreng dalam wajan besar. Tumis bumbu halus hingga harum dan matang, sekitar 5-7 menit.\",\n        \"Masukkan sereh memar, daun jeruk, dan daun salam ke dalam tumisan bumbu. Aduk rata hingga layu.\",\n        \"Masukkan daging kambing yang sudah dimarinasi. Aduk hingga berubah warna dan bumbu meresap ke daging, sekitar 5 menit.\",\n        \"Tuang 150 ml air dan 200 ml santan kental. Masukkan 1 sdt larutan asam jawa. Aduk perlahan.\",\n        \"Kecilkan api, tutup wajan. Masak selama 20-25 menit, aduk sesekali, hingga daging empuk dan kuah mengental serta bumbu meresap.\",\n        \"Setelah daging empuk, masukkan kentang goreng setengah matang dan potongan tomat. Aduk rata.\",\n        \"Masak sebentar hingga kentang matang sempurna dan tomat sedikit layu. Koreksi rasa, tambahkan garam atau gula jika perlu.\",\n        \"Matikan api. Angkat dan sajikan Kambing Tumis Bumbu Bali Pedas Manis selagi hangat dengan taburan irisan daun bawang.\"\n      ],\n      \"matchPercentage\": 100,\n      \"imageKeyword\": \"Indonesian goat stew\"\n    }\n  ]\n}",
   "normalizedRecipes": [
     {
@@ -48,6 +61,32 @@
           "name": "Lada hitam bubuk",
           "quantity": 0.5,
           "unit": "sdt"
+=======
+  "rawContentFromGemini": "{\n  \"recipes\": [\n    {\n      \"name\": \"Ayam Panggang Bumbu Rujak Kemiri\",\n      \"description\": \"Dada ayam panggang yang dimarinasi, kemudian dilumuri dan dimasak dalam saus bumbu rujak kaya rasa dengan sentuhan kemiri, asam jawa, dan gula merah yang meresap sempurna.\",\n      \"prepTime\": 20,\n      \"cookTime\": 25,\n      \"servings\": 4,\n      \"difficulty\": \"hard\",\n      \"calories\": 275,\n      \"ingredients\": [\n        {\"name\": \"Dada ayam fillet\", \"quantity\": 400, \"unit\": \"gram\"},\n        {\"name\": \"Bawang merah\", \"quantity\": 6, \"unit\": \"siung\"},\n        {\"name\": \"Bawang putih\", \"quantity\": 3, \"unit\": \"siung\"},\n        {\"name\": \"Cabai merah besar\", \"quantity\": 3, \"unit\": \"buah\"},\n        {\"name\": \"Cabai rawit\", \"quantity\": 5, \"unit\": \"buah\"},\n        {\"name\": \"Kemiri\", \"quantity\": 3, \"unit\": \"butir\"},\n        {\"name\": \"Jahe\", \"quantity\": 1, \"unit\": \"ruas jari (2 cm)\"},\n        {\"name\": \"Kunyit\", \"quantity\": 1, \"unit\": \"ruas jari (2 cm)\"},\n        {\"name\": \"Serai\", \"quantity\": 1, \"unit\": \"batang\"},\n        {\"name\": \"Lengkuas\", \"quantity\": 1, \"unit\": \"ruas jari (2 cm)\"},\n        {\"name\": \"Daun jeruk\", \"quantity\": 3, \"unit\": \"lembar\"},\n        {\"name\": \"Gula merah sisir\", \"quantity\": 2, \"unit\": \"sdm\"},\n        {\"name\": \"Asam jawa\", \"quantity\": 1, \"unit\": \"sdt\"},\n        {\"name\": \"Air panas (untuk asam jawa)\", \"quantity\": 2, \"unit\": \"sdm\"},\n        {\"name\": \"Garam\", \"quantity\": 1, \"unit\": \"sdt\"},\n        {\"name\": \"Lada hitam bubuk\", \"quantity\": 0.5, \"unit\": \"sdt\"},\n        {\"name\": \"Minyak goreng\", \"quantity\": 3, \"unit\": \"sdm\"},\n        {\"name\": \"Air\", \"quantity\": 100, \"unit\": \"ml\"}\n      ],\n      \"instructions\": [\n        \"Siapkan dada ayam, belah melebar menjadi 2 bagian (butterfly cut) per potongnya agar lebih tipis. Lumuri dengan 1/2 sdt garam dan 1/4 sdt lada hitam.\",\n        \"Sangrai kemiri hingga harum dan matang, sisihkan.\",\n        \"Haluskan semua bahan bumbu halus (bawang merah, bawang putih, cabai merah besar, cabai rawit, jahe, kunyit, kemiri sangrai) menggunakan blender atau ulekan hingga benar-benar halus. Tambahkan sedikit minyak jika menggunakan blender.\",\n        \"Memarkan serai dan lengkuas. Sobek daun jeruk agar aromanya keluar.\",\n        \"Panaskan 2 sdm minyak goreng di wajan. Tumis bumbu halus hingga harum, matang, dan pecah minyak (sekitar 5-7 menit).\",\n        \"Masukkan serai, lengkuas, dan daun jeruk ke dalam tumisan bumbu. Aduk rata hingga layu dan aromanya keluar.\",\n        \"Larutkan asam jawa dengan 2 sdm air panas, saring, dan ambil airnya.\",\n        \"Masukkan air asam jawa, gula merah sisir, sisa garam (1/2 sdt), dan sisa lada hitam (1/4 sdt) ke dalam tumisan bumbu. Aduk rata.\",\n        \"Tambahkan 100 ml air ke dalam bumbu, masak hingga mendidih dan saus sedikit mengental. Sisihkan sekitar sepertiga bagian saus ke dalam mangkuk terpisah untuk lumuran.\",\n        \"Panaskan grill pan atau wajan anti lengket dengan 1 sdm minyak goreng. Panggang dada ayam hingga kedua sisi berwarna keemasan dan setengah matang (sekitar 2-3 menit per sisi).\",\n        \"Lumuri dada ayam yang sudah dipanggang setengah matang dengan saus bumbu rujak yang telah disisihkan. Lanjutkan memanggang sebentar agar bumbu meresap dan sedikit karamelisasi.\",\n        \"Pindahkan ayam panggang ke dalam wajan berisi sisa saus bumbu rujak. Masak dengan api kecil, balik sesekali, hingga ayam matang sempurna, bumbu meresap, dan saus mengental pekat.\",\n        \"Angkat Ayam Panggang Bumbu Rujak Kemiri dan sajikan hangat dengan nasi putih.\"\n      ],\n      \"matchPercentage\": 100,\n      \"imageKeyword\": \"Indonesian grilled chicken\"\n    }\n  ]\n}",
+  "normalizedRecipes": [
+    {
+      "name": "Ayam Panggang Bumbu Rujak Kemiri",
+      "ingredients": [
+        {
+          "name": "Dada ayam fillet",
+          "quantity": 400,
+          "unit": "gram"
+        },
+        {
+          "name": "Cabai merah besar",
+          "quantity": 3,
+          "unit": "buah"
+        },
+        {
+          "name": "Cabai rawit",
+          "quantity": 5,
+          "unit": "buah"
+        },
+        {
+          "name": "Kemiri",
+          "quantity": 3,
+          "unit": "butir"
+>>>>>>> 7268196430e99416a93c5cf88fb2fa1dbd85c196
         }
       ],
       "difficulty": "hard",

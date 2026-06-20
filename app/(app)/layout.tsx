@@ -198,14 +198,21 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       </aside>
 
       {/* ── MOBILE SIDEBAR OVERLAY ── */}
-      {sidebarOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 flex">
-          <div className="absolute inset-0 backdrop-blur-sm" style={{ background: "rgba(30,57,50,0.55)" }} onClick={() => setSidebarOpen(false)} />
-          <aside className="relative w-72 flex flex-col" style={S.sidebar}>
-            <SidebarContent />
-          </aside>
-        </div>
-      )}
+      <div className={`lg:hidden fixed inset-0 z-50 flex transition-all duration-300 ${sidebarOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
+        {/* Backdrop */}
+        <div
+          className={`absolute inset-0 backdrop-blur-sm transition-opacity duration-300 ${sidebarOpen ? "opacity-100" : "opacity-0"}`}
+          style={{ background: "rgba(30,57,50,0.55)" }}
+          onClick={() => setSidebarOpen(false)}
+        />
+        {/* Sidebar drawer */}
+        <aside
+          className={`relative w-72 flex flex-col h-full transition-transform duration-300 ease-[var(--ease-premium)] ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
+          style={S.sidebar}
+        >
+          <SidebarContent />
+        </aside>
+      </div>
 
       {/* ── MAIN AREA ── */}
       <div className="flex-1 min-w-0 flex flex-col">
@@ -322,7 +329,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
         {/* Page content */}
         <main className="flex-1 min-w-0">
-          <div className="max-w-6xl mx-auto px-4 md:px-6 py-6">{children}</div>
+          <div key={pathname} className="max-w-6xl mx-auto px-4 md:px-6 py-6 animate-page-transition">
+            {children}
+          </div>
         </main>
       </div>
     </div>
