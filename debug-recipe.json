@@ -1,67 +1,62 @@
 {
-  "timestamp": "2026-06-01T11:32:16.303Z",
+  "timestamp": "2026-06-06T06:10:02.828Z",
   "ingredients": [
-    {
-      "name": "ayam",
-      "quantity": 3,
-      "unit": "kg"
-    },
-    {
-      "name": "daging sapi",
-      "quantity": 5,
-      "unit": "kg"
-    },
     {
       "name": "daging kambing",
       "quantity": 3,
       "unit": "kg"
     },
     {
-      "name": "telur ayam ",
+      "name": "kambing",
+      "quantity": 5,
+      "unit": "kg"
+    },
+    {
+      "name": "ikan ",
       "quantity": 1,
       "unit": "kg"
     }
   ],
-  "mainIngredient": "daging sapi",
+  "mainIngredient": "daging kambing",
   "filters": {
     "difficulty": "hard",
-    "maxTime": "45",
+    "maxTime": "60",
     "vegetarian": false,
     "halal": true
   },
-  "rawContentFromGemini": "{\n  \"recipes\": [\n    {\n      \"name\": \"Daging Sapi Tumis Bumbu Bali Pedas Manis\",\n      \"description\": \"Hidangan daging sapi iris tipis yang dimarinasi, ditumis cepat dengan bumbu Bali pedas manis yang kaya rempah, menghasilkan tekstur empuk dan rasa mendalam dalam waktu singkat.\",\n      \"prepTime\": 20,\n      \"cookTime\": 25,\n      \"servings\": 4,\n      \"difficulty\": \"hard\",\n      \"calories\": 500,\n      \"ingredients\": [\n        { \"name\": \"Daging Sapi (sirloin/tenderloin)\", \"quantity\": 300, \"unit\": \"gram\" },\n        { \"name\": \"Kecap asin\", \"quantity\": 1, \"unit\": \"sdm\" },\n        { \"name\": \"Jahe parut\", \"quantity\": 1, \"unit\": \"sdt\" },\n        { \"name\": \"Bawang putih cincang\", \"quantity\": 1, \"unit\": \"sdt\" },\n        { \"name\": \"Tepung maizena\", \"quantity\": 1, \"unit\": \"sdm\" },\n        { \"name\": \"Lada hitam bubuk\", \"quantity\": 0.5, \"unit\": \"sdt\" },\n        { \"name\": \"Bawang merah\", \"quantity\": 6, \"unit\": \"siung\" },\n        { \"name\": \"Bawang putih\", \"quantity\": 3, \"unit\": \"siung\" },\n        { \"name\": \"Cabai merah besar\", \"quantity\": 3, \"unit\": \"buah\" },\n        { \"name\": \"Cabai rawit merah\", \"quantity\": 7, \"unit\": \"buah\" },\n        { \"name\": \"Jahe\", \"quantity\": 2, \"unit\": \"cm\" },\n        { \"name\": \"Kunyit\", \"quantity\": 2, \"unit\": \"cm\" },\n        { \"name\": \"Kemiri\", \"quantity\": 3, \"unit\": \"butir\" },\n        { \"name\": \"Terasi\", \"quantity\": 0.5, \"unit\": \"sdt\" },\n        { \"name\": \"Kencur\", \"quantity\": 1, \"unit\": \"cm\" },\n        { \"name\": \"Kecap manis\", \"quantity\": 2, \"unit\": \"sdm\" },\n        { \"name\": \"Gula merah\", \"quantity\": 1, \"unit\": \"sdm\" },\n        { \"name\": \"Asam jawa\", \"quantity\": 1, \"unit\": \"sdt\" },\n        { \"name\": \"Air\", \"quantity\": 100, \"unit\": \"ml\" },\n        { \"name\": \"Sereh\", \"quantity\": 1, \"unit\": \"batang\" },\n        { \"name\": \"Daun jeruk\", \"quantity\": 3, \"unit\": \"lembar\" },\n        { \"name\": \"Daun salam\", \"quantity\": 1, \"unit\": \"lembar\" },\n        { \"name\": \"Minyak goreng\", \"quantity\": null, \"unit\": \"secukupnya\" },\n        { \"name\": \"Garam\", \"quantity\": null, \"unit\": \"secukupnya\" },\n        { \"name\": \"Lada putih\", \"quantity\": null, \"unit\": \"secukupnya\" }\n      ],\n      \"instructions\": [\n        \"Siapkan Daging: Iris tipis daging sapi melawan serat dengan ketebalan seragam sekitar 0.5 cm.\",\n        \"Marinasi Daging: Campurkan irisan daging dengan kecap asin, jahe parut, bawang putih cincang, tepung maizena, dan lada hitam bubuk. Aduk rata, sisihkan untuk dimarinasi minimal 15 menit.\",\n        \"Siapkan Bumbu Halus: Sangrai kemiri hingga harum. Bakar terasi sebentar hingga harum.\",\n        \"Haluskan Bumbu: Blender atau ulek bawang merah, bawang putih, cabai merah, cabai rawit, jahe, kunyit, kemiri sangrai, terasi bakar, dan kencur hingga benar-benar halus. Tambahkan sedikit minyak jika perlu untuk blender.\",\n        \"Siapkan Bumbu Aromatik & Saus: Memarkan sereh. Siapkan daun jeruk dan daun salam. Larutkan asam jawa dengan 2 sdm air panas, saring. Campurkan larutan asam jawa dengan kecap manis dan gula merah, aduk rata hingga gula larut.\",\n        \"Panaskan Wajan: Panaskan 2 sdm minyak goreng dalam wajan besar atau wok dengan api sedang-tinggi.\",\n        \"Sajikan Daging (Sear): Masukkan daging sapi yang sudah dimarinasi. Masak cepat (sear) hingga berubah warna dan sedikit kecoklatan di luar, sekitar 2-3 menit. Angkat daging, sisihkan.\",\n        \"Tumis Bumbu Halus: Dengan sisa minyak (atau tambahkan sedikit jika perlu), tumis bumbu halus hingga harum dan matang sempurna, sekitar 7-10 menit. Pastikan bumbu tidak langu.\",\n        \"Tambahkan Aromatik: Masukkan sereh memar, daun jeruk, dan daun salam ke dalam tumisan bumbu. Aduk rata, masak sebentar hingga harum.\",\n        \"Masukkan Saus: Tuang campuran saus (kecap manis, gula merah, asam jawa) dan 100 ml air ke dalam tumisan bumbu. Aduk rata.\",\n        \"Masak Saus: Kecilkan api, masak saus hingga mendidih dan sedikit mengental, sekitar 5-7 menit. Cicipi dan koreksi rasa dengan garam dan lada putih jika perlu.\",\n        \"Campurkan Daging: Masukkan kembali daging sapi yang sudah disajikan ke dalam wajan berisi saus. Aduk cepat hingga semua daging terlumuri bumbu dan saus meresap. Masak sebentar saja (1-2 menit) agar daging tidak overcook.\",\n        \"Penyelesaian: Angkat dan segera sajikan Daging Sapi Tumis Bumbu Bali Pedas Manis selagi hangat dengan nasi putih.\"\n      ],\n      \"matchPercentage\": 98,\n      \"imageKeyword\": \"Indonesian Beef\"\n    }\n  ]\n}",
+  "rawContentFromGemini": "{\n  \"recipes\": [\n    {\n      \"name\": \"Kambing Tumis Bumbu Bali Pedas Manis\",\n      \"description\": \"Daging kambing empuk yang dimarinasi, ditumis dengan bumbu Bali kaya rempah, dimasak dengan santan hingga meresap, dan sentuhan pedas manis yang kompleks.\",\n      \"prepTime\": 20,\n      \"cookTime\": 35,\n      \"servings\": 4,\n      \"difficulty\": \"hard\",\n      \"calories\": 480,\n      \"ingredients\": [\n        {\n          \"name\": \"Daging kambing\",\n          \"quantity\": 500,\n          \"unit\": \"gram\"\n        },\n        {\n          \"name\": \"Air jeruk nipis\",\n          \"quantity\": 1,\n          \"unit\": \"sdm\"\n        },\n        {\n          \"name\": \"Garam (marinasi)\",\n          \"quantity\": 0.5,\n          \"unit\": \"sdt\"\n        },\n        {\n          \"name\": \"Lada hitam bubuk\",\n          \"quantity\": 0.5,\n          \"unit\": \"sdt\"\n        },\n        {\n          \"name\": \"Bawang merah\",\n          \"quantity\": 8,\n          \"unit\": \"siung\"\n        },\n        {\n          \"name\": \"Bawang putih\",\n          \"quantity\": 4,\n          \"unit\": \"siung\"\n        },\n        {\n          \"name\": \"Cabai merah besar\",\n          \"quantity\": 3,\n          \"unit\": \"buah\"\n        },\n        {\n          \"name\": \"Cabai rawit merah\",\n          \"quantity\": 5,\n          \"unit\": \"buah\"\n        },\n        {\n          \"name\": \"Kemiri sangrai\",\n          \"quantity\": 3,\n          \"unit\": \"butir\"\n        },\n        {\n          \"name\": \"Jahe\",\n          \"quantity\": 2,\n          \"unit\": \"cm\"\n        },\n        {\n          \"name\": \"Kencur\",\n          \"quantity\": 1,\n          \"unit\": \"cm\"\n        },\n        {\n          \"name\": \"Kunyit bakar\",\n          \"quantity\": 2,\n          \"unit\": \"cm\"\n        },\n        {\n          \"name\": \"Terasi bakar\",\n          \"quantity\": 0.5,\n          \"unit\": \"sdt\"\n        },\n        {\n          \"name\": \"Garam (bumbu halus)\",\n          \"quantity\": 1,\n          \"unit\": \"sdt\"\n        },\n        {\n          \"name\": \"Gula merah\",\n          \"quantity\": 1,\n          \"unit\": \"sdm\"\n        },\n        {\n          \"name\": \"Sereh\",\n          \"quantity\": 1,\n          \"unit\": \"batang\"\n        },\n        {\n          \"name\": \"Daun jeruk\",\n          \"quantity\": 3,\n          \"unit\": \"lembar\"\n        },\n        {\n          \"name\": \"Daun salam\",\n          \"quantity\": 2,\n          \"unit\": \"lembar\"\n        },\n        {\n          \"name\": \"Santan kental\",\n          \"quantity\": 200,\n          \"unit\": \"ml\"\n        },\n        {\n          \"name\": \"Asam jawa (larutkan dengan 2 sdm air)\",\n          \"quantity\": 1,\n          \"unit\": \"sdt\"\n        },\n        {\n          \"name\": \"Minyak goreng\",\n          \"quantity\": 3,\n          \"unit\": \"sdm\"\n        },\n        {\n          \"name\": \"Air\",\n          \"quantity\": 150,\n          \"unit\": \"ml\"\n        },\n        {\n          \"name\": \"Kentang kecil\",\n          \"quantity\": 200,\n          \"unit\": \"gram\"\n        },\n        {\n          \"name\": \"Tomat\",\n          \"quantity\": 1,\n          \"unit\": \"buah\"\n        },\n        {\n          \"name\": \"Daun bawang (untuk taburan)\",\n          \"quantity\": 2,\n          \"unit\": \"batang\"\n        }\n      ],\n      \"instructions\": [\n        \"Potong daging kambing 500g ukuran 2x2 cm. Lumuri dengan 1 sdm air jeruk nipis, 1/2 sdt garam, dan 1/2 sdt lada hitam. Diamkan minimal 15 menit.\",\n        \"Haluskan bawang merah, bawang putih, cabai merah, cabai rawit, kemiri sangrai, jahe, kencur, kunyit bakar, terasi bakar, 1 sdt garam, dan 1 sdm gula merah.\",\n        \"Memarkan 1 batang sereh. Sisihkan 3 lembar daun jeruk dan 2 lembar daun salam.\",\n        \"Potong dadu kecil 200g kentang, goreng setengah matang. Potong dadu 1 buah tomat.\",\n        \"Panaskan 3 sdm minyak goreng dalam wajan besar. Tumis bumbu halus hingga harum dan matang, sekitar 5-7 menit.\",\n        \"Masukkan sereh memar, daun jeruk, dan daun salam ke dalam tumisan bumbu. Aduk rata hingga layu.\",\n        \"Masukkan daging kambing yang sudah dimarinasi. Aduk hingga berubah warna dan bumbu meresap ke daging, sekitar 5 menit.\",\n        \"Tuang 150 ml air dan 200 ml santan kental. Masukkan 1 sdt larutan asam jawa. Aduk perlahan.\",\n        \"Kecilkan api, tutup wajan. Masak selama 20-25 menit, aduk sesekali, hingga daging empuk dan kuah mengental serta bumbu meresap.\",\n        \"Setelah daging empuk, masukkan kentang goreng setengah matang dan potongan tomat. Aduk rata.\",\n        \"Masak sebentar hingga kentang matang sempurna dan tomat sedikit layu. Koreksi rasa, tambahkan garam atau gula jika perlu.\",\n        \"Matikan api. Angkat dan sajikan Kambing Tumis Bumbu Bali Pedas Manis selagi hangat dengan taburan irisan daun bawang.\"\n      ],\n      \"matchPercentage\": 100,\n      \"imageKeyword\": \"Indonesian goat stew\"\n    }\n  ]\n}",
   "normalizedRecipes": [
     {
-      "name": "Daging Sapi Tumis Bumbu Bali Pedas Manis",
+      "name": "Kambing Tumis Bumbu Bali Pedas Manis",
       "ingredients": [
         {
-          "name": "ayam",
-          "quantity": 1,
-          "unit": "secukupnya"
-        },
-        {
-          "name": "Daging Sapi (sirloin/tenderloin)",
-          "quantity": 300,
+          "name": "Daging kambing",
+          "quantity": 500,
           "unit": "gram"
         },
         {
-          "name": "Kecap asin",
+          "name": "Air jeruk nipis",
           "quantity": 1,
           "unit": "sdm"
         },
         {
-          "name": "Jahe parut",
-          "quantity": 1,
+          "name": "Garam (marinasi)",
+          "quantity": 0.5,
+          "unit": "sdt"
+        },
+        {
+          "name": "Lada hitam bubuk",
+          "quantity": 0.5,
           "unit": "sdt"
         }
       ],
       "difficulty": "hard",
       "prepTime": 20,
-      "cookTime": 25,
+      "cookTime": 35,
       "halalPass": true,
       "vegPass": false,
       "mainIngPass": true,
-      "otherProPass": false,
+      "otherProPass": true,
       "diffPass": true
     }
   ],
